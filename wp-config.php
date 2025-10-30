@@ -100,3 +100,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** Sets up WordPress vars and included files. */
 require_once ABSPATH . 'wp-settings.php';
+
+/** Prevent offical WordPress theme downloads. */
+define('CORE_UPGRADE_SKIP_NEW_BUNDLED', true);
