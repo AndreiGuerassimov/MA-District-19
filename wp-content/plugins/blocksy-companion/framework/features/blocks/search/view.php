@@ -1,19 +1,23 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 $search_through = blocksy_akg('search_through', $atts, [
 	'post' => true,
 	'page' => true,
 	'product' => true
 ]);
 
-$post_type = blc_theme_functions()->blocksy_get_search_post_type($search_through);
+$post_type = blocksy_companion_theme_functions()->blocksy_get_search_post_type($search_through);
 
 $class = trim('ct-search-box ' . blocksy_default_akg('className', $atts, ''));
 
 $icon = '<svg class="ct-icon ct-search-button-content" aria-hidden="true" width="15" height="15" viewBox="0 0 15 15"><path d="M14.8,13.7L12,11c0.9-1.2,1.5-2.6,1.5-4.2c0-3.7-3-6.8-6.8-6.8S0,3,0,6.8s3,6.8,6.8,6.8c1.6,0,3.1-0.6,4.2-1.5l2.8,2.8c0.1,0.1,0.3,0.2,0.5,0.2s0.4-0.1,0.5-0.2C15.1,14.5,15.1,14,14.8,13.7z M1.5,6.8c0-2.9,2.4-5.2,5.2-5.2S12,3.9,12,6.8S9.6,12,6.8,12S1.5,9.6,1.5,6.8z"/></svg>';
 
-if (function_exists('blc_get_icon') && isset($atts['icon'])) {
-	$icon = blc_get_icon([
+if (function_exists('blocksy_companion_get_icon') && isset($atts['icon'])) {
+	$icon = blocksy_companion_get_icon([
 		'icon_descriptor' => blocksy_akg('icon', $atts, [
 			'icon' => 'blc blc-search'
 		]),
@@ -129,7 +133,27 @@ if (isset($atts['style']['border']['radius'])) {
 		&&
 		! empty($atts['style']['border']['radius'])
 	) {
-		$style .= '--theme-form-field-border-radius:' . $atts['style']['border']['radius']['topLeft'] . $atts['style']['border']['radius']['topRight'] . $atts['style']['border']['radius']['bottomLeft'] . $atts['style']['border']['radius']['bottomRight'] . ';';
+		$top_left = $atts['style']['border']['radius']['topLeft'] ?? '0px';
+		$top_right = $atts['style']['border']['radius']['topRight'] ?? '0px';
+		$bottom_right = $atts['style']['border']['radius']['bottomRight'] ?? '0px';
+		$bottom_left = $atts['style']['border']['radius']['bottomLeft'] ?? '0px';
+
+		if (
+			$top_left === $top_right
+			&&
+			$top_left === $bottom_right
+			&&
+			$top_left === $bottom_left
+		) {
+			$style .= '--theme-form-field-border-radius:' . $top_left . ';';
+		} else {
+			$style .= '--theme-form-field-border-radius:' . join(' ', [
+				$top_left,
+				$top_right,
+				$bottom_right,
+				$bottom_left,
+			]) . ';';
+		}
 	}
 
 	unset($atts['style']['border']);
@@ -161,7 +185,7 @@ if (isset($atts['inputIconColorFocus'])) {
 	$button_colors['--theme-button-text-hover-color'] = "var(--wp--preset--color--$var)";
 }
 
-if ($buttonPosition === 'outside') {
+if (! ($buttonPosition === 'inside' && ! $buttonUseText)) {
 	$button_colors = array_merge(
 		$button_colors,
 		[

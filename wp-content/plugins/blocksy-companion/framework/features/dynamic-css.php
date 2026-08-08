@@ -2,6 +2,10 @@
 
 namespace Blocksy;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class DynamicCss {
 	private $wp_filesystem = null;
 
@@ -103,7 +107,7 @@ class DynamicCss {
 	}
 
 	public function should_use_files() {
-		return blc_theme_functions()->blocksy_get_theme_mod('dynamic_css_file', 'file') === 'file';
+		return blocksy_companion_theme_functions()->blocksy_get_theme_mod('dynamic_css_file', 'file') === 'file';
 	}
 
 	public function get_chunks() {
@@ -117,11 +121,15 @@ class DynamicCss {
 	}
 
 	public function enqueue_dynamic_css() {
-		if (is_admin()) {
+		if (
+			is_admin()
+			||
+			is_login()
+		) {
 			return;
 		}
 
-		if (! blc_theme_functions()->blocksy_has_dynamic_css_in_frontend()) {
+		if (! blocksy_companion_theme_functions()->blocksy_has_dynamic_css_in_frontend()) {
 			return;
 		}
 

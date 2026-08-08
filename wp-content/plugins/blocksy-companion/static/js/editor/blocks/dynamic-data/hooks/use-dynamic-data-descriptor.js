@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from '@wordpress/element'
 import { __ } from 'ct-i18n'
 import { getOptionsForBlock } from 'blocksy-options'
-import cachedFetch from 'ct-wordpress-helpers/cached-fetch'
+import cachedFetch from '@creative-themes/wordpress-helpers/cached-fetch'
 
 import { useTaxonomies } from '../../query/edit/utils/utils'
 
@@ -216,9 +216,20 @@ const useDynamicDataDescriptor = ({ postId, postType, termId, taxonomy }) => {
 		]
 	}
 
+	const linkFieldsChoices = additionalFields.flatMap((p) =>
+		p.fields
+			.filter((f) => f.type === 'text')
+			.map((f) => ({
+				group: p.provider_label,
+				key: `${p.provider}:${f.id}`,
+				value: f.label,
+			}))
+	)
+
 	return {
 		fullDescriptorLoaded,
 		fieldsDescriptor,
+		linkFieldsChoices,
 		options,
 		fieldsChoices: fieldsDescriptor.fields.reduce(
 			(acc, currentProvider) => [

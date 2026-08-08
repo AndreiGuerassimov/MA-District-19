@@ -1,9 +1,13 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 $field = blocksy_akg('field', $attributes, 'wp:title');
 
 if (strpos($field, 'woo:') === 0) {
-	blocksy_render_view_e(
+	blocksy_companion_render_view_e(
 		dirname(__FILE__) . '/views/woo-field.php',
 		[
 			'attributes' => $attributes,
@@ -22,7 +26,7 @@ if (strpos($field, 'wp:') === 0) {
 		&&
 		$field !== 'wp:archive_image'
 	) {
-		blocksy_render_view_e(
+		blocksy_companion_render_view_e(
 			dirname(__FILE__) . '/views/wp-field.php',
 			[
 				'attributes' => $attributes,
@@ -36,7 +40,7 @@ if (strpos($field, 'wp:') === 0) {
 		global $blocksy_term_obj;
 
 		if (isset($blocksy_term_obj)) {
-			blocksy_render_view_e(
+			blocksy_companion_render_view_e(
 				dirname(__FILE__) . '/views/archive-image-field.php',
 				[
 					'attributes' => $attributes,
@@ -49,7 +53,7 @@ if (strpos($field, 'wp:') === 0) {
 	}
 
 	if ($field === 'wp:archive_image') {
-		blocksy_render_view_e(
+		blocksy_companion_render_view_e(
 			dirname(__FILE__) . '/views/archive-image-field.php',
 			[
 				'attributes' => $attributes,
@@ -60,7 +64,7 @@ if (strpos($field, 'wp:') === 0) {
 	}
 
 	if ($field === 'wp:featured_image') {
-		blocksy_render_view_e(
+		blocksy_companion_render_view_e(
 			dirname(__FILE__) . '/views/image-field.php',
 			[
 				'attributes' => $attributes,
@@ -73,7 +77,7 @@ if (strpos($field, 'wp:') === 0) {
 	}
 
 	if ($field === 'wp:author_avatar') {
-		blocksy_render_view_e(
+		blocksy_companion_render_view_e(
 			dirname(__FILE__) . '/views/avatar-field.php',
 			[
 				'attributes' => $attributes,
@@ -85,14 +89,14 @@ if (strpos($field, 'wp:') === 0) {
 	return;
 }
 
-if (! function_exists('blc_get_ext')) {
+if (! function_exists('blocksy_companion_get_ext')) {
 	return;
 }
 
 if (
-	! blc_get_ext('post-types-extra')
+	! blocksy_companion_get_ext('post-types-extra')
 	||
-	! blc_get_ext('post-types-extra')->dynamic_data
+	! blocksy_companion_get_ext('post-types-extra')->dynamic_data
 ) {
 	return;
 }
@@ -103,7 +107,7 @@ if (count($field_descriptor) < 2) {
 	return;
 }
 
-$field_render = blc_get_ext('post-types-extra')
+$field_render = blocksy_companion_get_ext('post-types-extra')
 	->dynamic_data
 	->custom_fields_manager
 	->render_field(
@@ -120,7 +124,7 @@ if (! $field_render) {
 
 if ($field_render['type'] === \Blocksy\Extensions\PostTypesExtra\CustomField::$TYPE_IMAGE) {
 	if (isset($field_render['value']['id'])) {
-		blocksy_render_view_e(
+		blocksy_companion_render_view_e(
 			dirname(__FILE__) . '/views/image-field.php',
 			[
 				'attributes' => $attributes,
@@ -133,7 +137,7 @@ if ($field_render['type'] === \Blocksy\Extensions\PostTypesExtra\CustomField::$T
 	return;
 }
 
-blocksy_render_view_e(
+blocksy_companion_render_view_e(
 	dirname(__FILE__) . '/views/custom-text-field.php',
 	[
 		'attributes' => $attributes,

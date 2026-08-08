@@ -1,5 +1,9 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 $POSITION_CLASSNAMES = [
 	'top left' => 'is-position-top-left',
 	'top center' => 'is-position-top-center',
@@ -208,5 +212,6 @@ $content = blocksy_html_tag(
 	)
 );
 
+wp_enqueue_style('wp-block-cover');
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo $content;

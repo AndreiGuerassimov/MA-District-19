@@ -2,6 +2,10 @@
 
 namespace Blocksy;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class Plugin {
 	/**
 	 * Blocksy instance.
@@ -36,9 +40,11 @@ class Plugin {
 
 	public $inline_styles_collector = null;
 
+	public $blocks = null;
+
 	private $is_blocksy = '__NOT_SET__';
 	public $is_blocksy_data = null;
-	private $desired_blocksy_version = '2.1.16-dev1';
+	private $desired_blocksy_version = '2.1.37-dev1';
 
 	private $request_uri = '';
 
@@ -100,7 +106,7 @@ class Plugin {
 					'blocksy-styles',
 					BLOCKSY_URL . 'static/bundle/options.min.css',
 					[],
-					blc_get_version()
+					blocksy_companion_get_version()
 				);
 
 				$current_screen = get_current_screen();
@@ -111,7 +117,7 @@ class Plugin {
 					return;
 				}
 
-				$locale_data_ct = blc_get_jed_locale_data('blocksy-companion');
+				$locale_data_ct = blocksy_companion_get_jed_locale_data('blocksy-companion');
 
 				wp_add_inline_script(
 					'wp-i18n',
@@ -133,9 +139,9 @@ class Plugin {
 		});
 
 		if (
-			blc_can_use_premium_code()
+			blocksy_companion_can_use_premium_code()
 			&&
-			blc_get_capabilities()->has_feature('base_pro')
+			blocksy_companion_get_capabilities()->has_feature('base_pro')
 		) {
 			$this->premium = new Premium();
 		}
@@ -144,7 +150,7 @@ class Plugin {
 
 		$this->header = new HeaderAdditions();
 
-		new Editor\Blocks();
+		$this->blocks = new Editor\Blocks();
 
 		$this->feat_google_analytics = new GoogleAnalytics();
 		new OpenGraphMetaData();
@@ -185,6 +191,8 @@ class Plugin {
 		require_once BLOCKSY_PATH . '/framework/helpers/theme-functions.php';
 		require_once BLOCKSY_PATH . '/framework/helpers/helpers.php';
 		require_once BLOCKSY_PATH . '/framework/helpers/exts.php';
+		require_once BLOCKSY_PATH . '/framework/helpers/woo.php';
+		require_once BLOCKSY_PATH . '/framework/helpers/backwards-compat.php';
 
 		// Some plugins override the REQUEST_URI server variable and we need to
 		// persist the original value for use within the blocksy_current_url()
@@ -250,7 +258,7 @@ class Plugin {
 
 			if (! empty($maybe_minimum_companion_version)) {
 				$is_companion_version_ok = version_compare(
-					blc_get_version(),
+					blocksy_companion_get_version(),
 					$maybe_minimum_companion_version
 				) > -1;
 			}
@@ -349,14 +357,14 @@ class Plugin {
 				}
 			}
 
-			if ($is_cli) {
+			if ($is_cli && method_exists('\WP_CLI', 'get_config')) {
 				$cli_config = \WP_CLI::get_config();
 
 				$should_skip_themes_wp_cli = false;
 
 				// Proper way to handle skip-themes
 				// https://github.com/wp-cli/wp-cli/blob/a9fabc07adf274274ba6bcc0f0e081f1fab1220b/php/utils-wp.php#L276
-				if (isset($cli_config['skip-themes'])) {
+				if (is_array($cli_config) && isset($cli_config['skip-themes'])) {
 					if ($cli_config['skip-themes'] === true) {
 						$should_skip_themes_wp_cli = true;
 					}
@@ -382,6 +390,24 @@ class Plugin {
 				// This causes the theme to be skipped and the companion plugin
 				// to run, which causes lots of issues in various environments.
 				if ($should_skip_themes_wp_cli) {
+					$is_correct_theme = false;
+					$is_correct_version = false;
+				}
+			}
+
+			if (! function_exists('is_plugin_active')) {
+				include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+			}
+
+			if (is_plugin_active('breakdance/plugin.php')) {
+				$is_theme_disabled = (string) json_decode(
+					get_option('breakdance_is_theme_disabled', 'false'),
+					true
+				);
+
+				$is_theme_disabled = $is_theme_disabled === 'yes' || boolval($_GET['builder_preview'] ?? false);
+
+				if ($is_theme_disabled) {
 					$is_correct_theme = false;
 					$is_correct_version = false;
 				}
@@ -435,7 +461,7 @@ class Plugin {
 			'blocksy-admin-scripts',
 			BLOCKSY_URL . 'static/bundle/options.js',
 			$deps,
-			blc_get_version(),
+			blocksy_companion_get_version(),
 			true
 		);
 

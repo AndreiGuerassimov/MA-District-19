@@ -2,6 +2,10 @@
 
 namespace Blocksy;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class DemoInstallFinalActions {
 	protected $is_ajax_request = true;
 
@@ -79,10 +83,17 @@ class DemoInstallFinalActions {
 		}
 
 		$this->maybe_activate_elementor_experimental_container();
+		$this->maybe_recreate_elementor_kit();
 
 		$this->update_counts_for_all_terms();
 
 		$this->patch_attachment_ids_in_mods();
+		$this->patch_header_conditions();
+		$this->patch_nav_menu_locations();
+
+		// Clean up duplicate menu items that may have been created during chunked imports
+		// due to race conditions with concurrent PHP processes
+		$this->cleanup_duplicate_menu_items();
 
 		do_action('customize_save_after');
 		do_action('blocksy:dynamic-css:refresh-caches');
@@ -312,12 +323,12 @@ class DemoInstallFinalActions {
 	}
 
 	public function update_counts_for_all_terms() {
-		if (! blc_theme_functions()->blocksy_manager()) {
+		if (! blocksy_companion_theme_functions()->blocksy_manager()) {
 			return;
 		}
 
 		$taxonomies = array_reduce(
-			blc_theme_functions()->blocksy_manager()->post_types->get_supported_post_types(),
+			blocksy_companion_theme_functions()->blocksy_manager()->post_types->get_supported_post_types(),
 			function ($result, $item) {
 				return array_unique(array_merge(
 					$result,
@@ -374,6 +385,19 @@ class DemoInstallFinalActions {
 							$requestsPayload
 						);
 					}
+
+					if (
+						! isset($section['settings']['transparent_conditions'])
+						||
+						! is_array($section['settings']['transparent_conditions'])
+					) {
+						continue;
+					}
+
+					$new_val['sections'][$section_index]['settings']['transparent_conditions'] = $this->patch_transparent_conditions(
+						$section['settings']['transparent_conditions'],
+						$requestsPayload['processed_posts']
+					);
 				}
 
 				set_theme_mod($key, $new_val);
@@ -512,6 +536,165 @@ class DemoInstallFinalActions {
 		}
 
 		return $array;
+	}
+
+	public function patch_header_conditions() {
+		$body = json_decode(file_get_contents('php://input'), true);
+
+		if (! $body) {
+			return;
+		}
+
+		$requestsPayload = [];
+
+		if (isset($body['requestsPayload'])) {
+			$requestsPayload = $body['requestsPayload'];
+		}
+
+		if (! isset($requestsPayload['processed_posts'])) {
+			return;
+		}
+
+		Plugin::instance()->header->patch_conditions(
+			$requestsPayload['processed_posts']
+		);
+	}
+
+	public function patch_transparent_conditions($transparent_conditions, $processed_posts) {
+		$has_relation = isset($transparent_conditions['relation']);
+
+		$conditions_list = $has_relation
+			? $transparent_conditions['conditions']
+			: $transparent_conditions;
+
+		foreach ($conditions_list as $cond_index => $single_condition) {
+			if (! is_array($single_condition)) {
+				continue;
+			}
+
+			if (
+				isset($single_condition['payload']['post_id'])
+				&&
+				isset($processed_posts[intval($single_condition['payload']['post_id'])])
+			) {
+				$patched_id = intval(
+					$processed_posts[intval($single_condition['payload']['post_id'])]
+				);
+
+				if ($has_relation) {
+					$transparent_conditions['conditions'][$cond_index]['payload']['post_id'] = $patched_id;
+				} else {
+					$transparent_conditions[$cond_index]['payload']['post_id'] = $patched_id;
+				}
+			}
+		}
+
+		return $transparent_conditions;
+	}
+
+	public function patch_nav_menu_locations() {
+		$body = json_decode(file_get_contents('php://input'), true);
+
+		if (! $body) {
+			return;
+		}
+
+		$requestsPayload = [];
+
+		if (isset($body['requestsPayload'])) {
+			$requestsPayload = $body['requestsPayload'];
+		}
+
+		if (! isset($requestsPayload['processed_terms'])) {
+			return;
+		}
+
+		$processed_terms = $requestsPayload['processed_terms'];
+
+		$old_nav_menu_locations = get_theme_mod('nav_menu_locations', []);
+		$should_update_nav_menu_locations = false;
+
+		foreach ($old_nav_menu_locations as $location => $menu_id) {
+			if (isset($processed_terms[$menu_id])) {
+				$should_update_nav_menu_locations = true;
+
+				$old_nav_menu_locations[
+					$location
+				] = $processed_terms[$menu_id];
+			}
+		}
+
+		if ($should_update_nav_menu_locations) {
+			set_theme_mod('nav_menu_locations', $old_nav_menu_locations);
+		}
+	}
+
+	/**
+	 * Recreate Elementor default kit if it doesn't exist.
+	 *
+	 * After demo import, Elementor may show a warning that the default kit
+	 * is missing. This method creates a new default kit if there isn't one.
+	 */
+	public function maybe_recreate_elementor_kit() {
+		if (! defined('ELEMENTOR_VERSION')) {
+			return;
+		}
+
+		if (! class_exists('\Elementor\Plugin')) {
+			return;
+		}
+
+		$kit = \Elementor\Plugin::$instance->kits_manager->get_active_kit();
+
+		// If there's already an active kit, do nothing
+		if ($kit->get_id()) {
+			return;
+		}
+
+		$created_default_kit = \Elementor\Plugin::$instance->kits_manager->create_default();
+
+		if (! $created_default_kit) {
+			return;
+		}
+
+		update_option(\Elementor\Core\Kits\Manager::OPTION_ACTIVE, $created_default_kit);
+	}
+
+	/**
+	 * Clean up duplicate menu items created during chunked imports.
+	 *
+	 * During chunked imports, race conditions between concurrent PHP processes
+	 * can result in duplicate menu items being created. This has been observed
+	 * on EasyWP (Namecheap) hosting so far. This method finds all menu items
+	 * with the same blocksy_original_post_id and keeps only the one with the
+	 * lowest ID, deleting the rest.
+	 */
+	public function cleanup_duplicate_menu_items() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$duplicates = $wpdb->get_results("
+			SELECT meta_value as original_id, GROUP_CONCAT(post_id ORDER BY post_id) as post_ids
+			FROM {$wpdb->postmeta}
+			WHERE meta_key = 'blocksy_original_post_id'
+			GROUP BY meta_value
+			HAVING COUNT(*) > 1
+		");
+
+		if (empty($duplicates)) {
+			return;
+		}
+
+		foreach ($duplicates as $duplicate) {
+			$post_ids = explode(',', $duplicate->post_ids);
+
+			// Keep the first one (lowest ID), delete the rest
+			array_shift($post_ids);
+
+			foreach ($post_ids as $post_id) {
+				wp_delete_post((int) $post_id, true);
+			}
+		}
 	}
 }
 

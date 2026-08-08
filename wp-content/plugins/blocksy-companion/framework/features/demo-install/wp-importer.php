@@ -1,5 +1,9 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 // phpcs:ignoreFile
 
 /** Display verbose errors */
@@ -167,6 +171,46 @@ class Blocksy_WP_Import extends WP_Importer {
 		$this->process_categories();
 		$this->process_tags();
 		$this->process_terms();
+		$this->process_posts();
+		wp_suspend_cache_invalidation( false );
+
+		// update incorrect/missing information in the DB
+		$this->backfill_parents();
+		$this->backfill_attachment_urls();
+		$this->remap_featured_images();
+
+		$this->import_end();
+	}
+
+	// TODO: partial import function, added by us
+	function import_partial($file) {
+		add_filter( 'import_post_meta_key', array( $this, 'is_valid_meta_key' ) );
+		add_filter( 'http_request_timeout', array( &$this, 'bump_request_timeout' ) );
+
+		// Simplified import start without any hooks
+		$import_data = $this->parse( $file );
+
+		if ( is_wp_error( $import_data ) ) {
+			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'blocksy-companion' ) . '</strong><br />';
+			echo esc_html( $import_data->get_error_message() ) . '</p>';
+			$this->footer();
+			die();
+		}
+
+		$this->version = $import_data['version'];
+		$this->get_authors_from_import( $import_data );
+		$this->posts = $import_data['posts'];
+		$this->terms = $import_data['terms'];
+		$this->categories = $import_data['categories'];
+		$this->tags = $import_data['tags'];
+		$this->base_url = esc_url( $import_data['base_url'] );
+
+		wp_defer_term_counting( true );
+		wp_defer_comment_counting( true );
+
+		do_action( 'import_start_partial' );
+
+		wp_suspend_cache_invalidation( true );
 		$this->process_posts();
 		wp_suspend_cache_invalidation( false );
 
@@ -645,7 +689,13 @@ class Blocksy_WP_Import extends WP_Importer {
 			$termarr = array( 'slug' => $term['slug'], 'description' => $description, 'parent' => intval($parent) );
 
 			if (! taxonomy_exists($term['term_taxonomy'])) {
-				register_taxonomy($term['term_taxonomy'], 'post');
+				$object_types = $this->get_taxonomy_object_types($term['term_taxonomy']);
+
+				if (empty($object_types)) {
+					$object_types = ['post'];
+				}
+
+				register_taxonomy($term['term_taxonomy'], $object_types);
 			}
 
 			$id = wp_insert_term( $term['term_name'], $term['term_taxonomy'], $termarr );
@@ -1183,7 +1233,6 @@ class Blocksy_WP_Import extends WP_Importer {
 			'menu-item-status' => $item['status']
 		);
 
-
 		$id = wp_update_nav_menu_item( $menu_id, 0, $args );
 
 		if (! empty($item['postmeta'])) {
@@ -1197,7 +1246,6 @@ class Blocksy_WP_Import extends WP_Importer {
 						$value = maybe_unserialize(wp_unslash($meta['value']));
 					}
 
-					// add_post_meta($post_id, wp_slash($key), wp_slash_strings_only($value), true);
 					add_post_meta($id, wp_slash($key), $value, true);
 
 					do_action('import_post_meta', $id, $key, $value);
@@ -1205,8 +1253,12 @@ class Blocksy_WP_Import extends WP_Importer {
 			}
 		}
 
-		if ( $id && ! is_wp_error( $id ) )
+		if ( $id && ! is_wp_error( $id ) ) {
 			$this->processed_menu_items[intval($item['post_id'])] = (int) $id;
+			update_post_meta($id, 'blocksy_demos_imported_post', true);
+			// Store original post_id for duplicate cleanup in finish step
+			update_post_meta($id, 'blocksy_original_post_id', $item['post_id']);
+		}
 	}
 
 	/**
@@ -1296,7 +1348,7 @@ class Blocksy_WP_Import extends WP_Importer {
 
 			return new WP_Error(
 				'import_file_error',
-				blc_safe_sprintf(
+				blocksy_companion_safe_sprintf(
 					// translators: %1$d is the HTTP response code, %2$s is the HTTP response message.
 					__(
 						'Remote server returned error response %1$d %2$s',
@@ -1339,7 +1391,7 @@ class Blocksy_WP_Import extends WP_Importer {
 
 			return new WP_Error(
 				'import_file_error',
-				blc_safe_sprintf(
+				blocksy_companion_safe_sprintf(
 					// translators: %s is the maximum file size allowed.
 					__(
 						'Remote file is too large, limit is %s',
@@ -1543,6 +1595,39 @@ class Blocksy_WP_Import extends WP_Importer {
 	 */
 	function bump_request_timeout( $val ) {
 		return 60;
+	}
+
+	/**
+	 * Get object types for a taxonomy by scanning which posts use it.
+	 *
+	 * @param string $taxonomy_name The taxonomy slug to look for.
+	 * @return array Array of post type names that use this taxonomy.
+	 */
+	function get_taxonomy_object_types($taxonomy_name) {
+		if (empty($this->posts)) {
+			return [];
+		}
+
+		$object_types = [];
+
+		foreach ($this->posts as $post) {
+			if (empty($post['terms']) || empty($post['post_type'])) {
+				continue;
+			}
+
+			foreach ($post['terms'] as $term) {
+				if (
+					isset($term['domain'])
+					&&
+					$term['domain'] === $taxonomy_name
+				) {
+					$object_types[$post['post_type']] = true;
+					break;
+				}
+			}
+		}
+
+		return array_keys($object_types);
 	}
 
 	// return the difference in length between two strings

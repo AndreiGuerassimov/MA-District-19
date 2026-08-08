@@ -2,36 +2,47 @@
 
 namespace Blocksy;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class AccountAuth {
 	public function __construct() {
+
+		add_filter('blocksy:general:ct-scripts-localizations', function ($data) {
+			$data['login_generic_error_msg'] = __('An unexpected error occurred. Please try again later.', 'blocksy-companion');
+
+			return $data;
+		});
+
 		add_action(
 			'wp_ajax_blc_implement_user_registration',
-			[$this, 'blc_implement_user_registration']
+			[$this, 'implement_user_registration']
 		);
 
 		add_action(
 			'wp_ajax_nopriv_blc_implement_user_registration',
-			[$this, 'blc_implement_user_registration']
+			[$this, 'implement_user_registration']
 		);
 
 		add_action(
 			'wp_ajax_blc_implement_user_login',
-			[$this, 'blc_implement_user_login']
+			[$this, 'implement_user_login']
 		);
 
 		add_action(
 			'wp_ajax_nopriv_blc_implement_user_login',
-			[$this, 'blc_implement_user_login']
+			[$this, 'implement_user_login']
 		);
 
 		add_action(
 			'wp_ajax_blc_implement_user_lostpassword',
-			[$this, 'blc_implement_user_lostpassword']
+			[$this, 'implement_user_lostpassword']
 		);
 
 		add_action(
 			'wp_ajax_nopriv_blc_implement_user_lostpassword',
-			[$this, 'blc_implement_user_lostpassword']
+			[$this, 'implement_user_lostpassword']
 		);
 
 		add_filter('bm_rgn_is_modal', function ($value) {
@@ -49,7 +60,7 @@ class AccountAuth {
 		});
 	}
 
-	public function blc_implement_user_lostpassword() {
+	public function implement_user_lostpassword() {
 		do_action('blocksy:account:user-flow:before-lostpassword');
 
 		ob_start();
@@ -85,7 +96,7 @@ class AccountAuth {
 					foreach ($notices['error'] as $notice) {
 						$errors->add(
 							'invalidcombo',
-							blc_safe_sprintf(
+							blocksy_companion_safe_sprintf(
 								// translators: %s is the error message.
 								__('<strong>Error</strong>: %s', 'blocksy-companion'),
 								$notice['notice']
@@ -104,7 +115,7 @@ class AccountAuth {
 
 			$errors->add(
 				'confirm',
-				blc_safe_sprintf(
+				blocksy_companion_safe_sprintf(
 					/* translators: 1: link open 2: link close */
 					__(
 						'Check your email for the confirmation link, then visit the %1$slogin page%2$s.',
@@ -147,7 +158,7 @@ class AccountAuth {
 		);
 	}
 
-	public function blc_implement_user_registration() {
+	public function implement_user_registration() {
 		do_action('blocksy:account:user-flow:before-registration');
 
 		ob_start();
@@ -232,7 +243,7 @@ class AccountAuth {
 			$errors = new \WP_Error();
 
 			if ($this->get_registration_strategy() === 'woocommerce') {
-				$error_message = blc_safe_sprintf(
+				$error_message = blocksy_companion_safe_sprintf(
 					/* translators: 1: link open 2: link close */
 					__(
 						'Your account was created successfully. Your login details have been sent to your email address. Please visit the %1$slogin page%2$s.',
@@ -243,7 +254,7 @@ class AccountAuth {
 				);
 
 				if ('yes' === get_option('woocommerce_registration_generate_password')) {
-					$error_message = blc_safe_sprintf(
+					$error_message = blocksy_companion_safe_sprintf(
 						/* translators: 1: link open 2: link close */
 						__(
 							'Your account was created successfully and a password has been sent to your email address. Please visit the %1$slogin page%2$s.',
@@ -258,7 +269,7 @@ class AccountAuth {
 			} else {
 				$errors->add(
 					'registered',
-					blc_safe_sprintf(
+					blocksy_companion_safe_sprintf(
 						/* translators: 1: link open 2: link close */
 						__(
 							'Registration complete. Please check your email, then visit the %1$slogin page%2$s.',
@@ -288,7 +299,7 @@ class AccountAuth {
 		wp_die();
 	}
 
-	public function blc_implement_user_login() {
+	public function implement_user_login() {
 		do_action('blocksy:account:user-flow:before-login');
 
 		add_filter(

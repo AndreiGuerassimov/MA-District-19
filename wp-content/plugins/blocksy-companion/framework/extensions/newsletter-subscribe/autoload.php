@@ -2,6 +2,7 @@
 
 $autoload = [
 	'Provider' => 'includes/provider.php',
+	'NewsletterMessages' => 'includes/messages.php',
 
 	'MailchimpProvider' => 'providers/mailchimp.php',
 	'BrevoProvider' => 'providers/brevo.php',
@@ -16,5 +17,5 @@ $autoload = [
 	'EmailOctopusProvider' => 'providers/emailoctopus.php',
 	'FluentCRMProvider' => 'providers/fluent-crm.php',
 	'KlaviyoProvider' => 'providers/klaviyo.php',
+	'SendyProvider' => 'providers/sendy.php',
 ];
-

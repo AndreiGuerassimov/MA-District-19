@@ -2,7 +2,19 @@
 
 namespace Blocksy\Editor\Blocks;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class Query {
+	private $current_wp_query = null;
+
+	private function maybe_enqueue_pagination_styles() {
+		if (wp_style_is('ct-pagination-styles', 'registered')) {
+			wp_enqueue_style('ct-pagination-styles');
+		}
+	}
+
 	public function __construct() {
 		add_action('wp_ajax_blocksy_get_posts_block_data', function () {
 			if (! current_user_can('edit_posts')) {
@@ -21,8 +33,8 @@ class Query {
 
 			$post_types = [];
 
-			if (blc_theme_functions()->blocksy_manager()) {
-				$post_types = blc_theme_functions()->blocksy_manager()->post_types->get_supported_post_types();
+			if (blocksy_companion_theme_functions()->blocksy_manager()) {
+				$post_types = blocksy_companion_theme_functions()->blocksy_manager()->post_types->get_supported_post_types();
 			}
 
 			foreach ($post_types as $single_post_type) {
@@ -124,6 +136,7 @@ class Query {
 				$context = $instance->context;
 
 				$is_slideshow_layout = $context['has_slideshow'] === 'yes';
+				$has_item_link = blocksy_akg('has_item_link', $block['attrs'], 'no') === 'yes';
 				$layout = blocksy_akg('layout/type', $block['attrs'], 'default');
 				$is_grid_layout = $layout === 'grid';
 
@@ -141,6 +154,10 @@ class Query {
 					$layout !== 'grid'
 				) {
 					$class[] = 'is-layout-flow';
+				}
+
+				if ($has_item_link) {
+					$class []= 'ct-has-link-overlay';
 				}
 
 				$processor->set_attribute('class', implode(' ', $class));
@@ -238,7 +255,7 @@ class Query {
 							blocksy_mutate_selector([
 								'selector' => $root_selector,
 								'operation' => 'suffix',
-								'to_add' => ':where(.is-layout-flow > *)'
+								'to_add' => ':where(.wp-block-post)'
 							])
 						),
 
@@ -367,6 +384,8 @@ class Query {
 							'desktopColumns' => '3',
 							'tabletColumns' => '2',
 							'mobileColumns' => '1',
+
+							'has_item_link' => 'no'
 						]
 					);
 
@@ -375,6 +394,7 @@ class Query {
 						[
 							'has_slideshow' => 'no',
 							'has_slideshow_arrows' => 'yes',
+							'has_slideshow_pills' => 'no',
 							'has_slideshow_autoplay' => 'no',
 							'has_slideshow_autoplay_speed' => 3,
 						]
@@ -385,6 +405,12 @@ class Query {
 					$content = '';
 
 					$wrapper_attributes = get_block_wrapper_attributes();
+
+					$this->current_wp_query = $query;
+
+					if ($is_slideshow_layout) {
+						wp_enqueue_style('ct-flexy-styles');
+					}
 
 					while ($query->have_posts()) {
 						$query->the_post();
@@ -418,7 +444,22 @@ class Query {
 						// Wrap the render inner blocks in a `li` element with the appropriate post classes.
 						$post_classes = implode(' ', get_post_class('wp-block-post is-layout-flow'));
 
-						$single_item = '<article' . ' class="' . esc_attr($post_classes) . '">' . $block_content . '</article>';
+						$link_html = '';
+
+						if ($attributes['has_item_link'] === 'yes') {
+							$link_attributes = [
+								'href' => get_permalink(),
+								'class' => 'ct-link-overlay',
+							];
+
+							$link_html = blocksy_html_tag(
+								'a',
+								$link_attributes,
+								''
+							);
+						}
+
+						$single_item = '<article' . ' class="' . esc_attr($post_classes) . '">' . $link_html . $block_content . '</article>';
 
 						if ($is_slideshow_layout) {
 							$single_item = blocksy_html_tag(
@@ -435,8 +476,21 @@ class Query {
 
 					if ($is_slideshow_layout) {
 						$arrows = '';
+						$pills = '';
 
 						if ($context['has_slideshow_arrows'] === 'yes') {
+							/**
+							 * Filters the SVG icons used for Flexy slideshow navigation arrows.
+							 *
+							 * @since 2.0.98
+							 *
+							 * @param array $arrow_icons {
+							 *     SVG markup for slideshow navigation arrows.
+							 *
+							 *     @type string $prev Previous arrow SVG markup.
+							 *     @type string $next Next arrow SVG markup.
+							 * }
+							 */
 							$arrow_icons = apply_filters(
 								'blocksy:flexy:arrows',
 								[
@@ -447,6 +501,19 @@ class Query {
 
 							$arrows = '<span class="flexy-arrow-prev" data-position="outside">' . $arrow_icons['prev'] . '</span>
 								<span class="flexy-arrow-next" data-position="outside">' . $arrow_icons['next'] . '</span>';
+						}
+
+						if ($context['has_slideshow_pills'] === 'yes') {
+							ob_start();
+							blocksy_companion_theme_functions()->blocksy_flexy_pills([
+								'pills_count' => $query->post_count,
+								'pills_container_attr' => [
+									'data-flexy' => $query->post_count <= 5
+										? 'no:paused'
+										: 'no',
+								],
+							]);
+							$pills = ob_get_clean();
 						}
 
 						$content = blocksy_html_tag(
@@ -472,14 +539,13 @@ class Query {
 									blocksy_html_tag(
 										'div',
 										[
-											'class' => 'flexy-items',
-											'data-height' => 'dynamic'
+											'class' => 'flexy-items'
 										],
 										$content
 									)
 								) .
 								$arrows
-							)
+							) . $pills
 						);
 					}
 
@@ -489,6 +555,8 @@ class Query {
 					 * Since we use two custom loops, it's safest to always restore.
 					 */
 					wp_reset_postdata();
+
+					$this->current_wp_query = null;
 
 					$result = blocksy_safe_sprintf(
 						'<div %1$s>%2$s</div>',
@@ -501,6 +569,8 @@ class Query {
 						&&
 						! $is_slideshow_layout
 					) {
+						$this->maybe_enqueue_pagination_styles();
+
 						$prefix = self::get_prefix_for($block->context);
 
 						$pagination_data = $this->get_pagination_descriptor($block->context);
@@ -529,7 +599,7 @@ class Query {
 				];
 
 				foreach ($posts_block_patterns as $posts_block_pattern) {
-					$pattern_data = blc_theme_functions()->blocksy_get_variables_from_file(
+					$pattern_data = blocksy_companion_get_variables_from_file(
 						__DIR__ . '/block-patterns/' . $posts_block_pattern . '.php',
 						['pattern' => []]
 					);
@@ -572,7 +642,7 @@ class Query {
 			if (
 				is_string($process_value)
 				&&
-				str_contains($process_value, 'var:preset|spacing|')
+				strpos($process_value, 'var:preset|spacing|') !== false
 			) {
 				$index_to_splice = strrpos($process_value, '|') + 1;
 				$slug            = _wp_to_kebab_case(substr($process_value, $index_to_splice));
@@ -607,6 +677,7 @@ class Query {
 				// yes | no
 				'has_slideshow' => 'no',
 				'has_slideshow_arrows' => 'yes',
+				'has_slideshow_pills' => 'no',
 				'has_slideshow_autoplay' => 'no',
 				'has_slideshow_autoplay_speed' => 3,
 
@@ -661,19 +732,35 @@ class Query {
 
 		$prev_query = $wp_query;
 
+		// Maybe we should actually replace the main query here always?
 		if (wp_doing_ajax()) {
 			$wp_query = $query;
 		}
 
 		$pagination_data = $this->get_pagination_descriptor($attributes);
 
+		$this->current_wp_query = $query;
+
 		ob_start();
+
+		if (
+			$attributes['has_pagination'] === 'yes'
+			&&
+			$attributes['has_slideshow'] !== 'yes'
+		) {
+			$this->maybe_enqueue_pagination_styles();
+		}
+
+		if ($attributes['has_slideshow'] === 'yes') {
+			wp_enqueue_style('ct-flexy-styles');
+		}
 
 		blocksy_render_archive_cards([
 			'prefix' => $prefix,
 			'query' => $query,
 			'has_slideshow' => $attributes['has_slideshow'] === 'yes',
 			'has_slideshow_arrows' => $attributes['has_slideshow_arrows'] === 'yes',
+			'has_slideshow_pills' => $attributes['has_slideshow_pills'] === 'yes',
 			'has_slideshow_autoplay' => $attributes['has_slideshow_autoplay'] === 'yes',
 			'has_slideshow_autoplay_speed' => $attributes['has_slideshow_autoplay_speed'],
 			'has_pagination' => $attributes['has_pagination'] === 'yes' && $attributes['has_slideshow'] !== 'yes',
@@ -687,6 +774,9 @@ class Query {
 
 		wp_reset_postdata();
 
+		$this->current_wp_query = null;
+
+		// Maybe we should actually replace the main query here always?
 		if (wp_doing_ajax()) {
 			$wp_query = $prev_query;
 		}
@@ -696,10 +786,10 @@ class Query {
 		$mobile_css = new \Blocksy_Css_Injector();
 
 		if ($attributes['has_slideshow'] === 'yes') {
-			$structure = blc_theme_functions()->blocksy_get_theme_mod($prefix . '_structure', 'grid');
+			$structure = blocksy_companion_theme_functions()->blocksy_get_theme_mod($prefix . '_structure', 'grid');
 
 			$grid_columns = blocksy_expand_responsive_value(
-				blc_theme_functions()->blocksy_get_theme_mod(
+				blocksy_companion_theme_functions()->blocksy_get_theme_mod(
 					$prefix . '_columns',
 					[
 						'desktop' => 3,
@@ -738,7 +828,7 @@ class Query {
 		]);
 
 		if (empty($result)) {
-			return '';
+			$result = __('No posts found.', 'blocksy-companion');
 		}
 
 		return blocksy_html_tag(
@@ -846,7 +936,7 @@ class Query {
 						if (! $term) {
 							continue;
 						}
-						
+
 						$internal_term_slug = $term->slug;
 					}
 
@@ -976,6 +1066,17 @@ class Query {
 			add_action('pre_get_posts', [$this, 'pre_get_posts']);
 		}
 
+		/**
+		 * Filters the custom query instance used by the Advanced Posts block.
+		 *
+		 * Return a query instance to bypass the block's default query construction.
+		 *
+		 * @since 2.0.49
+		 *
+		 * @param \WP_Query|null $query      Custom query instance. Default null.
+		 * @param array          $query_args Query arguments prepared by the block.
+		 * @param array          $attributes Block attributes.
+		 */
 		$query = apply_filters(
 			'blocksy:general:blocks:query:custom',
 			null,
@@ -986,6 +1087,14 @@ class Query {
 		if (! $query) {
 			$query = new \WP_Query();
 
+			/**
+			 * Filters the query arguments used by the Advanced Posts block.
+			 *
+			 * @since 2.0.49
+			 *
+			 * @param array $query_args Query arguments prepared by the block.
+			 * @param array $attributes Block attributes.
+			 */
 			$query->query(apply_filters(
 				'blocksy:general:blocks:query:args',
 				$query_args,
@@ -1023,7 +1132,7 @@ class Query {
 		$tablet_css = new \Blocksy_Css_Injector();
 		$mobile_css = new \Blocksy_Css_Injector();
 
-		blocksy_theme_get_dynamic_styles([
+		blocksy_companion_theme_functions()->blocksy_theme_get_dynamic_styles([
 			'name' => 'global/posts-listing',
 			'css' => $args['css'],
 			'mobile_css' => $args['mobile_css'],
@@ -1041,8 +1150,8 @@ class Query {
 
 		$custom_post_types = [];
 
-		if (blc_theme_functions()->blocksy_manager()) {
-			$custom_post_types = blc_theme_functions()->blocksy_manager()->post_types->get_supported_post_types();
+		if (blocksy_companion_theme_functions()->blocksy_manager()) {
+			$custom_post_types = blocksy_companion_theme_functions()->blocksy_manager()->post_types->get_supported_post_types();
 		}
 
 		$preferred_post_type = explode(',', $attributes['post_type'])[0];
@@ -1166,5 +1275,11 @@ class Query {
 				'value' => '1'
 			]);
 		}
+	}
+
+	// This is an alternative to updating the global $wp_query. It allows
+	// reading current query from other places.
+	public function maybe_get_current_wp_query() {
+		return $this->current_wp_query;
 	}
 }

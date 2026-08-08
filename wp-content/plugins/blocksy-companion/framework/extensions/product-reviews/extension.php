@@ -1,5 +1,9 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 require_once dirname(__FILE__) . '/helpers.php';
 
 class BlocksyExtensionProductReviews {
@@ -153,6 +157,28 @@ class BlocksyExtensionProductReviews {
 						$offers_contents
 					);
 				}
+				
+				if ($product_review_entity === 'LocalBusiness') {
+					$local_business_address = blocksy_akg('local_business_address', $atts, '');
+
+					if (! empty($local_business_address)) {
+						blocksy_html_tag_e(
+							'div',
+							[
+								'itemprop' => 'address',
+								'itemscope' => '',
+								'itemtype' => 'https://schema.org/PostalAddress'
+							],
+							blocksy_html_tag(
+								'meta',
+								[
+									'itemprop' => 'streetAddress',
+									'content' => $local_business_address
+								]
+							)
+						);
+					}
+				}
 			}
 		);
 
@@ -235,7 +261,7 @@ class BlocksyExtensionProductReviews {
 				return $layers;
 			}
 
-			$layers['overall_score'] = blocksy_get_product_review_overall_score();
+			$layers['overall_score'] = blocksy_companion_get_product_review_overall_score();
 
 			return $layers;
 		}, 10, 2);
@@ -342,7 +368,7 @@ class BlocksyExtensionProductReviews {
 					return;
 				}
 
-				blocksy_render_view_e(
+				blocksy_companion_render_view_e(
 					dirname(__FILE__) . '/views/single-top.php',
 					[]
 				);
@@ -515,7 +541,7 @@ class BlocksyExtensionProductReviews {
 	}
 
 	static public function add_global_styles($args) {
-		blocksy_theme_get_dynamic_styles(array_merge([
+		blocksy_companion_theme_functions()->blocksy_theme_get_dynamic_styles(array_merge([
 			'path' => dirname(__FILE__) . '/global.php',
 			'chunk' => 'global',
 		], $args));
@@ -614,7 +640,7 @@ class BlocksyExtensionProductReviews {
 	public function setup_meta_box() {
 		add_meta_box(
 			'blocksy_settings_meta_box',
-			blc_safe_sprintf(
+			blocksy_companion_safe_sprintf(
 				// Translators: %s is the theme name.
 				__( '%s Settings', 'blocksy-companion' ),
 				__( 'Blocksy', 'blocksy-companion' )
@@ -626,7 +652,7 @@ class BlocksyExtensionProductReviews {
 					$values = [[]];
 				}
 
-				$options = blocksy_get_options(
+				$options = blocksy_companion_get_options(
 					dirname(__FILE__) . '/metabox.php',
 					[],
 					false
@@ -672,12 +698,37 @@ class BlocksyExtensionProductReviews {
 
 		$values = [];
 
-		if (isset($_POST['blocksy_product_review_options'][blocksy_post_name()])) {
+		if (isset($_POST['blocksy_product_review_options'][blocksy_companion_post_name()])) {
 			$values = json_decode(
 				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				wp_unslash($_POST['blocksy_product_review_options'][blocksy_post_name()]),
+				wp_unslash($_POST['blocksy_product_review_options'][blocksy_companion_post_name()]),
 				true
 			);
+		}
+
+		if (! is_array($values)) {
+			$values = [];
+		}
+
+		$raw_description = null;
+
+		if (isset($values['product_description'])) {
+			$raw_description = $values['product_description'];
+		}
+
+		// Deny-by-default: recursively empties any string containing < or >,
+		// null bytes or serialized payloads — covering every field, including
+		// ones added later. The matching output templates escape every value
+		// (esc_html / esc_attr / esc_url), so this is the storage-side guard.
+		if (function_exists('blocksy_sanitize_post_meta_options')) {
+			$values = blocksy_sanitize_post_meta_options($values);
+		}
+
+		// product_description is the only rich-text (wp-editor) field, so the
+		// blunt pass above would have emptied it. Restore it from the raw value
+		// through the dedicated user-HTML sanitizer.
+		if ($raw_description !== null && function_exists('blocksy_sanitize_user_html')) {
+			$values['product_description'] = blocksy_sanitize_user_html($raw_description);
 		}
 
 		update_post_meta(

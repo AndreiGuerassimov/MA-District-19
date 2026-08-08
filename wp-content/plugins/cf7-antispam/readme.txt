@@ -1,10 +1,10 @@
 === AntiSpam for Contact Form 7 ===
 Contributors: codekraft, gardenboi
-Tags: antispam, blacklist, honeypot, geoip, security
-Requires at least: 5.4
-Tested up to: 6.8.1
+Tags: antispam, honeypot, geoip, security
+Requires at least: 6.2
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 0.6.4
+Stable tag: 0.7.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,15 +24,16 @@ GeoIP - (Optional) If you need to restrict which countries or languages can emai
 ✅ Browser Fingerprinting
 ✅ Language checks (Geo-ip, http headers and browser)
 ✅ Honeypot
-*️⃣ Honeyform*
-✅ DNS Blacklists
-✅ Blacklists (with automatic ban after N failed attempts, user defined ip exclusion list)
+️✅ Honeyform*
+✅ Domain Name System Blackhole List (DNSBL)
+✅ Blocklists (with automatic ban after N failed attempts, user defined ip exclusion list)
 ✅ Hidden fields with encrypted unique hash
 ✅ Time elapsed (with min/max values)
 ✅ Prohibited words in message/email and user agent
 ✅ B8 statistical "Bayesian" spam filter
+✅ High Entropy / Gibberish checks
 ✅ Identity protection
-🆕 Webmail protection
+✅ Webmail protection
 
 == Extends Flamingo and turns it into a spam manager! ==
 With this plugin, you can now review emails and train B8 to identify spam and legitimate messages. This feature proves useful, especially during the initial stages when some spam emails may slip through.
@@ -40,12 +41,13 @@ Already using Flamingo? Even better! Just remember to add 'flamingo_message: "[y
 Upon activating CF7A, all previously collected emails will be parsed, and B8 will learn and develop its vocabulary. This pre-trained algorithm gives you a head start. How cool is that?
 Additional Notes:
 - A new column has been added to the right side of the Flamingo inbound page, displaying the level of spaminess for each email.
-- If you unban an email on the Flamingo "inbound" page, the corresponding IP will be removed from the blacklist. However, marking an email as spam will not blacklist the IP again.
+- If you unban an email on the Flamingo "inbound" page, the corresponding IP will be removed from the blocklist. However, marking an email as spam will not blocklist the IP again.
 - Before activating this plugin, please make sure to mark all spam emails as spam in the Flamingo inbound section. This auto-training process will help the B8 algorithm.
 - If you receive a spam message, please avoid deleting it from the "ham" section. Instead, place it in the spam section to teach B8 how to differentiate between spam and legitimate messages.
 
 == B8 statistical "Bayesian" Filter ==
 Originally created by [Gary Robinson](https://en.wikipedia.org/wiki/Gary_Robinson) [b8 is a statistical "Bayesian"](https://www.linuxjournal.com/article/6467) spam filter implemented in PHP.
+The B8 filter is a foundational example of **Machine Learning (ML)** for text classification, representing an early, yet powerful, statistical approach in Natural Language Processing (NLP). This approach precedes feature-weighting methods like **TF-IDF**, which in turn paved the way for modern deep learning architectures, such as **Transformers** and **GPT**.
 The filter tells you whether a text is spam or not, using statistical text analysis. What it does is: you give b8 a text and it returns a value between 0 and 1, saying it's ham when it's near 0 and saying it's spam when it's near 1. See [How does it work?](https://nasauber.de/opensource/b8/readme.html#how-does-it-work) for details about this.
 To be able to distinguish spam and ham (non-spam), b8 first has to learn some spam and some ham texts. If it makes mistakes when classifying unknown texts or the result is not distinct enough, b8 can be told what the text actually is, getting better with each learned text.
 This takes place on your own server without relying on third-party services.
@@ -60,10 +62,19 @@ Will be hidden the WordPress and WooCommerce version (wp_generator, woo_version)
 == Mailbox Protection (Multiple Send) ==
 Enhance email security by enabling the "Multiple Send" feature, which prevents consecutive email submissions to the user's mailbox. This measure is effective in thwarting automated spam attempts and ensures a secure communication environment.
 
+== Security & Privacy: A Local-First Approach ==
+AntiSpam for Contact Form 7 is built with your security and privacy as the **top priority**. Unlike many modern anti-spam solutions that rely on external cloud services or third-party subscriptions, our plugin is designed to run **entirely on your own WordPress installation**.
+
+* **100% Local Processing:** All anti-spam logic, checks, and data processing are performed directly on your server. **No data is ever sent to, or stored by, any external third-party service** (including ours).
+* **Not a Software as a Service (SaaS):** This plugin is a standalone, self-contained software solution, not an interface to a paid or subscription-based external service. Once installed, it works autonomously.
+* **Enhanced Security:** Since there is **no central server or external API endpoint** to communicate with, your website is immune to potential risks associated with centralized services, such as Single Point of Failure or data breach risks.
+
+You retain complete control and ownership over the security of your Contact Form 7 submissions.
+
 == Privacy Notices ==
-AntiSpam for Contact Form 7 only process the ip but doesn't store any personal data, but anyway it creates a dictionary of spam and ham words in the wordpress database.
-This database may contain words that are in the e-mail message, so can contain also personal data. This data can be "degenerated" that means the words that were in the e-mail might have been changed.
-The purpose of this word collecting is to build a dictionary used for the spam detection.
+AntiSpam for Contact Form 7 only processes the IP but doesn't store any personal data directly from the user input. However, it creates a dictionary of spam and ham (non-spam) words in the WordPress database.
+This dictionary is built from words found in the submitted messages, meaning it **may contain words that were part of the user's e-mail message or personal data**. This data is "degenerated," which means the words might be normalized or altered before being stored.
+The sole purpose of this word collecting is to build a dictionary used for local, decentralized spam detection.
 
 == Installation ==
 1. Upload the entire `cf7-antispam` folder to the `/wp-content/plugins/` directory.
@@ -111,7 +122,7 @@ The system used to evaluate the e-mail is a non-proportional scoring system and 
 
 =What do you mean by Standard Spam Filters=
 
-Some standard test are Elapsed time, Auto-Blacklisting, Prohibited IP/strings and, in addition, we got some advanced test like HoneyPots, HoneyForms and the browser FingerPrinting.
+Some standard test are Elapsed time, Auto-Blocklisting, Prohibited IP/strings and, in addition, we got some advanced test like HoneyPots, HoneyForms and the browser FingerPrinting.
 
 =*HoneyForm, or you mean Honeypot?=
 
@@ -157,10 +168,72 @@ Enables **debug mode** (wp-debug has to be enabled) - verbose mode, prints email
 
 `define( 'CF7ANTISPAM_DEBUG_EXTENDED', true);`
 
-Enable **extended debug mode** ("CF7ANTISPAM_DEBUG" has to be enabled) - disable autoban, enable advanced logging, when you uninstall the plugin, the word database, blacklist and options are not deleted.
+Enable **extended debug mode** ("CF7ANTISPAM_DEBUG" has to be enabled) - disable autoban, enable advanced logging, when you uninstall the plugin, the word database, blocklist and options are not deleted.
 
 
 == Changelog ==
+
+= 0.7.6 =
+* Fix:  Resolved an issue where form submissions failed on modern desktop browsers (Chrome, Edge, Firefox) by removing the sandbox attribute from canvas fingerprinting iframes to comply with strict security policies against sandbox escaping. (thanks to @khoehne and @heikoppi for reporting it)
+* Enhancement: Added High Entropy (Gibberish) settings to the plugin's configuration dashboard allowing fine-tuning of minimum words and consecutive consonants.
+* Fix: Resolved an issue where the honeyform position dropdown selection did not reflect the saved value.
+* Fix: Eliminated severe false positives caused by `cf7a_get_honeypot_input_names()` force-merging legacy common field names (email, zip, phone, name, address, …) into every honeypot check. The function now returns only the names explicitly configured by the administrator, so legitimate form fields can no longer be mistaken for honeypots. (thanks to @heikoppi and @khoehne for reporting it)
+* Fix: Cleaned up dead code in `Filter_Honeypot::process()`: removed the unused `$mail_tag_text` collection and the outer guard that silently suppressed the honeypot check on forms without text-type tags. The filter now reliably checks only the user-configured honeypot field names on every submission.
+
+= 0.7.5 =
+* Enhancement: Added WordPress Comment Spam Protection: Extended the plugin's capabilities beyond Contact Form 7 to actively protect native WordPress comments against spam.
+* Enhancement: Added Regex support for spam filtering: You can now use Regular Expressions in your filters, providing advanced and highly flexible rules to catch complex spam patterns. (thanks to @jackrus60 for suggesting it)
+* Enhancement: Introduced custom Wordlists: Administrators can now define specific keywords to filter, giving more granular control over blocked form submissions.
+* Security: Improved email header sanitization: Automatically strip newline characters from email headers to prevent Email Header Injection vulnerabilities.
+* Security: Enhanced overall plugin security with stricter sanitization, validation, and capability checks across the codebase.
+* Enhancement: Flamingo integration improvements: Enhanced the email resending functionality to ensure better reliability and smoother recovery of false positives.
+* Enhancement: CF7 SMTP Integration: Added seamless compatibility with SMTP configurations for Contact Form 7, ensuring reliable email delivery.
+* Fix: Improved action detection: Fixed issues with form submission detection to ensure spam checks are consistently and accurately triggered across various CF7 setups. Also fixes an issue with Flamingo plugin actions (thanks to @jackrus60 for suggesting it)
+* Fix: Ensure ban reasons are properly formatted: Addressed a bug in cf7a_compress_array to guarantee that logs accurately display the specific reason for rejection.
+* Fix: Resolved iframe/sandbox restrictions: Added the allow-scripts sandbox attribute to ensure necessary scripts can execute properly in restricted preview environments. (thanks to @oceandigitals for reporting it)
+* Fix: Restricted widget visibility: Ensured dashboard widgets are now correctly restricted and only visible to users with the appropriate permissions. (thanks to @islp for reporting it)
+* Enhancement: General code consolidation and major refactoring of the core anti-spam engine for better performance and maintainability.
+
+= 0.7.4 =
+* Fix: Improve message sanitization: handle arrays, skip empty/non-string values, and refine length checks (thanks to @sleepygoth for reporting it)
+
+= 0.7.3 =
+* Fix: Dismissing the "Flamingo Message" notice now works correctly (thanks to @WORX Developer for reporting it)
+* Enhancement: Improved spam filter performance with additional fallbacks for edge cases
+* Security: Email strings are now properly sanitized before being sent
+* Enhancement: New dashboard empty-state view
+* Enhancement: Added JS selector for allowed/disallowed countries and languages
+* Typo: Replaced "blacklist" with "blocklist" and "whitelist" with "allowlist" (thanks to @WORX Developer for waning me about this mistake)
+* Enhancement: New summary table added at the top of the settings page to display form configuration status
+* Enhancement: Cache compatibility improvements
+* Enhancement: Removed UCEPROTECT from predefined blocklists: We have optimized the default DNSBL configuration by removing the uceprotect service. This strategic change reduces the risk of false positives for legitimate users hosted on shared environments and improves the overall form submission speed by eliminating redundant DNS queries.
+* Fix: Fix cf7a_ban_by_ip reason parameter: Addressed a bug where the ban reason was not correctly passed to the blocking function. Logs will now accurately reflect the specific trigger (e.g., Honeypot violation, DNSBL match) that caused an IP ban, restoring full observability for administrators (Thanks to @sdellenb - PR #163).
+* Compatibility: Implemented a fix for WEBGL_debug_renderer_info in iOS/Safari on newer iOS devices. This resolves potential JavaScript execution errors during browser fingerprinting, ensuring seamless form functionality on iPhones and iPads with strict privacy settings.
+* Enhancement: Added blueprint.json: Introduced a configuration file for WordPress Playground. Contributors and users can now instantly spin up a browser-based testing environment for the plugin without local setup.
+* Enhancement: Updated unit tests to display GeoIP database information if available. This enhances local debugging capabilities by verifying that geolocation data is loaded correctly during test runs.
+* Enhancement: Applied comprehensive PHP linting to the Admin interface files, enforcing WordPress Coding Standards for better maintainability.
+
+= 0.7.2 =
+* Update fallback (thanks for the idea to @lemurnick)
+* Fix for missing enqueue in some cases (thanks to @ohhcee, @o2xav, @WORX Developer for the feedbacks)
+* Blocklist filters cleanup
+* Registers the spam checks individually
+* Updated encrypt/decrypt function
+
+= 0.7.1 =
+* Fix: Fixes a wrong escape placeholder in the prepare SQL query that was preventing to check if an IP was blocklisted. (thanks to @jackrus60 for the report)
+
+= 0.7.0 =
+* Enhancement: Updated Admin User Interface (UI).
+* Enhancement: Added a new debug information section to display the status of GeoIP, REST API, and DNSBL functionality.
+* Enhancement: Blocklist Export Feature: Users can now export the blocklist.
+* Enhancement: A date column has been added to the blocklist database table.
+* Fix: The name attribute for Honeypots now correctly reflects the name chosen by the user (thanks to @@developeratworx for reporting this issue!).
+* Fix: Improved code security by implementing prepared statements for all database queries and adding sanitization and escaping where previously missing.
+* Fix: Refactored and reorganized the src folder structure for better code organization and maintainability.
+* Fix: Implemented REST API endpoints for the admin "Tools" section, allowing operations on that page to be performed without reloading.
+* Fix: General code cleanup was performed throughout the project.
+* Fix: Fixed the resend mail function (A big thank you to @chrober for reporting this issue!).
 
 = 0.6.4 =
 * Migration from JavaScript to TypeScript for better type safety
@@ -233,7 +306,7 @@ Enable **extended debug mode** ("CF7ANTISPAM_DEBUG" has to be enabled) - disable
 
 = 0.4.2 =
 * Dashboard widget updated (adds a new filter 'cf7a_dashboard_max_mail_count' to limit the maximum value of displayed mail, default 25)
-* UI enhancements - labels in the flamingo inbound page and the blacklist table
+* UI enhancements - labels in the flamingo inbound page and the blocklist table
 * Displays a random security tip at the top of cf7-antispam settings
 * Standalone geoip check (previously it was mandatory to enable the language checks in order to enable geo-ip)
 * Under certain conditions an automatic ban is carried out and the e-mail is not processed to avoid unnecessary consumption of resources
@@ -357,6 +430,7 @@ MeliEve - [#42](https://github.com/wp-blocks/cf7-antispam/pull/42) Fix "internal
 MeliEve - [#61](https://github.com/wp-blocks/cf7-antispam/pull/61)  Handle deferrer script loading
 Zodiac1978 - [#67](https://github.com/wp-blocks/cf7-antispam/pull/67) Remove warning for unsafe email configuration w/o protection
 JohnHooks - [#66](https://github.com/wp-blocks/cf7-antispam/pull/61) Readme + plugin env
+sdellenb - [#66](https://github.com/wp-blocks/cf7-antispam/pull/163) Fix $reason parameter for calling cf7a_ban_by_ip
 
 == Special thanks ==
 This project is tested with BrowserStack. [Browserstack](https://www.browserstack.com/)

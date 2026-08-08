@@ -15,8 +15,7 @@ import {
 import { __ } from 'ct-i18n'
 import useFetch from 'react-fetch-hook'
 
-import createTrigger from 'react-use-trigger'
-import useTrigger from 'react-use-trigger/useTrigger'
+import { createTrigger, useTrigger } from '../helpers/react-use-trigger'
 
 const requestTrigger = createTrigger()
 const EditConditions = ({ forcedEdit = false, headerId }) => {
@@ -145,7 +144,7 @@ const EditConditions = ({ forcedEdit = false, headerId }) => {
 
 						<div className="ct-modal-actions has-divider">
 							<button
-								className="button-primary"
+								className="ct-ui-button ct-ui-button-primary"
 								disabled={!localConditions}
 								onClick={() => saveSettings()}>
 								{__('Save Conditions', 'blocksy-companion')}

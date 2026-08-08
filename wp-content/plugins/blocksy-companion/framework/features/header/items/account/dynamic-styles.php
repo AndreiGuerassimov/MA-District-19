@@ -1,10 +1,14 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 if (! isset($root_selector)) {
 	$root_selector = ['.ct-header-account'];
 }
 
-$forms_type = blc_theme_functions()->blocksy_get_theme_mod('forms_type', 'classic-forms');
+$forms_type = blocksy_companion_theme_functions()->blocksy_get_theme_mod('forms_type', 'classic-forms');
 
 // Icon size
 $accountHeaderIconSize = blocksy_akg( 'accountHeaderIconSize', $atts, 15 );
@@ -513,7 +517,7 @@ blocksy_output_colors([
 	],
 ]);
 
-if ($forms_type !== 'classic-forms' || is_customize_preview()) {
+if ($forms_type === 'classic-forms') {
 	blocksy_output_colors([
 		'value' => blocksy_akg('account_modal_form_background_color', $atts),
 		'default' => [

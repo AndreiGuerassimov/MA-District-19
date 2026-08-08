@@ -1,5 +1,9 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 if (! isset($device)) {
 	$device = 'desktop';
 }
@@ -98,7 +102,7 @@ $attr = array_merge(
 
 add_filter('blocksy:menu:has_animated_submenu', '__return_true', 10, 3);
 
-blocksy_render_view_e(
+blocksy_companion_render_view_e(
 	dirname(__FILE__) . '/views/' . $path . '.php',
 	[
 		'atts' => $atts,

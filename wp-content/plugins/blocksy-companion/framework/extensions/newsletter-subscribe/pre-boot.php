@@ -1,5 +1,9 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class BlocksyExtensionNewsletterSubscribePreBoot {
 	public function __construct() {
 		add_filter('blocksy-dashboard-scripts-dependencies', function ($s) {
@@ -79,6 +83,11 @@ class BlocksyExtensionNewsletterSubscribePreBoot {
 			[
 				'key' => 'klaviyo',
 				'value' => 'Klaviyo',
+			],
+
+			[
+				'key' => 'sendy',
+				'value' => 'Sendy',
 			]
 		];
 

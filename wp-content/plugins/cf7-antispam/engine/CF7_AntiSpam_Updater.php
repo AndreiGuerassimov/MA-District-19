@@ -1,20 +1,30 @@
 <?php
+/**
+ * Handles database updates for the plugin.
+ *
+ * @package    CF7_AntiSpam
+ * @subpackage CF7_AntiSpam/engine
+ */
+
 namespace CF7_AntiSpam\Engine;
 
 /**
- * Fired at plugin update.
- *
- * This will call certain procedures for plugin updates
- *
- * @since      0.4.5
- * @package    CF7_AntiSpam
- * @subpackage CF7_AntiSpam/includes
- * @author     Codekraft Studio <info@codekraft.it>, gardenboi
+ * Handles database updates for the plugin.
  */
-
 class CF7_AntiSpam_Updater {
 
+	/**
+	 * The hardcoded version.
+	 *
+	 * @var string The hardcoded version.
+	 */
 	public $hc_version;
+
+	/**
+	 * The options.
+	 *
+	 * @var mixed The options.
+	 */
 	public $current_options;
 
 	/**
@@ -34,18 +44,56 @@ class CF7_AntiSpam_Updater {
 	 * @return boolean true if successful or false if already updated, otherwise false because of error: check your db settings
 	 */
 	public function may_do_updates() {
-		if ( version_compare( $this->hc_version, $this->current_options['cf7a_version'], '>' ) ) {
-			$new_options = $this->update_db_procedure_to_0_6_0();
-			if ( ! empty( $new_options ) ) {
-				return update_option( 'cf7a_options', $new_options );
-			}
+		$updated = false;
+
+		/* Check if there are no options already stored, exit immediately in this case */
+		if ( empty( $this->current_options ) ) {
+			return false;
 		}
+
+		/* Check if we need to update from older versions */
+		if ( version_compare( $this->hc_version, $this->current_options['cf7a_version'], '>' ) ) {
+
+			/* Update to 0.6.0 if needed */
+			if ( version_compare( $this->current_options['cf7a_version'], '0.6.0', '<' ) ) {
+				$new_options = $this->update_db_procedure_to_0_6_0();
+				if ( ! empty( $new_options ) ) {
+					$this->current_options = $new_options;
+					$updated               = true;
+				}
+			}
+
+			/* Update to 0.7.0 if needed */
+			if ( version_compare( $this->current_options['cf7a_version'], '0.7.0', '<' ) ) {
+				$db_updated = $this->update_db_procedure_to_0_7_0();
+				if ( $db_updated ) {
+					$this->current_options['cf7a_version'] = $this->hc_version;
+					$updated                               = true;
+				}
+			}
+
+			/* Update to 0.7.3 if needed */
+			if ( version_compare( $this->current_options['cf7a_version'], '0.7.3', '<' ) ) {
+				$new_options = $this->update_db_procedure_to_0_7_3();
+				if ( ! empty( $new_options ) ) {
+					$this->current_options = $new_options;
+					$updated               = true;
+				}
+			}
+
+			/* Update the version to current if any updates were made */
+			if ( $updated ) {
+				$this->current_options['cf7a_version'] = $this->hc_version;
+				return update_option( 'cf7a_options', $this->current_options );
+			}
+		}//end if
+
 		return false;
 	}
 
 	/**
 	 * Update the db procedure to 0.6.0
-	 * Substitute "languages" with "
+	 * Substitute "languages" with "languages_locales"
 	 *
 	 * @return void|mixed
 	 */
@@ -57,8 +105,151 @@ class CF7_AntiSpam_Updater {
 
 			unset( $this->current_options['languages'] );
 
+			cf7a_log( 'CF7-antispam updated to 0.6.0: languages option migrated to languages_locales', 1 );
+
 			return $this->current_options;
 		}
+
+		return false;
+	}
+	/**
+	 * Update the database schema to 0.7.0
+	 * Add 'modified' and 'created' columns to blocklist table
+	 *
+	 * @return boolean
+	 */
+	public function update_db_procedure_to_0_7_0() {
+		global $wpdb;
+
+		$blacklist_table = $wpdb->prefix . 'cf7a_blacklist';
+		$updated         = false;
+
+		// Check if the table exists first
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$has_blacklist_table = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $blacklist_table )
+			)
+		);
+		if ( $has_blacklist_table !== $blacklist_table ) {
+			cf7a_log( 'CF7-antispam update to 0.7.0: blocklist table does not exist, skipping schema update', 2 );
+			return false;
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		// Check if the 'modified' column exists, if not add it
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$has_blacklist_modified_col = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW COLUMNS FROM %i LIKE %s',
+				$blacklist_table,
+				'modified'
+			)
+		);
+		if ( ! $has_blacklist_modified_col ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$result = $wpdb->query(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
+				$wpdb->prepare( 'ALTER TABLE %i ADD `modified` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP;', $blacklist_table )
+			);
+
+			if ( false !== $result ) {
+				cf7a_log( 'CF7-antispam updated to 0.7.0: added modified column to blocklist table', 2 );
+				$updated = true;
+			} else {
+				cf7a_log( 'CF7-antispam update to 0.7.0: failed to add modified column to blocklist table', 1 );
+			}
+		}
+
+		// Check if the 'created' column exists, if not add it
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$has_blacklist_created_col = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW COLUMNS FROM %i LIKE %s',
+				$blacklist_table,
+				'created'
+			)
+		);
+		if ( ! $has_blacklist_created_col ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$result = $wpdb->query(
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
+				$wpdb->prepare( 'ALTER TABLE %i ADD `created` datetime DEFAULT CURRENT_TIMESTAMP;', $blacklist_table )
+			);
+
+			if ( false !== $result ) {
+				cf7a_log( 'CF7-antispam updated to 0.7.0: added created column to blocklist table', 2 );
+				$updated = true;
+			} else {
+				cf7a_log( 'CF7-antispam update to 0.7.0: failed to add created column to blocklist table', 1 );
+			}
+		}
+
+		if ( $updated ) {
+			cf7a_log( 'CF7-antispam database schema updated to 0.7.0', 2 );
+		}
+
+		return $updated;
 	}
 
+	/**
+	 * Update the db procedure to 0.7.3
+	 * Substitute "ip_whitelist" with "ip_allowlist"
+	 *
+	 * @return void|mixed
+	 */
+	public function update_db_procedure_to_0_7_3() {
+		global $wpdb;
+
+		$blacklist_table = $wpdb->prefix . 'cf7a_blacklist';
+		$blocklist_table = $wpdb->prefix . 'cf7a_blocklist';
+
+		$updated = false;
+
+		// Check if the old table exists
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$has_blacklist_table = $wpdb->get_var(
+			$wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$wpdb->esc_like( $blacklist_table )
+			)
+		);
+
+		// If the old table exists and the new one doesn't, rename it
+		if ( $has_blacklist_table === $blacklist_table ) {
+			// Check if new table already exists
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$has_blocklist_table = $wpdb->get_var(
+				$wpdb->prepare(
+					'SHOW TABLES LIKE %s',
+					$wpdb->esc_like( $blocklist_table )
+				)
+			);
+
+			if ( $has_blocklist_table !== $blocklist_table ) {
+				// Rename the table
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query(
+					$wpdb->prepare( 'RENAME TABLE %i TO %i', $blacklist_table, $blocklist_table )
+				);
+
+				cf7a_log( 'CF7-antispam updated to 0.7.3: cf7a_blacklist table renamed to cf7a_blocklist', 1 );
+				$updated = true;
+			}
+		}//end if
+
+		if ( array_key_exists( 'ip_whitelist', $this->current_options ) ) {
+			$this->current_options['cf7a_version'] = $this->hc_version;
+			$this->current_options['ip_allowlist'] = $this->current_options['ip_whitelist'];
+
+			unset( $this->current_options['ip_whitelist'] );
+
+			cf7a_log( 'CF7-antispam updated to 0.7.3: ip_whitelist option migrated to ip_allowlist', 1 );
+			$updated = true;
+		}
+
+		return $updated ? $this->current_options : false;
+	}
 }

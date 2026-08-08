@@ -1,16 +1,20 @@
 <?php
+
 // phpcs:disable Yoast.NamingConventions.NamespaceName.TooLong -- Needed in the folder structure.
 namespace Yoast\WP\SEO\AI_Generator\User_Interface;
 
 use WP_REST_Response;
 use WPSEO_Addon_Manager;
 use Yoast\WP\SEO\AI_Authorization\Application\Token_Manager;
+use Yoast\WP\SEO\AI_Consent\Application\Consent_Handler;
 use Yoast\WP\SEO\AI_HTTP_Request\Application\Request_Handler;
+use Yoast\WP\SEO\AI_HTTP_Request\Domain\Exceptions\Forbidden_Exception;
 use Yoast\WP\SEO\AI_HTTP_Request\Domain\Exceptions\Remote_Request_Exception;
 use Yoast\WP\SEO\AI_HTTP_Request\Domain\Exceptions\Too_Many_Requests_Exception;
 use Yoast\WP\SEO\AI_HTTP_Request\Domain\Exceptions\WP_Request_Exception;
 use Yoast\WP\SEO\AI_HTTP_Request\Domain\Request;
 use Yoast\WP\SEO\Conditionals\AI_Conditional;
+use Yoast\WP\SEO\Conditionals\Old_Premium_AI_Conditional;
 use Yoast\WP\SEO\Main;
 use Yoast\WP\SEO\Routes\Route_Interface;
 
@@ -54,6 +58,13 @@ class Get_Usage_Route implements Route_Interface {
 	private $request_handler;
 
 	/**
+	 * The consent handler instance.
+	 *
+	 * @var Consent_Handler
+	 */
+	private $consent_handler;
+
+	/**
 	 * Represents the add-on manager.
 	 *
 	 * @var WPSEO_Addon_Manager
@@ -66,7 +77,7 @@ class Get_Usage_Route implements Route_Interface {
 	 * @return array<string> The conditionals.
 	 */
 	public static function get_conditionals() {
-		return [ AI_Conditional::class ];
+		return [ AI_Conditional::class, Old_Premium_AI_Conditional::class ];
 	}
 
 	/**
@@ -74,12 +85,14 @@ class Get_Usage_Route implements Route_Interface {
 	 *
 	 * @param Token_Manager       $token_manager   The token manager instance.
 	 * @param Request_Handler     $request_handler The request handler instance.
+	 * @param Consent_Handler     $consent_handler The consent handler instance.
 	 * @param WPSEO_Addon_Manager $addon_manager   The add-on manager instance.
 	 */
-	public function __construct( Token_Manager $token_manager, Request_Handler $request_handler, WPSEO_Addon_Manager $addon_manager ) {
+	public function __construct( Token_Manager $token_manager, Request_Handler $request_handler, Consent_Handler $consent_handler, WPSEO_Addon_Manager $addon_manager ) {
 		$this->addon_manager   = $addon_manager;
 		$this->token_manager   = $token_manager;
 		$this->request_handler = $request_handler;
+		$this->consent_handler = $consent_handler;
 	}
 
 	/**
@@ -101,7 +114,7 @@ class Get_Usage_Route implements Route_Interface {
 				],
 				'callback'            => [ $this, 'get_usage' ],
 				'permission_callback' => [ $this, 'check_permissions' ],
-			]
+			],
 		);
 	}
 
@@ -121,10 +134,13 @@ class Get_Usage_Route implements Route_Interface {
 				'Authorization' => "Bearer $token",
 			];
 			$action_path     = $this->get_action_path( $is_woo_product_entity );
-			$response        = $this->request_handler->handle( new Request( $action_path, [], $request_headers, false ) );
+			$response        = $this->request_handler->handle( new Request( $action_path, [], $request_headers, Request::METHOD_GET ) );
 			$data            = \json_decode( $response->get_body() );
-
-		}  catch ( Remote_Request_Exception | WP_Request_Exception $e ) {
+		} catch ( Remote_Request_Exception | WP_Request_Exception $e ) {
+			if ( $e instanceof Forbidden_Exception ) {
+				// The API signals that consent is revoked; sync local state.
+				$this->consent_handler->revoke_consent( $user->ID );
+			}
 			$message = [
 				'errorMessage'    => $e->getMessage(),
 				'errorIdentifier' => $e->get_error_identifier(),
@@ -135,7 +151,7 @@ class Get_Usage_Route implements Route_Interface {
 			}
 			return new WP_REST_Response(
 				$message,
-				$e->getCode()
+				$e->getCode(),
 			);
 		}
 

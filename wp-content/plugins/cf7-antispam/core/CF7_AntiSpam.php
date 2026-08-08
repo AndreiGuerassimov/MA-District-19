@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The core plugin class.
  *
@@ -16,6 +15,10 @@
  */
 
 namespace CF7_AntiSpam\Core;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 use CF7_AntiSpam\Admin\CF7_AntiSpam_Admin_Core;
 use CF7_AntiSpam\Admin\CF7_AntiSpam_Admin_Tools;
@@ -88,7 +91,7 @@ class CF7_AntiSpam {
 		/* the update / install stuff */
 		if ( empty( $this->options['cf7a_version'] ) || $this->version !== $this->options['cf7a_version'] ) {
 
-			/* the php files */
+			/* Update the plugin database and options */
 			$this->update();
 
 			if ( get_transient( 'cf7a_activation' ) ) {
@@ -106,6 +109,9 @@ class CF7_AntiSpam {
 		/* the admin area */
 		$this->load_admin();
 
+		/* the public rest api */
+		new CF7_AntiSpam_Public_Rest_Api();
+
 		/* the frontend area */
 		$this->load_frontend();
 	}
@@ -121,6 +127,12 @@ class CF7_AntiSpam {
 	 */
 	protected function update() {
 		do_action( 'cf7a_update' );
+
+		/* Update the plugin database */
+		$updater = new \CF7_AntiSpam\Engine\CF7_AntiSpam_Updater( CF7ANTISPAM_VERSION, $this->get_options() );
+		$updater->may_do_updates();
+
+		/* Update the plugin options */
 		CF7_AntiSpam_Activator::update_options();
 	}
 
@@ -141,7 +153,7 @@ class CF7_AntiSpam {
 	 * @access   private
 	 */
 	private function set_locale() {
-		$plugin_i18n = new CF7_AntiSpam_i18n();
+		$plugin_i18n = new CF7_AntiSpam_I18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 	}
@@ -162,9 +174,16 @@ class CF7_AntiSpam {
 		$this->loader->add_filter( 'wpcf7_spam', $plugin_antispam, 'cf7a_spam_filter', 8 );
 
 		/* the unspam routine */
-		add_action( 'cf7a_cron', array( $plugin_antispam, 'cf7a_cron_unban' ) );
+		$blocklist = new CF7_Antispam_Blocklist();
+		add_action( 'cf7a_cron', array( $blocklist, 'cf7a_cron_unban' ) );
 
-		if ( defined( 'FLAMINGO_VERSION' ) ) {
+		/* 3d party plugins */
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		/* flamingo */
+		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'flamingo/flamingo.php' ) ) {
 			$cf7a_flamingo = new CF7_AntiSpam_Flamingo();
 
 			/* if flamingo is defined the mail will be analyzed after flamingo has stored */
@@ -174,15 +193,20 @@ class CF7_AntiSpam {
 			add_action( 'wpcf7_after_flamingo', array( $cf7a_flamingo, 'cf7a_flamingo_remove_honeypot' ), 12 );
 		}
 
+		/* geoip */
 		if ( ! empty( $this->options['enable_geoip_download'] ) ) {
 			$geo = new CF7_Antispam_Geoip();
 
 			add_action( 'cf7a_geoip_update_db', array( $geo, 'cf7a_geoip_download_database' ) );
 		}
 
-		if ( defined( 'CF7_SMTP_NAME' ) ) {
+		/* smtp */
+		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'cf7-smtp/cf7-smtp.php' ) ) {
 			add_filter( 'cf7_smtp_report_mailbody', array( $this, 'spam_mail_report' ), 10, 2 );
 		}
+
+		/* comment protection */
+		new CF7_AntiSpam_Comments();
 	}
 
 	/**
@@ -193,11 +217,15 @@ class CF7_AntiSpam {
 	 * @access   private
 	 */
 	private function load_admin() {
+
+		/** Enable the rest api */
+		new CF7_AntiSpam_Rest_Api();
+
 		if ( is_admin() ) {
 
 			/* It handles the actions that are triggered by the user */
 			$tools = new CF7_AntiSpam_Admin_Tools();
-			add_action( 'admin_init', array( $tools, 'cf7a_handle_actions' ), 1 );
+			add_action( 'admin_init', array( $tools, 'cf7a_handle_actions' ) );
 
 			/* the admin area */
 			$plugin_admin = new CF7_AntiSpam_Admin_Core( $this->get_plugin_name(), $this->get_version() );
@@ -224,85 +252,44 @@ class CF7_AntiSpam {
 				/* the action that handles the spam and ham requests and pass the mail message to b8 */
 				add_action( 'load-flamingo_page_flamingo_inbound', array( $cf7a_flamingo, 'cf7a_d8_flamingo_classify' ), 9, 0 );
 
-				$this->loader->add_action( 'wp_dashboard_setup', $plugin_admin, 'cf7a_dashboard_widget' );
+				/**
+				 * Widget Visibility
+				 * Define the capability needed to see the widget (default: manage_options for Admins).
+				 *
+				 * @since 0.7.4
+				 */
+				$capability = apply_filters( 'cf7a_stats_capability', 'manage_options' );
+
+				if ( current_user_can( $capability ) ) {
+					$this->loader->add_action( 'wp_dashboard_setup', $plugin_admin, 'cf7a_dashboard_widget' );
+				}
 
 				/* adds the custom table columns*/
 				add_filter( 'manage_flamingo_inbound_posts_columns', array( $cf7a_flamingo, 'flamingo_columns' ) );
 				add_action( 'manage_flamingo_inbound_posts_custom_column', array( $cf7a_flamingo, 'flamingo_d8_column' ), 10, 2 );
 				add_action( 'manage_flamingo_inbound_posts_custom_column', array( $cf7a_flamingo, 'flamingo_resend_column' ), 11, 2 );
-			}
-		}
+			}//end if
+		}//end if
 	}
 
 	/**
 	 * Register all the hooks related to the frontend area functionality
 	 * of the plugin.
+	 * The frontend area is loaded only if the page has a cf7 form
 	 *
 	 * @since    0.1.0
 	 * @access   private
 	 */
 	private function load_frontend() {
 		if ( ! is_admin() ) {
-			global $post;
 			$plugin_frontend = new CF7_AntiSpam_Frontend( $this->get_plugin_name(), $this->get_version() );
 
-			/* It adds hidden fields to the form */
-			$this->loader->add_filter( 'wpcf7_form_hidden_fields', $plugin_frontend, 'cf7a_add_hidden_fields', 1 );
-			$this->loader->add_filter( 'wpcf7_config_validator_available_error_codes', $plugin_frontend, 'cf7a_remove_cf7_error_message', 10, 2 );
+			$plugin_frontend->setup();
+			$plugin_frontend->load_scripts();
 
-			/* adds the javascript script to frontend */
-			$this->loader->add_action( 'wp_footer', $plugin_frontend, 'enqueue_scripts' );
-
-			if ( $post ) {
-				$this->options['check_bot_fingerprint'] = apply_filters( $this->options['check_bot_fingerprint'], $post->ID );
-			}
-
-			/* It adds a hidden field to the form with a unique value that is encrypted with a cipher */
-			if ( isset( $this->options['check_bot_fingerprint'] ) && intval( $this->options['check_bot_fingerprint'] ) === 1 ) {
-				$this->loader->add_filter( 'wpcf7_form_hidden_fields', $plugin_frontend, 'cf7a_add_bot_fingerprinting', 100 );
-			}
-
-			/* It adds a new field to the form, which is a hidden field that will be populated with the bot fingerprinting extras */
-			if ( isset( $this->options['check_bot_fingerprint_extras'] ) && intval( $this->options['check_bot_fingerprint_extras'] ) === 1 ) {
-				$this->loader->add_filter( 'wpcf7_form_hidden_fields', $plugin_frontend, 'cf7a_add_bot_fingerprinting_extras', 100 );
-			}
-
-			/* It adds a new field to the form, called `cf7a_append_on_submit`, and sets it to false */
-			if ( isset( $this->options['append_on_submit'] ) && intval( $this->options['append_on_submit'] ) === 1 ) {
-				$this->loader->add_filter( 'wpcf7_form_hidden_fields', $plugin_frontend, 'cf7a_append_on_submit', 100 );
-			}
-
-			/* It takes the form elements, clones the text inputs, adds a class to the cloned inputs, and adds the cloned inputs to the form */
-			if ( isset( $this->options['check_honeypot'] ) && intval( $this->options['check_honeypot'] ) === 1 ) {
-				$this->loader->add_filter( 'wpcf7_form_elements', $plugin_frontend, 'cf7a_honeypot_add' );
-			}
-
-			/* It gets the form, formats it, and then echoes it out */
-			if ( isset( $this->options['check_honeyform'] ) && intval( $this->options['check_honeyform'] ) === 1 ) {
-				$this->loader->add_filter( 'the_content', $plugin_frontend, 'cf7a_honeyform', 99 );
-			}
-
-			/* Checking if the user has selected the option to protect the user's identity. If they have, it will call the function to protect the user's identity. */
-			if ( isset( $this->options['identity_protection_user'] ) && intval( $this->options['identity_protection_user'] ) === 1 ) {
-				$plugin_frontend->cf7a_protect_user();
-			}
-
-			/* It removes the WordPress version from the header, removes the REST API link from the header, removes headers that disposes information */
-			if ( isset( $this->options['identity_protection_wp'] ) && intval( $this->options['identity_protection_wp'] ) === 1 ) {
-				$this->loader->add_filter( 'wp_headers', $plugin_frontend, 'cf7a_protect_wp', 999 );
-			}
-
-			/* Will check if the form has been submitted more than once, blocking all emails that were sent after the first one for a period of 5 seconds */
-			if ( isset( $this->options['mailbox_protection_multiple_send'] ) && intval( $this->options['mailbox_protection_multiple_send'] ) === 1 ) {
-				$this->loader->add_action( 'wpcf7_before_send_mail', $plugin_frontend, 'cf7a_check_resend', 9, 3 );
-			}
-
-			/* It adds a CSS style to the page that hides the honeypot field */
-			if (
-				( isset( $this->options['check_honeypot'] ) && 1 === intval( $this->options['check_honeypot'] ) ) || ( isset( $this->options['check_honeyform'] ) && 1 === intval( $this->options['check_honeyform'] ) )
-			) {
-				$this->loader->add_action( 'wp_footer', $plugin_frontend, 'cf7a_add_honeypot_css', 11 );
-			}
+			/* Cache compatibility */
+			$plugin_cache = new CF7_AntiSpam_Cache_Compatibility( $this->get_plugin_name(), $this->get_version() );
+			$plugin_cache->setup();
 		}
 	}
 
@@ -397,7 +384,7 @@ class CF7_AntiSpam {
 
 		if ( isset( $plugin_options[ $option ] ) ) {
 			if ( is_string( $value ) ) {
-				/* if the value is a string sanitize and replace the option */
+				/* if the value is a string, sanitize and replace the option */
 				$plugin_options[ $option ] = sanitize_text_field( trim( $value ) );
 			} else {
 				/* if the value is an array sanitize each element then merge into option */
@@ -414,25 +401,78 @@ class CF7_AntiSpam {
 		return false;
 	}
 
+	/**
+	 * This function is used to generate the spam report email.
+	 *
+	 * @param string $mail_body The email body
+	 * @param int    $last_report_timestamp The last report timestamp
+	 *
+	 * @return string The email body
+	 */
 	public function spam_mail_report( $mail_body, $last_report_timestamp ) {
 		global $wpdb;
 
-		$all  = $wpdb->get_var(
-			"SELECT COUNT(*) AS cnt
-			 FROM {$wpdb->prefix}posts
-			 WHERE post_status = 'flamingo-spam';"
+		$post_table = $wpdb->prefix . 'posts';
+
+		// Get total spam count
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$all = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) AS cnt FROM %i WHERE post_status = 'flamingo-spam';",
+				$post_table
+			)
 		);
+
+		// Get spam count since last report
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$last = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) AS cnt
-		 	 FROM {$wpdb->prefix}posts
-		 	 WHERE post_date_gmt >= FROM_UNIXTIME( %d )
-			 AND post_status = 'flamingo-spam';",
+            FROM %i
+            WHERE post_date_gmt >= FROM_UNIXTIME( %d )
+            AND post_status = 'flamingo-spam';",
+				$post_table,
 				$last_report_timestamp
 			)
 		);
 
-		$mail_body .= __( \sprintf( '<p>%s overall spam attempts, %s since last report</p>', $all, $last ), 'cf7-antispam' );
+		// Get non-spam (ham) count since last report for comparison
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$ham_last = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) AS cnt
+            FROM %i
+            WHERE post_date_gmt >= FROM_UNIXTIME( %d )
+            AND post_status = 'publish';",
+				$post_table,
+				$last_report_timestamp
+			)
+		);
+
+		// Build the styled HTML content
+		$spam_report = sprintf(
+			'<div style="background: #fff3cd; padding: 20px; border-radius: 6px; border-left: 4px solid #ff6b6b;">
+            <h2 style="color: #333; font-size: 18px; font-weight: 600; margin: 0 0 12px 0;">%s</h2>
+            <div style="margin-bottom: 12px;">
+                <span style="font-size: 24px; color: #ff6b6b; font-weight: 700;">%d</span>
+                <span style="color: #666; font-size: 14px; margin-left: 8px;">%s</span>
+            </div>
+            <p style="color: #666; font-size: 14px; margin: 0; line-height: 1.6;">
+                <strong style="color: #333;">%d</strong> %s<br>
+                <strong style="color: #333;">%d</strong> %s
+            </p>
+        </div>',
+			esc_html__( 'Spam Protection Statistics', 'cf7-antispam' ),
+			intval( $last ),
+			esc_html__( 'Spam Blocked Recently', 'cf7-antispam' ),
+			intval( $all ),
+			esc_html__( 'total spam attempts blocked', 'cf7-antispam' ),
+			intval( $ham_last ),
+			esc_html__( 'legitimate messages delivered', 'cf7-antispam' )
+		);
+
+		// Append to the mail body
+		$mail_body .= $spam_report;
 
 		return $mail_body;
 	}

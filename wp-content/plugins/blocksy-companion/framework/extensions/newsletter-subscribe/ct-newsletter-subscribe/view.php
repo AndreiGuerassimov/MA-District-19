@@ -1,4 +1,9 @@
 <?php
+
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 /**
  * Newsletter Subscribe widget
  *
@@ -43,18 +48,47 @@ if (! empty($newsletter_subscribe_gap)) {
 }
 
 if (isset($atts['style']['border']['radius'])) {
+	$maybe_radius = $atts['style']['border']['radius'];
+
 	if (
-		gettype($atts['style']['border']['radius']) === 'string'
+		is_array($maybe_radius)
 		&&
-		! empty(gettype($atts['style']['border']['radius']))
+		! empty($maybe_radius)
 	) {
-		$style .= '--theme-form-field-border-radius:' . $atts['style']['border']['radius'] . ';';
-	} else if (
-		gettype($atts['style']['border']['radius']) === 'array'
+		if (
+			isset($maybe_radius['topLeft'])
+			&&
+			isset($maybe_radius['topRight'])
+			&&
+			isset($maybe_radius['bottomLeft'])
+			&&
+			isset($maybe_radius['bottomRight'])
+		) {
+			if (
+				$maybe_radius['topLeft'] === $maybe_radius['topRight']
+				&&
+				$maybe_radius['topLeft'] === $maybe_radius['bottomLeft']
+				&&
+				$maybe_radius['topLeft'] === $maybe_radius['bottomRight']
+			) {
+				$maybe_radius = $maybe_radius['topLeft'];
+			} else {
+				$style .= '--theme-form-field-border-radius:' . join(' ', [
+					$atts['style']['border']['radius']['topLeft'] ?? '0px',
+					$atts['style']['border']['radius']['topRight'] ?? '0px',
+					$atts['style']['border']['radius']['bottomLeft'] ?? '0px',
+					$atts['style']['border']['radius']['bottomRight'] ?? '0px'
+				]) . ';';
+			}
+		}
+	}
+
+	if (
+		gettype($maybe_radius) === 'string'
 		&&
-		! empty($atts['style']['border']['radius'])
+		! empty($maybe_radius)
 	) {
-		$style .= '--theme-form-field-border-radius:' . $atts['style']['border']['radius']['topLeft'] . $atts['style']['border']['radius']['topRight'] . $atts['style']['border']['radius']['bottomLeft'] . $atts['style']['border']['radius']['bottomRight'] . ';';
+		$style .= '--theme-form-field-border-radius:' . $maybe_radius . ';';
 	}
 
 	unset($atts['style']['border']);
@@ -143,6 +177,7 @@ $provider_data['provider'] .= ':' . $list_id;
 
 $form_url = $provider_data['form_url'];
 $has_gdpr_fields = $provider_data['has_gdpr_fields'];
+$has_double_optin = isset($provider_data['double_optin']) ? $provider_data['double_optin'] : false;
 
 $name_label = blocksy_default_akg(
 	'newsletter_subscribe_name_label',
@@ -162,6 +197,7 @@ $view_type = blocksy_default_akg(
 );
 
 $fields_number = '2';
+$gdpr_checkbox_id_suffix = substr(blocksy_rand_md5(), 0, 3);
 
 if ($has_name) {
 	$fields_number = '3';
@@ -177,28 +213,33 @@ $form_attrs = [
 	'data-provider' => $provider_data['provider'],
 ];
 
-$container_atts = [
-	'class' => 'ct-newsletter-subscribe-form-elements'
-];
-
-if ($view_type === 'inline') {
-	$container_atts['data-columns'] = $fields_number;
-}
-
 $container_type = blocksy_default_akg(
 	'newsletter_subscribe_container_type',
 	$atts,
 	'default'
 );
 
-if ($container_type === 'boxed') {
-	$container_atts['data-container'] = 'boxed';
+$container_atts = [
+	'class' => trim(
+		'ct-newsletter-subscribe-form-elements' . (
+			$container_type === 'boxed' ? ' ct-pseudo-input' : ''
+		)
+	),
+	'data-container' => $container_type,
+];
+
+if ($view_type === 'inline') {
+	$container_atts['data-columns'] = $fields_number;
 }
 
 $skip_submit_output = '';
 
 if ($has_gdpr_fields) {
 	$form_attrs['data-skip-submit'] = '';
+}
+
+if ($has_double_optin) {
+	$form_attrs['data-double-optin'] = '';
 }
 
 if (! empty($style) || ! empty($colors_css)) {
@@ -275,9 +316,12 @@ foreach ($button_colors as $key => $value) {
 		</div>
 
 		<?php
-			if (function_exists('blocksy_ext_cookies_checkbox')) {
+			if (function_exists('blocksy_companion_ext_cookies_checkbox')) {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo blocksy_ext_cookies_checkbox('newsletter-subscribe');
+				echo blocksy_companion_ext_cookies_checkbox(
+					'newsletter-subscribe',
+					$gdpr_checkbox_id_suffix
+				);
 			}
 		?>
 

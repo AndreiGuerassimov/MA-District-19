@@ -1,5 +1,9 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 $prefix = 'blc-product-review_single';
 
 $atts = apply_filters(
@@ -148,8 +152,8 @@ if (! empty($scores)) {
 	echo '</div>';
 }
 
-$has_read_more = blc_theme_functions()->blocksy_get_theme_mod($prefix . '_has_read_more', 'yes') === 'yes';
-$has_buy_now = blc_theme_functions()->blocksy_get_theme_mod($prefix . '_has_buy_now', 'yes') === 'yes';
+$has_read_more = blocksy_companion_theme_functions()->blocksy_get_theme_mod($prefix . '_has_read_more', 'yes') === 'yes';
+$has_buy_now = blocksy_companion_theme_functions()->blocksy_get_theme_mod($prefix . '_has_buy_now', 'yes') === 'yes';
 
 if ($has_read_more || $has_buy_now) {
 	echo '<div class="ct-product-actions-group">';
@@ -176,7 +180,7 @@ if ($has_read_more || $has_buy_now) {
 		echo esc_html($product_read_content_button_label);
 
 	/*
-	echo blc_get_icon([
+	echo blocksy_companion_get_icon([
 		'icon_descriptor' => blocksy_akg('product_read_content_button_icon', $atts, [
 			'icon' => 'fas fa-arrow-down'
 		]),
@@ -199,11 +203,11 @@ if ($has_read_more || $has_buy_now) {
 				'href' => esc_url($product_link),
 				'class' => 'ct-button'
 			], $link_atts),
-			$product_button_label
+			esc_html($product_button_label)
 		);
 
 	/*
-	echo blc_get_icon([
+	echo blocksy_companion_get_icon([
 		'icon_descriptor' => blocksy_akg('product_button_icon', $atts, [
 			'icon' => 'fas fa-cart-arrow-down'
 		]),
@@ -224,8 +228,10 @@ if (! empty($product_description)) {
 	echo '<div class="ct-product-description" ' . blocksy_schema_org_definitions('reviewBody') . '>';
 
 	echo '<div class="entry-content is-layout-flow">';
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo do_shortcode($product_description);
+	// Capability-independent: neutralizes any payload stored before the save-side
+	// sanitizer landed (and any rich content authored by trusted users), for
+	// every visitor including logged-in admins.
+	echo wp_kses_post(do_shortcode($product_description));
 	echo '</div>';
 
 	echo '</div>';

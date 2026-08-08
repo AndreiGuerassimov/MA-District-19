@@ -1,11 +1,11 @@
 === Blocksy Companion ===
 Tags: widget, widgets
-Requires at least: 6.5
+Requires at least: 6.7
 Requires PHP: 7.0
-Tested up to: 6.8
+Tested up to: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 2.1.18
+Stable tag: 2.1.52
 
 The official companion plugin for Blocksy theme, packed with starter sites, extra features, and integrations.
 
@@ -67,6 +67,157 @@ Program. The Patchstack team help validate, triage and handle any security
 vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/blocksy-companion)
 
 == Changelog ==
+2.1.52: 2026-08-06
+- Improvement: Advanced Taxonomies block - correctly load additional pages with Infinite Scroll pagination type
+- Improvement: Dynamic Data block - correctly display archive page images when used in Content Blocks
+- Improvement: Dynamic data block - prevent script tags from rendering in dynamic content fields
+
+2.1.51: 2026-07-30
+- Improvement: Dynamic data block - make sure the excerpt source is properly outputted on shop archive page
+- Improvement: Variation swatches - smarter and more resilient check for out of stock variations
+
+2.1.50: 2026-07-23
+- Improvement: General fixes and improvements
+
+2.1.49: 2026-07-14
+- Improvement: Add navigation pills option to advanced posts and advanced taxonomies blocks
+- Improvement: Cookies notice - replace CSS camel case variables with dashed names
+- Improvement: Dynamic data block - support for image captions
+
+2.1.48: 2026-07-01
+- Improvement: Improved Polylang compatibility when saving conditions without configured languages
+- Fix: Product reviews - fix issues when saving review meta fields
+
+2.1.47: 2026-06-24
+- Improvement: Make communication between theme and companion more resilient and optimized
+- Improvement: Scope single-product WooCommerce classes correctly
+
+2.1.46: 2026-06-17
+- Improvement: Account modal - better handling for login verification and interstitial steps
+- Improvement: Account modal - support for "All in One WP Security" plugin
+- Improvement: Dynamic data block - prevent unnecessary `aria-label` on unlinked images
+- Improvement: Dynamic data block - support semantic date output with `<time>` tag
+- Improvement: Product reviews - ensure product description post meta field is correctly sanitized upon save and display in frontend
+- Fix: Newsletter subscribe - fix GDPR checkbox ID collisions
+
+2.1.45: 2026-06-11
+- Improvement: General fixes and improvements
+
+2.1.44: 2026-05-29
+- Improvement: General fixes and improvements
+
+2.1.43: 2026-05-28
+- Improvement: Dynamic data - Ensure lightbox is rendered correctly for fields of type image
+- Improvement: Ensure customizer options import work well in all browsers
+- Improvement: General accessibility improvements
+- Improvement: Improved compatibility with Installatron software and WP CLI config
+- Improvement: Refactor search form markup for better accessibility and consistency
+
+2.1.42: 2026-05-14
+- Improvement: General fixes and improvements
+
+2.1.41: 2026-05-07
+- Improvement: Demo install - detect if a plugin can not be installed during the demo import and show a notice message
+
+2.1.40: 2026-05-01
+- Improvement: General fixes and improvements
+
+2.1.39: 2026-04-30
+- Improvement: Newsletter subscribe - make sure EmailOctopus integration works properly with the double opt-in feature
+- Improvement: Newsletter subscribe - make sure the Gutenberg block saves correctly the custom list
+
+2.1.38: 2026-04-09
+- Improvement: Better integration with Nextend Social Login plugin and account header element
+- Improvement: UI improvements related to WordPress 7.0 changes
+- Fix: Cookies Consent - avoid unnecessary admin-ajax.php calls on every page load
+
+2.1.37: 2026-03-26
+- Fix: More reliable backward compatibility with theme
+
+2.1.36: 2026-03-26
+- Fix: Sticky header - fix transparent state not restoring on scroll up at fractional DPR screens
+
+2.1.35: 2026-03-12
+- Improvement: Make the assets URL to show the correct plugin version
+
+2.1.34: 2026-03-06
+- Improvement: Account header element - small accessibility improvement
+- Fix: Demo importer - patch transparent conditions post IDs in install finish step
+
+2.1.33: 2026-03-05
+- Improvement: Advanced posts block - smarter output of markup attributes when slider mode is enabled
+- Improvement: Starter sites - ensure post IDs are referenced correctly in transparent header conditions after starter site install
+
+2.1.32: 2026-02-27
+- Improvement: Advanced posts block - make sure grid styles are no applied when slider mode is enabled
+- Improvement: Newsletter Subscribe - use real user agent for MailerLite API requests
+
+2.1.31: 2026-02-26
+- Improvement: Newsletter extension - better compatibility with MailChimp provider
+
+2.1.30: 2026-02-20
+- Improvement: Newsletter extension - apply the "double opt-in" functionality for Klaviyo and Mailerlite integration
+
+2.1.29: 2026-02-18
+- Improvement: Newsletter extension - correctly apply the "double opt-in" feature for Mailchimp integration
+
+2.1.28: 2026-02-12
+- Improvement: Product Reviews - add "address" field option for "Local Business" entity type
+- Improvement: Starter sites importer - more reliable way of installing Elementor starter sites
+
+2.1.27: 2026-01-30
+- Improvement: Demo importer - correctly export and import ACF custom taxonomies
+- Improvement: Dynamic data image - make sure cover type styles are loaded on demand
+
+2.1.26: 2026-01-29
+- Improvement: Advanced Posts Block - display a "no results found" message if posts don't meet the query criteria
+- Improvement: Dynamic data - add option to show "Archive Label" if "Archive Title" source is selected
+
+2.1.25: 2026-01-16
+- Improvement: General fixes and improvements
+
+2.1.24: 2026-01-15
+- Improvement: Account modal - better integration with JetPack's brute force protection feature
+- Improvement: Account modal - use template based approach for passing markup of the account content
+- Improvement: Advanced Posts block - correctly detect current post for custom fields when rendering cards
+- Improvement: Advanced posts & taxonomies blocks - make sure the block spacing option is correctly outputted in backed
+- Improvement: Advanced taxonomies block - add pagination functionality
+- Improvement: Cloudflare cache integration - update namespace for the CF classes
+- Improvement: Dynamic data block - make sure the image width is correctly handled in the block editor
+- Improvement: Dynamic data block - option to place "before/after" content inside the link if the link option is enabled
+- Improvement: HTTP2 chunked response breaks sse responses in starter site install
+- Improvement: Install companion notice - make sure the notice box appears only on specified dashboard pages
+- Improvement: Newsletter Subscribe block - improve handling for fields label edit flow in block editor
+- Improvement: SVG uploads - ensure all uploaded svg are persisted as fully valid HTML
+- Improvement: Social icons block - add horizontal alignment option
+
+2.1.23: 2025-12-11
+- Improvement: Account modal - integration with "Sign in with Google" option from Google Site Kit plugin
+- Improvement: Account modal - integration with Defender plugin from WPMUDEV
+- Improvement: Advanced Posts block - dynamic data image (cover) outputs the correct CSS after WordPress 6.9 update
+- Improvement: Demo importer - add compatibility with Fluent Snippets plugin
+- Improvement: Demo importer - more resilient flow for installing demo content
+- Improvement: Ensure slider assets are loaded correct for Advanced Posts placed in Gutenberg patterns
+- Improvement: Newsletter Subscribe extension - improve logic for passing the name in Mailchimp integration
+- Improvement: Newsletter subscribe block - make sure the border radius option outputs a linked value all the time
+
+2.1.22: 2025-11-27
+- Improvement: Demo importer - smarter and more resilient strategy for importing the content on servers with low resources
+
+2.1.21: 2025-11-13
+- Improvement: General fixes and improvements
+
+2.1.20: 2025-11-07
+- Improvement: Shop Extra/Filters - correctly clean up query params when filtering by price
+- Improvement: Smarter and safer logic for handling SVG upload
+- Fix: Improved logic for Blocksy theme detection
+
+2.1.19: 2025-11-06
+- Improvement: Account modal - better integration with JetPack plugin
+- Improvement: Better detection for Breakdance "theme disabler" option
+- Improvement: Demo install - correctly reset the install process after closing the demo import modal
+- Improvement: Make sure the SVG upload through customizer works properly
+
 2.1.18: 2025-10-30
 - Fix: Site Icon feature does not work with SVGs when Companion plugin is active
 
@@ -682,3 +833,4 @@ vulnerabilities. [Report a security vulnerability.](https://patchstack.com/datab
 1.8.66: 2023-01-11
 - Improvement: Better header sticky calculation with very high elements in the rows
 - Fix: Negative margin should not break sticky header calculations
+

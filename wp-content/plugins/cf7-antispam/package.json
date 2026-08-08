@@ -1,0 +1,93 @@
+{
+	"name": "cf7-antispam",
+	"author": "Erik Golinelli <erik@codekraft.it>",
+	"license": "GPL-2.0-only",
+	"version": "0.7.6",
+	"description": "AntiSpam for Contact Form 7",
+	"files": [
+		"admin/*",
+		"assets/icon.svg",
+		"build/*",
+		"core/*",
+		"engine/*",
+		"includes/*",
+		"vendor/*",
+		"languages/cf7-antispam.pot",
+		"languages/readme.txt",
+		"cf7-antispam.php",
+		"composer.json",
+		"LICENSE",
+		"readme.txt"
+	],
+	"scripts": {
+		"start": "wp-scripts start",
+		"build": "wp-scripts build",
+		"preplugin-zip": "npm run build && npm run makepot",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"--postplugin-zip": "composer install",
+		"lint:css": "wp-scripts lint-style ./src/**/*.scss --fix",
+		"lint:js": "wp-scripts lint-js ./src/**/*.ts --fix",
+		"packages-update": "wp-scripts packages-update",
+		"wp-env:start": "wp-env start",
+		"wp-env:xdebug": "wp-env start --xdebug",
+		"wp-env:stop": "wp-env stop",
+		"wp-env:destroy": "wp-env destroy",
+		"test:e2e": "wp-scripts test-playwright --config tests/e2e/playwright.config.js",
+		"test:e2e:ui": "wp-scripts test-playwright --config tests/e2e/playwright.config.js --ui",
+		"test:e2e:watch": "npm run test:e2e",
+		"postinstall": "husky install",
+		"makepot": "npx make-pot --silent",
+		"PHPCS": "wp-env run cli composer --env-cwd=wp-content/plugins/cf7-antispam PHPCS",
+		"composer:install": "wp-env run cli composer --env-cwd=wp-content/plugins/cf7-antispam setup",
+		"composer:build": "wp-env run cli composer --env-cwd=wp-content/plugins/cf7-antispam build",
+		"test:unit:php": "wp-env run tests-wordpress /var/www/html/wp-content/plugins/cf7-antispam/vendor/bin/phpunit -c /var/www/html/wp-content/plugins/cf7-antispam/phpunit.xml.dist --verbose"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/erikyo/contact-form-7-antispam.git"
+	},
+	"bugs": {
+		"url": "https://github.com/erikyo/contact-form-7-antispam/issues"
+	},
+	"homepage": "https://github.com/erikyo/contact-form-7-antispam#readme",
+	"dependencies": {
+		"chart.js": "^4.5.1",
+		"isotolanguage": "^1.3.1"
+	},
+	"devDependencies": {
+		"@wordpress/api-fetch": "^7.34.0",
+		"@wordpress/e2e-test-utils-playwright": "^1.34.0",
+		"@wordpress/env": "10.26.0",
+		"@wordpress/eslint-plugin": "^22.22.0",
+		"@wordpress/icons": "^10.19.0",
+		"@wordpress/scripts": "^31.2.0",
+		"@wp-blocks/make-pot": "^1.6.4",
+		"eslint-import-resolver-typescript": "^4.4.4",
+		"husky": "^9.1.7",
+		"prettier": "^3.7.4",
+		"typescript": "^5.9.3"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config",
+		"Safari > 8",
+		"IE > 10"
+	],
+	"eslintConfig": {
+		"extends": [
+			"plugin:@wordpress/eslint-plugin/esnext",
+			"plugin:@wordpress/eslint-plugin/recommended",
+			"plugin:@wordpress/eslint-plugin/jsdoc",
+			"plugin:@wordpress/eslint-plugin/i18n"
+		],
+		"rules": {
+			"@wordpress/dependency-group": "error"
+		}
+	},
+	"stylelint": {
+		"extends": [
+			"@wordpress/stylelint-config",
+			"@wordpress/stylelint-config/scss"
+		]
+	},
+	"prettier": "@wordpress/prettier-config"
+}

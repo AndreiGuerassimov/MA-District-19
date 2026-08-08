@@ -237,6 +237,14 @@ class ConditionsRulesResolver {
 			return is_tag();
 		}
 
+		if (strpos($rule['rule'], 'post_type_post_taxonomy_') !== false) {
+			return is_tax(str_replace(
+				'post_type_post_taxonomy_',
+				'',
+				$rule['rule']
+			));
+		}
+
 		if ($rule['rule'] === 'single_page') {
 			return is_singular('page');
 		}
@@ -244,9 +252,9 @@ class ConditionsRulesResolver {
 		if (
 			$rule['rule'] === 'single_product'
 			&&
-			blc_theme_functions()->blocksy_manager()
+			blocksy_companion_theme_functions()->blocksy_manager()
 		) {
-			return blc_theme_functions()->blocksy_manager()->screen->is_product();
+			return blocksy_companion_theme_functions()->blocksy_manager()->screen->is_product();
 		}
 
 		if ($rule['rule'] === 'all_product_archives') {
@@ -273,6 +281,14 @@ class ConditionsRulesResolver {
 			if (function_exists('is_shop')) {
 				return is_tax('product_brand');
 			}
+		}
+
+		if (strpos($rule['rule'], 'post_type_product_taxonomy_') !== false) {
+			return is_tax(str_replace(
+				'post_type_product_taxonomy_',
+				'',
+				$rule['rule']
+			));
 		}
 
 		if ($rule['rule'] === 'all_product_attributes') {
@@ -365,11 +381,11 @@ class ConditionsRulesResolver {
 				return false;
 			}
 
-			if (! blc_theme_functions()->blocksy_manager()) {
+			if (! blocksy_companion_theme_functions()->blocksy_manager()) {
 				return false;
 			}
 
-			$manager = blc_theme_functions()->blocksy_manager();
+			$manager = blocksy_companion_theme_functions()->blocksy_manager();
 
 			if (! isset($manager->archive) || ! $manager->archive) {
 				return false;

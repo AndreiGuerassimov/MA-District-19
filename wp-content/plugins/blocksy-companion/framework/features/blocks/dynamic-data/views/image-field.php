@@ -1,5 +1,9 @@
 <?php
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 $view_type = blocksy_akg('viewType', $attributes, 'default');
 
 if ($view_type === 'cover') {
@@ -11,7 +15,7 @@ if ($view_type === 'cover') {
 		return;
 	}
 
-	blocksy_render_view_e(
+	blocksy_companion_render_view_e(
 		dirname(__FILE__) . '/cover-field.php',
 		[
 			'attributes' => $attributes,
@@ -34,6 +38,7 @@ $height = blocksy_akg('height', $attributes, '');
 
 $lightbox = blocksy_akg('lightbox', $attributes, '');
 $video_thumbnail = blocksy_akg('videoThumbnail', $attributes, '');
+$has_image_caption = blocksy_akg('has_image_caption', $attributes, 'no');
 $image_hover_effect = blocksy_akg('image_hover_effect', $attributes, '');
 
 $size_slug = blocksy_akg('sizeSlug', $attributes, 'full');
@@ -81,7 +86,6 @@ if (
 
 $wrapper_attr = [
 	'class' => 'ct-dynamic-media',
-	'aria-label' => wp_strip_all_tags($aria_label),
 ];
 
 $link_attr = [];
@@ -154,7 +158,8 @@ if (
 	)
 ) {
 	$link_attr = [
-		'href' => $url
+		'href' => $url,
+		'aria-label' => wp_strip_all_tags($aria_label),
 	];
 
 	if ($has_field_link_new_tab !== 'no') {
@@ -245,14 +250,36 @@ if (
 	);
 }
 
+$caption_html = '';
+
+if ($has_image_caption === 'yes') {
+	$caption = wp_get_attachment_caption($attachment_id);
+
+	if (! empty($caption)) {
+		$caption_html = blocksy_html_tag(
+			'figcaption',
+			[
+				'class' => 'wp-element-caption'
+			],
+			wp_kses_post($caption)
+		);
+	}
+}
+
 $tag_name = 'figure';
 
 if (! empty($link_attr)) {
-	$tag_name = 'a';
-	$wrapper_attr = array_merge(
-		$wrapper_attr,
-		$link_attr
-	);
+	if (! empty($caption_html)) {
+		$value = blocksy_html_tag('a', $link_attr, $value) . $caption_html;
+	} else {
+		$tag_name = 'a';
+		$wrapper_attr = array_merge(
+			$wrapper_attr,
+			$link_attr
+		);
+	}
+} else {
+	$value .= $caption_html;
 }
 
 $wrapper_attr = get_block_wrapper_attributes($wrapper_attr);
@@ -268,10 +295,35 @@ if (
 	&&
 	!$maybe_video
 ) {
+	$lightbox_block = [
+		'blockName' => 'core/image',
+		'attrs' => [
+			'id' => $attachment_id,
+			'linkDestination' => 'none',
+		],
+		'innerBlocks' => [],
+		'innerHTML' => '',
+		'innerContent' => [],
+	];
+
+	$lightbox_block_instance = null;
+
+	if (class_exists('WP_Block')) {
+		$lightbox_block_instance = new WP_Block($lightbox_block);
+	}
+
+	// Match core/image asset loading for lightbox behavior.
+	if (function_exists('wp_enqueue_script_module')) {
+		wp_enqueue_script_module('@wordpress/block-library/image/view');
+	}
+
+	wp_enqueue_style('wp-block-image');
+
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo block_core_image_render_lightbox(
 		blocksy_html_tag($tag_name, $wrapper_attr, $value),
-		[]
+		$lightbox_block,
+		$lightbox_block_instance
 	);
 
 	return;

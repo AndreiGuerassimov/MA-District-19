@@ -2,6 +2,10 @@
 
 namespace Blocksy;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class HeaderAdditions {
 	private $has_transparent_header = '__DEFAULT__';
 	private $has_sticky_header = '__DEFAULT__';
@@ -64,11 +68,11 @@ class HeaderAdditions {
 		});
 
 		add_filter('blocksy:header:row-wrapper-attr', function ($attr, $row, $device) {
-			if (! blc_theme_functions()->blocksy_manager()) {
+			if (! blocksy_companion_theme_functions()->blocksy_manager()) {
 				return $attr;
 			}
 
-			$current_section = blc_theme_functions()->blocksy_manager()->header_builder->get_current_section();
+			$current_section = blocksy_companion_theme_functions()->blocksy_manager()->header_builder->get_current_section();
 
 			if (!isset($current_section['settings'])) {
 				$current_section['settings'] = [];
@@ -227,7 +231,7 @@ class HeaderAdditions {
 		});
 
 		add_filter('blocksy:header:settings', function ($opt) {
-			$opt = blocksy_get_options(
+			$opt = blocksy_companion_get_options(
 				dirname(__FILE__) . '/header/header-options.php',
 				[],
 				false
@@ -259,7 +263,7 @@ class HeaderAdditions {
 	}
 
 	public function current_screen_has_transparent($check_conditions = true, $current_section_id = null) {
-		if (! blc_theme_functions()->blocksy_manager()) {
+		if (! blocksy_companion_theme_functions()->blocksy_manager()) {
 			return false;
 		}
 
@@ -270,7 +274,7 @@ class HeaderAdditions {
 			||
 			! $check_conditions
 		) {
-			$current_section = blc_theme_functions()->blocksy_manager()->header_builder->get_current_section(
+			$current_section = blocksy_companion_theme_functions()->blocksy_manager()->header_builder->get_current_section(
 				$current_section_id
 			);
 
@@ -372,11 +376,11 @@ class HeaderAdditions {
 			return $this->has_sticky_header;
 		}
 
-		if (! blc_theme_functions()->blocksy_manager()) {
+		if (! blocksy_companion_theme_functions()->blocksy_manager()) {
 			return false;
 		}
 
-		$current_section = blc_theme_functions()->blocksy_manager()->header_builder->get_current_section(
+		$current_section = blocksy_companion_theme_functions()->blocksy_manager()->header_builder->get_current_section(
 			$section_id
 		);
 
@@ -438,86 +442,46 @@ class HeaderAdditions {
 		return $has_sticky_header_result;
 	}
 
-	public function patch_conditions($post_id, $old_post_id) {
-		if (! blc_theme_functions()->blocksy_manager()) {
+	public function patch_conditions($processed_posts) {
+		if (empty($processed_posts)) {
 			return;
 		}
 
 		$conditions = $this->get_conditions();
+
+		if (empty($conditions)) {
+			return;
+		}
+
+		$conditions_changed = false;
 
 		foreach ($conditions as $index => $single_condition) {
 			if (! isset($single_condition['conditions']['conditions'])) {
 				continue;
 			}
 
-			$particular_conditions = $single_condition['conditions']['conditions'];
-
-			foreach ($particular_conditions as $nested_index => $single_particular_condition) {
+			foreach ($single_condition['conditions']['conditions'] as $nested_index => $single_particular_condition) {
 				if (
-					($single_particular_condition['rule'] === 'page_ids'
-						||
-						$single_particular_condition['rule'] === 'post_ids'
-					) && (isset($single_particular_condition['payload'])
-						&&
-						isset($single_particular_condition['payload']['post_id'])
-						&&
-						intval(
-							$single_particular_condition['payload']['post_id']
-						) === $old_post_id
-					)
+					isset($single_particular_condition['payload']['post_id'])
+					&&
+					isset($processed_posts[intval($single_particular_condition['payload']['post_id'])])
 				) {
-					$particular_conditions[$nested_index]['payload']['post_id'] = $post_id;
+					$conditions[$index]['conditions']['conditions'][$nested_index]['payload']['post_id'] = intval(
+						$processed_posts[intval($single_particular_condition['payload']['post_id'])]
+					);
+
+					$conditions_changed = true;
 				}
-			}
-
-			$conditions[$index]['conditions']['conditions'] = $particular_conditions;
-		}
-
-		$this->set_conditions($conditions);
-
-		$section_value = blc_theme_functions()->blocksy_manager()->header_builder->get_section_value();
-
-		foreach ($section_value['sections'] as $index => $current_section) {
-			if (! isset($current_section['settings'])) {
-				continue;
-			}
-
-			if (
-				! isset($current_section['settings']['transparent_conditions'])
-				||
-				! isset($current_section['settings']['transparent_conditions']['conditions'])
-			) {
-				continue;
-			}
-
-			foreach ($current_section['settings']['transparent_conditions']['conditions'] as $cond_index => $single_condition) {
-				$particular_conditions = $single_condition;
-
-				if (
-					($single_condition['rule'] === 'page_ids'
-						||
-						$single_condition['rule'] === 'post_ids'
-					) && (isset($single_condition['payload'])
-						&&
-						isset($single_condition['payload']['post_id'])
-						&&
-						intval(
-							$single_condition['payload']['post_id']
-						) === $old_post_id
-					)
-				) {
-					$single_condition['payload']['post_id'] = $post_id;
-				}
-
-				$section_value['sections'][$index]['settings']['transparent_conditions']['conditions'][$cond_index] = $single_condition;
 			}
 		}
 
-		set_theme_mod('header_placements', $section_value);
+		if ($conditions_changed) {
+			$this->set_conditions($conditions);
+		}
 	}
 
 	public function get_conditions() {
-		$option = blc_theme_functions()->blocksy_get_theme_mod('blocksy_premium_header_conditions', []);
+		$option = blocksy_companion_theme_functions()->blocksy_get_theme_mod('blocksy_premium_header_conditions', []);
 
 		if (empty($option)) {
 			return [];
@@ -551,7 +515,7 @@ class HeaderAdditions {
 
 		$atts = $render->get_item_data_for('account');
 
-		$html = blocksy_render_view(
+		$html = blocksy_companion_render_view(
 			dirname(__FILE__) . '/header/account-modal.php',
 			[
 				'current_url' => blocksy_current_url(),

@@ -31,7 +31,7 @@ class BrevoProvider extends Provider {
 			return array_map(function($list) {
 				return [
 					'name' => $list['name'],
-					'id' => $list['id'],
+					'id' => (string) $list['id'],
 				];
 			}, $body['lists']);
 		} else {
@@ -59,15 +59,9 @@ class BrevoProvider extends Provider {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init
 		$curl = curl_init();
 
-		$lname = '';
-		$fname = '';
-
-		if (! empty($args['name'])) {
-			$parts = explode(' ', $args['name']);
-
-			$lname = array_pop($parts);
-			$fname = implode(' ', $parts);
-		}
+		$name_parts = $this->maybe_split_name($args['name']);
+		$fname = $name_parts['first_name'];
+		$lname = $name_parts['last_name'];
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt_array
 		curl_setopt_array($curl, array(
@@ -81,10 +75,12 @@ class BrevoProvider extends Provider {
 			CURLOPT_CUSTOMREQUEST => "POST",
 			CURLOPT_POSTFIELDS => json_encode([
 				'email' => $args['email'],
-				'attributes' => [
-					'FIRSTNAME' => $fname,
-					'LASTNAME' => $lname
-				],
+				'attributes' => array_merge(
+					[
+						'FIRSTNAME' => $fname
+					],
+					(! empty($lname) ? [ 'LASTNAME' => $lname ] : [])
+				),
 				'listIds' => [intval($args['group'])]
 			]),
 			CURLOPT_HTTPHEADER => [
@@ -118,7 +114,7 @@ class BrevoProvider extends Provider {
 
 			return [
 				'result' => 'yes',
-				'message' => __('Thank you for subscribing to our newsletter!', 'blocksy-companion')
+				'message' => NewsletterMessages::subscribed_successfully()
 			];
 		}
 	}

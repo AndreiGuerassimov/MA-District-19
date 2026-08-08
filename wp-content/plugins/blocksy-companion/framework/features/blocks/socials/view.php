@@ -1,4 +1,9 @@
 <?php
+
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 /**
  * Socials Widget
  *
@@ -108,6 +113,19 @@ if (! empty($items_spacing)) {
 	$wrapper_attr['style'] .= '--items-spacing:' . $items_spacing . 'px;';
 }
 
+$justifyContentMap = [
+	'left' => 'flex-start',
+	'center' => 'center',
+	'right' => 'flex-end',
+	'space-between' => 'space-between',
+];
+
+$justifyContent = blocksy_akg('justifyContent', $atts, 'left');
+$root_attr['style'] = '';
+if (isset($justifyContentMap[$justifyContent]) && $justifyContent !== 'left') {
+	$root_attr['style'] .= 'justify-content: ' . $justifyContentMap[$justifyContent] . ';';
+}
+
 if (empty($wrapper_attr['style'])) {
 	unset($wrapper_attr['style']);
 }
@@ -139,6 +157,7 @@ echo blocksy_social_icons(
 		'type' => $type,
 		'links_target' => $link_target,
 		'links_rel' => $link_rel,
+		'root_attr' => $root_attr
 	]
 );
 

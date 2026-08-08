@@ -1,7 +1,4 @@
 <?php
-
-namespace CF7_AntiSpam\Engine;
-
 /**
  * Fired during plugin activation.
  *
@@ -13,12 +10,15 @@ namespace CF7_AntiSpam\Engine;
  * @author     Codekraft Studio <info@codekraft.it>
  */
 
+namespace CF7_AntiSpam\Engine;
+
 use CF7_AntiSpam\Admin\CF7_AntiSpam_Admin_Tools;
 
 /**
  * It's a class that activates the plugin.
  */
 class CF7_AntiSpam_Activator {
+
 
 	/**
 	 * Creating a private static variable called $default_cf7a_options and assigning it an empty array.
@@ -39,59 +39,63 @@ class CF7_AntiSpam_Activator {
 	 */
 	public static function init_vars() {
 		self::$default_cf7a_options = array(
-			'cf7a_enable'                      => true,
-			'cf7a_version'                     => CF7ANTISPAM_VERSION,
-			'cf7a_customizations_class'        => CF7ANTISPAM_HONEYPOT_CLASS,
-			'cf7a_customizations_prefix'       => CF7ANTISPAM_PREFIX,
-			'cf7a_cipher'                      => 'aes-128-cbc',
-			'cf7a_score_preset'                => 'weak',
-			'cf7a_disable_reload'              => true,
-			'check_bot_fingerprint'            => true,
-			'check_bot_fingerprint_extras'     => true,
-			'append_on_submit'                 => true,
-			'check_time'                       => true,
-			'check_time_min'                   => 6,
-			'check_time_max'                   => YEAR_IN_SECONDS,
-			'check_bad_ip'                     => true,
-			'autostore_bad_ip'                 => true,
-			'max_attempts'                     => 3,
-			'unban_after'                      => 'disabled',
-			'check_bad_words'                  => true,
-			'check_bad_email_strings'          => true,
-			'check_bad_user_agent'             => true,
-			'check_dnsbl'                      => false,
-			'check_refer'                      => true,
-			'check_honeypot'                   => true,
-			'check_honeyform'                  => false,
-			'identity_protection_user'         => false,
-			'identity_protection_wp'           => false,
-			'enable_geoip_download'            => false,
-			'geoip_dbkey'                      => false,
-			'check_language'                   => false,
-			'check_geo_location'               => false,
-			'honeyform_position'               => 'the_content',
-			'enable_b8'                        => true,
-			'b8_threshold'                     => 0.95,
-			'enable_advanced_settings'         => 0,
-			'mailbox_protection_multiple_send' => 0,
-			'bad_words_list'                   => array(),
-			'bad_ip_list'                      => array(),
-			'ip_whitelist'                     => array(),
-			'bad_email_strings_list'           => array(),
-			'bad_user_agent_list'              => array(),
-			'dnsbl_list'                       => array(),
-			'honeypot_input_names'             => array(),
-			'honeyform_excluded_pages'         => array(),
-			'languages_locales'                => array(
+			'cf7a_enable'                         => true,
+			'cf7a_version'                        => CF7ANTISPAM_VERSION,
+			'cf7a_customizations_class'           => CF7ANTISPAM_HONEYPOT_CLASS,
+			'cf7a_customizations_prefix'          => CF7ANTISPAM_PREFIX,
+			'cf7a_cipher'                         => 'aes-128-cbc',
+			'cf7a_score_preset'                   => 'weak',
+			'cf7a_disable_reload'                 => false,
+			'optimize_scripts_loading'            => false,
+			'check_bot_fingerprint'               => false,
+			'check_bot_fingerprint_extras'        => false,
+			'append_on_submit'                    => false,
+			'check_time'                          => true,
+			'check_time_min'                      => 6,
+			'check_time_max'                      => YEAR_IN_SECONDS,
+			'check_bad_ip'                        => true,
+			'autostore_bad_ip'                    => true,
+			'max_attempts'                        => 3,
+			'unban_after'                         => 'disabled',
+			'check_bad_words'                     => true,
+			'check_high_entropy'                  => true,
+			'high_entropy_min_words'              => 5,
+			'high_entropy_consecutive_consonants' => 6,
+			'check_bad_email_strings'             => true,
+			'check_bad_user_agent'                => true,
+			'check_dnsbl'                         => false,
+			'check_refer'                         => true,
+			'check_honeypot'                      => true,
+			'check_honeyform'                     => false,
+			'identity_protection_user'            => false,
+			'identity_protection_wp'              => false,
+			'enable_geoip_download'               => false,
+			'geoip_dbkey'                         => false,
+			'check_language'                      => false,
+			'check_geo_location'                  => false,
+			'honeyform_position'                  => 'the_content',
+			'enable_b8'                           => true,
+			'b8_threshold'                        => 0.95,
+			'enable_advanced_settings'            => 0,
+			'mailbox_protection_multiple_send'    => 0,
+			'bad_words_list'                      => array(),
+			'bad_ip_list'                         => array(),
+			'ip_allowlist'                        => array(),
+			'bad_email_strings_list'              => array(),
+			'bad_user_agent_list'                 => array(),
+			'dnsbl_list'                          => array(),
+			'honeypot_input_names'                => array(),
+			'honeyform_excluded_pages'            => array(),
+			'languages_locales'                   => array(
 				'allowed'    => array(),
 				'disallowed' => array(),
 			),
-			'score'                            => array(
+			'score'                               => array(
 				'_fingerprinting' => 0.1,
 				'_time'           => 0.3,
 				'_bad_string'     => 0.5,
 				'_dnsbl'          => 0.1,
-				'_honeypot'       => 0.3,
+				'_honeypot'       => 0.5,
 				'_detection'      => 0.7,
 				'_warn'           => 0.3,
 			),
@@ -115,12 +119,10 @@ class CF7_AntiSpam_Activator {
 				'PHP',
 			),
 			'dnsbl_list'             => array(
-				/* ipv4 dnsbl */
-				'dnsbl-2.uceprotect.net',
-				'dnsbl-3.uceprotect.net',
+				/** The ipv4 dnsbl. */
 				'zen.spamhaus.org',
 				'b.barracudacentral.org',
-				/* ipv6 dnsbl but due to the unlimited number of ipv6 dnsl will have a lower impact */
+				/** The ipv6 dnsbl. */
 				'bl.ipv6.spameatingmonkey.net',
 			),
 			'honeypot_input_names'   => array(
@@ -157,46 +159,75 @@ class CF7_AntiSpam_Activator {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$table_wordlist  = $wpdb->prefix . 'cf7a_wordlist';
-		$table_blacklist = $wpdb->prefix . 'cf7a_blacklist';
+		$table_wordlist = $wpdb->prefix . 'cf7a_wordlist';
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-		/* Create the term database  if not available */
-		if ( $wpdb->get_var( "SHOW TABLES like '{$table_wordlist}'" ) !== $table_wordlist ) {
+		// Create the term database if not available
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$has_wordlist_table = $wpdb->get_var(
+			$wpdb->prepare( 'SHOW TABLES like %s', $table_wordlist )
+		);
+		if ( $has_wordlist_table !== $table_wordlist ) {
 			$cf7a_wordlist = 'CREATE TABLE IF NOT EXISTS `' . $table_wordlist . "` (
 			  `token` varchar(100) character set utf8 collate utf8_bin NOT NULL,
 			  `count_ham` int unsigned default NULL,
 			  `count_spam` int unsigned default NULL,
 			  PRIMARY KEY (`token`)
 			) $charset_collate;";
-
 			dbDelta( $cf7a_wordlist );
 
-			$cf7a_wordlist_version = 'INSERT INTO `' . $wpdb->prefix . "cf7a_wordlist` (`token`, `count_ham`) VALUES ('b8*dbversion', '3');";
-			$cf7a_wordlist_texts   = 'INSERT INTO `' . $wpdb->prefix . "cf7a_wordlist` (`token`, `count_ham`, `count_spam`) VALUES ('b8*texts', '0', '0');";
+			// Insert the default values
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->query( $wpdb->prepare( "INSERT INTO %i (`token`, `count_ham`) VALUES ('b8*dbversion', '3');", $table_wordlist ) );
 
-			dbDelta( $cf7a_wordlist_version );
-			dbDelta( $cf7a_wordlist_texts );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->query( $wpdb->prepare( "INSERT INTO %i (`token`, `count_ham`, `count_spam`) VALUES ('b8*texts', '0', '0');", $table_wordlist ) );
 
 			cf7a_log( "{$table_wordlist} table creation succeeded", 2 );
 		}
 
-		/* Create the blacklist database */
-		if ( $wpdb->get_var( "SHOW TABLES like '{$table_blacklist}'" ) !== $table_blacklist ) {
-			$cf7a_database = "CREATE TABLE IF NOT EXISTS `{$table_blacklist}` (
+		// Create the blocklist database
+		$table_blocklist = $wpdb->prefix . 'cf7a_blocklist';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$has_blocklist_table = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES like %s', $table_blocklist ) );
+		if ( $has_blocklist_table !== $table_blocklist ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
+			$cf7a_database = "CREATE TABLE IF NOT EXISTS $table_blocklist (
 				 `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 				 `ip` varchar(45) NOT NULL,
 				 `status` int(10) unsigned DEFAULT NULL,
 				 `meta` longtext,
+			    `modified` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+			    `created` datetime DEFAULT CURRENT_TIMESTAMP,
 				 PRIMARY KEY (`id`),
 	             UNIQUE KEY `id` (`ip`)
 			) $charset_collate;";
 
-			dbDelta( $cf7a_database );
+			$result = dbDelta( $cf7a_database );
 
-			cf7a_log( "{$table_blacklist} table creation succeeded", 2 );
-		}
+			if ( $result ) {
+				cf7a_log( "{$table_blocklist} table creation/update succeeded", 2 );
+			} else {
+				cf7a_log( "{$table_blocklist} table creation/update failed", 1 );
+			}
+		}//end if
+	}
+
+	/**
+	 * Store the update data
+	 *
+	 * @param array $options - the options array.
+	 */
+	private static function store_update_data( $options ) {
+		/* update the plugin update time field */
+		$options['last_update_data'] = array(
+			'time'        => time(),
+			'old_version' => $options['cf7a_version'] ?? 'unknown',
+			'new_version' => CF7ANTISPAM_VERSION,
+			'errors'      => array(),
+		);
+		return $options;
 	}
 
 	/**
@@ -212,7 +243,7 @@ class CF7_AntiSpam_Activator {
 		if ( false === $options || $reset_options ) {
 
 			// Delete all options
-			if ( $reset_options === true ) {
+			if ( true === $reset_options ) {
 				delete_option( 'cf7a_options' );
 			}
 
@@ -222,10 +253,14 @@ class CF7_AntiSpam_Activator {
 			add_option( 'cf7a_options', $new_options );
 
 		} else {
-
-			/* update the plugin options but add the new options automatically */
+			/* if the plugin is already installed, update the plugin options automatically */
 			if ( isset( $options['cf7a_version'] ) ) {
-				unset( $options['cf7a_version'] );
+
+				/* update the plugin last update time field if the current version is set (so we are updating the plugin and not installing it) */
+				$options = self::store_update_data( $options );
+
+				/* remove the version field */
+				$options['cf7a_version'] = CF7ANTISPAM_VERSION;
 			}
 
 			/* merge previous options with the updated copy keeping the already selected option as default */
@@ -234,11 +269,14 @@ class CF7_AntiSpam_Activator {
 			cf7a_log( 'CF7-antispam plugin options updated', 1 );
 
 			update_option( 'cf7a_options', $new_options );
-		}
+		}//end if
 
-		cf7a_log( $new_options, 1 );
+		cf7a_log( $new_options, 2 );
 
-		CF7_AntiSpam_Admin_Tools::cf7a_push_notice( esc_html__( 'CF7 AntiSpam updated successful! Please flush cache to refresh hidden form data', 'cf7-antispam' ), 'success cf7-antispam' );
+		CF7_AntiSpam_Admin_Tools::cf7a_push_notice(
+			esc_html__( 'CF7 AntiSpam updated successful! Please flush cache to refresh hidden form data', 'cf7-antispam' ),
+			'success cf7-antispam'
+		);
 	}
 
 	/**
@@ -257,7 +295,7 @@ class CF7_AntiSpam_Activator {
 		/* If the options do not exist then create them*/
 		self::update_options();
 
-		/* Checks and handles updates on version change */
+		/* Checks and handles updates on version change, shou */
 		$options = get_option( 'cf7a_options' );
 		$updater = new \CF7_AntiSpam\Engine\CF7_AntiSpam_Updater( CF7ANTISPAM_VERSION, $options );
 		$updater->may_do_updates();
@@ -275,6 +313,7 @@ class CF7_AntiSpam_Activator {
 
 		if ( is_multisite() && $network_wide ) {
 			// Get all blogs in the network and activate plugin on each one.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" );
 			foreach ( $blog_ids as $blog_id ) {
 				switch_to_blog( $blog_id );
@@ -285,5 +324,4 @@ class CF7_AntiSpam_Activator {
 			self::activate();
 		}
 	}
-
 }

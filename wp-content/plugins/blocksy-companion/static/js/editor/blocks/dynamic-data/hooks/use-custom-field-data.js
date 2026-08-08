@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from '@wordpress/element'
 
-import { getStableJsonKey } from 'ct-wordpress-helpers/get-stable-json-key'
-import cachedFetch from 'ct-wordpress-helpers/cached-fetch'
+import { getStableJsonKey } from '@creative-themes/wordpress-helpers/get-stable-json-key'
+import cachedFetch from '@creative-themes/wordpress-helpers/cached-fetch'
 
 // TODO: maybe rename this hook to show that it can be used for something else
 // other than custom fields.

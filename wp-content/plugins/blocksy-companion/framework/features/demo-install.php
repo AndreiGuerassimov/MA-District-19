@@ -2,6 +2,10 @@
 
 namespace Blocksy;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 class DemoInstall {
 	public function __construct() {
 		$demo_export = new DemoInstallExport();
@@ -140,6 +144,7 @@ class DemoInstall {
 				return $d;
 			}
 		);
+
 	}
 
 	public function get_demo_remote_url($args = []) {
@@ -220,7 +225,7 @@ class DemoInstall {
 			]
 		);
 
-		$body = blc_request_remote_url(
+		$body = blocksy_companion_request_remote_url(
 			$this->get_demo_remote_url([
 				'route' => 'get_single',
 				'demo' => $args['demo'] . ':' . $args['builder'],
@@ -242,7 +247,7 @@ class DemoInstall {
 	}
 
 	public function fetch_all_demos() {
-		$body = blc_request_remote_url(
+		$body = blocksy_companion_request_remote_url(
 			$this->get_demo_remote_url([
 				'route' => 'get_all'
 			]),
