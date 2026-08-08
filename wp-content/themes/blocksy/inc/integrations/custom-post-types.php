@@ -5,6 +5,26 @@ namespace Blocksy;
 class CustomPostTypes {
 	private $supported_post_types = null;
 
+	public function __construct() {
+		// Wipe any caches that might have been computed before the WP action.
+		// These are usually custom the_content triggers that are ran on demand
+		// by various SEO plugins -- usually in wp_head action.
+		add_action(
+			'wp',
+			function () {
+				$this->wipe_caches();
+			},
+			PHP_INT_MAX
+		);
+
+		// Wipe caches when a new post type is registered.
+		// Sometimes, plugins register post types late in the request lifecycle
+		// causing our cached list to be outdated.
+		add_action('registered_post_type', function () {
+			$this->wipe_caches();
+		});
+	}
+
 	public function wipe_caches() {
 		$this->supported_post_types = null;
 	}
@@ -17,13 +37,6 @@ class CustomPostTypes {
 			]));
 
 			$exclude_post_types = [
-
-				// theme
-				'ct_content_block',
-				'ct_thank_you_page',
-				'ct_product_tab',
-				'ct_size_guide',
-
 				// elements kit
 				'elementskit_content',
 				'elementskit_template',
@@ -46,6 +59,8 @@ class CustomPostTypes {
 				'sfwd-essays',
 				'sfwd-transactions',
 				'sfwd-certificates',
+				'sfwd-quiz',
+				'sfwd-question',
 
 				// Lifter LMS
 				'llms_quiz',
@@ -165,8 +180,19 @@ class CustomPostTypes {
 				$exclude_post_types[] = 'eventkoi_event';
 			}
 
+			if (class_exists('Visual_Portfolio')) {
+				$exclude_post_types[] = 'portfolio';
+			}
+
 			$potential_post_types = array_values(array_diff($potential_post_types, $exclude_post_types));
 
+			/**
+			 * Filters the custom post types supported by the theme options.
+			 *
+			 * @since 1.7.11
+			 *
+			 * @param string[] $post_types List of supported post type names.
+			 */
 			$this->supported_post_types = array_unique(apply_filters(
 				'blocksy:custom_post_types:supported_list',
 				$potential_post_types
@@ -198,8 +224,16 @@ class CustomPostTypes {
 		) {
 			$tax = null;
 
-			foreach ($tax_query->queries as $taxonomy) {
-				if (isset($taxonomy['taxonomy'])) {
+			if (
+				isset($tax_query->queries)
+				&&
+				is_array($tax_query->queries)
+			) {
+				foreach ($tax_query->queries as $taxonomy) {
+					if (! isset($taxonomy['taxonomy'])) {
+						continue;
+					}
+
 					$taxonomy_obj = get_taxonomy($taxonomy['taxonomy']);
 
 					if ($taxonomy_obj->public) {
@@ -209,7 +243,13 @@ class CustomPostTypes {
 				}
 			}
 
-			if ($tax && ! is_array($tax) && isset($wp_taxonomies[$tax])) {
+			if (
+				$tax
+				&&
+				! is_array($tax)
+				&&
+				isset($wp_taxonomies[$tax])
+			) {
 				$all_tax_post_types = $wp_taxonomies[$tax]->object_type;
 
 				if (
@@ -240,6 +280,13 @@ class CustomPostTypes {
 			return $post_type;
 		}
 
+		/**
+		 * Filters the computed post type of the currently rendered screen.
+		 *
+		 * @since 1.8.8
+		 *
+		 * @param string|null $post_type The detected post type name.
+		 */
 		$post_type = apply_filters(
 			'blocksy:custom_post_types:current_post_type:compute',
 			$post_type
@@ -282,10 +329,16 @@ class CustomPostTypes {
 			$to_exclude
 		));
 
+		/**
+		 * Filters the list of all public custom post types.
+		 *
+		 * @since 2.0.48
+		 *
+		 * @param string[] $post_types List of post type names.
+		 */
 		return apply_filters(
 			'blocksy:custom_post_types:all_post_types',
 			$custom_post_types
 		);
 	}
 }
-

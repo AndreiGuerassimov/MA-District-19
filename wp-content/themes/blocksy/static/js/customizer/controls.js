@@ -54,12 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				document.querySelector('.ct-onboarding-button')
 			)
 			root.render(
-				<ProOverlay
-					username={
-						document.querySelector('.ct-onboarding-button button')
-							.dataset.username
-					}
-				/>
+				<ProOverlay username={ct_customizer_localizations.username} />
 			)
 		}
 	}, 50)
@@ -186,7 +181,7 @@ export {
 
 export { getColorsDefaults } from '../editor/utils/colors'
 
-export * as syncHelpers from 'customizer-sync-helpers'
+export * as syncHelpers from '@creative-themes/customizer-sync-helpers'
 
 /**
  * Expose builder values

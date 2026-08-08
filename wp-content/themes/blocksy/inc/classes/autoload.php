@@ -13,8 +13,14 @@ class ThemeAutoloader {
 	 *
 	 * @var array Classes used by blocksy.
 	 */
+	private static $additional_classes = [];
+
+	public static function register_classes($classes) {
+		self::$additional_classes = array_merge(self::$additional_classes, $classes);
+	}
+
 	private static function get_classes_map() {
-		return apply_filters('blocksy_theme_autoloader_classes_map', [
+		return array_merge([
 			'RaiiPattern' => 'inc/classes/raii.php',
 			'WordPressActionsManager' => 'inc/classes/trait-wordpress-actions-manager.php',
 
@@ -22,6 +28,7 @@ class ThemeAutoloader {
 
 			'StringHelpers' => 'inc/classes/StringHelpers.php',
 
+			'CompanionBridge' => 'inc/classes/companion-bridge.php',
 			'Database' => 'inc/classes/database.php',
 			'DbVersioning' => 'inc/classes/theme-db-versioning.php',
 
@@ -58,12 +65,13 @@ class ThemeAutoloader {
 			'DbVersioning\\V210' => 'inc/classes/db-versioning/v2-1-0.php',
 			'DbVersioning\\V211' => 'inc/classes/db-versioning/v2-1-1.php',
 			'DbVersioning\\V2110' => 'inc/classes/db-versioning/v2-1-10.php',
+			'DbVersioning\\V2144' => 'inc/classes/db-versioning/v2-1-44.php',
+			'DbVersioning\\V2145' => 'inc/classes/db-versioning/v2-1-45.php',
+			'DbVersioning\\V2150' => 'inc/classes/db-versioning/v2-1-50.php',
 
 			'DbVersioning\\DefaultValuesCleaner' => 'inc/classes/db-versioning/utils/db-default-values-cleaner.php',
 
-			'Database\\SearchReplace' => 'inc/classes/db-versioning/utils/db-search-replace.php',
 			'Database\\Utils' => 'inc/classes/db-versioning/utils/db-utils.php',
-			'Database\\SearchReplacer' => 'inc/classes/db-versioning/utils/db-search-replacer.php',
 
 			'FontsManager' => 'inc/css/fonts-manager.php',
 
@@ -107,7 +115,7 @@ class ThemeAutoloader {
 
 			'WooImportExport' => 'inc/classes/woo-import-export.php',
 			'WooVariationImagesImportExport' => 'inc/classes/woo-variation-images-import-export.php',
-		]);
+		], self::$additional_classes);
 	}
 
 	/**
@@ -182,4 +190,3 @@ class ThemeAutoloader {
 		}
 	}
 }
-

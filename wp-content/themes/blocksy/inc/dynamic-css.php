@@ -6,11 +6,16 @@ class ThemeDynamicCss {
 	private $allow_styles_for_customize_preview = false;
 
 	public function get_css_version() {
-		return 6;
+		return 7;
 	}
 
 	public function __construct() {
 		add_action('customize_save_after', function () {
+			/**
+			 * Fires when the dynamic CSS caches need to be regenerated.
+			 *
+			 * @since 1.8.0
+			 */
 			do_action('blocksy:dynamic-css:refresh-caches');
 		});
 
@@ -132,10 +137,9 @@ class ThemeDynamicCss {
 		}
 
 		if (! empty($final_css)) {
-			/**
-			 * Note to code reviewers: This line doesn't need to be escaped.
-			 * The variable used here has the value escaped properly.
-			 */
+			// Strip HTML tags to prevent XSS via CSS injection.
+			$final_css = wp_strip_all_tags($final_css);
+
 			echo '<style id="ct-main-styles-inline-css">';
 			echo $final_css;
 			echo "</style>\n";
@@ -224,7 +228,7 @@ class ThemeDynamicCss {
 
 		$styles_descriptor = blocksy_akg('styles_descriptor', $post_atts, null);
 
-		$current_saved_version = $this->get_css_version();
+		$current_saved_version = '__DEFAULT__';
 
 		if ($styles_descriptor && isset($styles_descriptor['version'])) {
 			$current_saved_version = intval($styles_descriptor['version']);
@@ -414,6 +418,20 @@ class ThemeDynamicCss {
 			'chunk' => 'admin'
 		]);
 
+		/**
+		 * Fires when the global dynamic CSS is generated for the block editor.
+		 *
+		 * @since 2.0.88
+		 *
+		 * @param array $args {
+		 *     Dynamic CSS descriptor.
+		 *
+		 *     @type string $context    Output context. Default 'inline'.
+		 *     @type object $css        Desktop CSS injector.
+		 *     @type object $tablet_css Tablet CSS injector.
+		 *     @type object $mobile_css Mobile CSS injector.
+		 * }
+		 */
 		do_action(
 			'blocksy:global-dynamic-css:enqueue:admin',
 			[
@@ -447,12 +465,14 @@ class ThemeDynamicCss {
 		}
 
 		if ($args['echo']) {
+			// Strip HTML tags to prevent XSS via CSS injection.
+			$safe_css = wp_strip_all_tags($css);
+
 			echo '<style id="ct-main-styles-inline-css">';
-			echo $css;
+			echo $safe_css;
 			echo "</style>\n";
 		}
 
 		return $css;
 	}
 }
-

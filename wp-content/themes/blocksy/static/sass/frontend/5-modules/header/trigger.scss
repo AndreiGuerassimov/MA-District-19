@@ -2,11 +2,14 @@
 
 	// icon type
 	.ct-icon {
-		transition: none;
 
-		rect {
-			transform-origin: 50% 50%;
-			transition: all 0.12s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+		&[data-type] {
+			transition: none;
+
+			rect {
+				transform-origin: 50% 50%;
+				transition: all 0.12s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+			}
 		}
 
 		// type 2
@@ -48,7 +51,7 @@
 		}
 	}
 
-	&[aria-expanded="true"] .ct-icon {
+	&[aria-expanded="true"] .ct-icon[data-type] {
 		rect {
 			&:nth-child(1), &:nth-child(3) {
 				width: 18px;
@@ -72,18 +75,18 @@
 
 	&[data-design*="outline"] {
 		--toggle-button-border-width: 1px;
-		--toggle-button-border-color: var(--secondColor, rgba(224, 229, 235, 0.9));
+		--toggle-button-border-color: var(--toggle-button-second-color, rgba(224, 229, 235, 0.9));
 
 		&:hover {
-			--toggle-button-border-color: var(--secondColorHover, rgba(224, 229, 235, 0.9));
+			--toggle-button-border-color: var(--toggle-button-second-color-hover, rgba(224, 229, 235, 0.9));
 		}
 	}
 
 	&[data-design*="solid"] {
-		--toggle-button-background: var(--secondColor, rgba(224, 229, 235, 0.9));
+		--toggle-button-background: var(--toggle-button-second-color, rgba(224, 229, 235, 0.9));
 
 		&:hover {
-			--toggle-button-background: var(--secondColorHover, rgba(224, 229, 235, 0.9));
+			--toggle-button-background: var(--toggle-button-second-color-hover, rgba(224, 229, 235, 0.9));
 		}
 	}
 }

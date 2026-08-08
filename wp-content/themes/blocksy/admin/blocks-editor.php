@@ -84,10 +84,17 @@ add_action(
 			);
 		}
 
+		$script_deps = ['wp-plugins', 'wp-edit-post', 'wp-element', 'wp-hooks'];
+
+		// ct-options-scripts is not registered in the customizer.
+		if (get_current_screen()->base !== 'customize') {
+			$script_deps[] = 'ct-options-scripts';
+		}
+
 		wp_enqueue_script(
 			'ct-main-editor-scripts',
 			get_template_directory_uri() . '/static/bundle/editor.js',
-			['wp-plugins', 'wp-edit-post', 'wp-element', 'wp-hooks', 'ct-options-scripts'],
+			$script_deps,
 			$theme->get('Version'),
 			true
 		);
@@ -103,29 +110,23 @@ add_action(
 
 		$prefix = blocksy_manager()->screen->get_admin_prefix($post_type);
 
-		$strategy = [
-			'strategy' => 'customizer',
-			'prefix' => $prefix
-		];
-
+		$strategy = 'customizer';
 		$page_structure_key = 'structure';
 
-		if (function_exists('blc_get_content_block_that_matches')) {
-			$single_cb = blc_get_content_block_that_matches([
-				'template_type' => 'single',
-				'template_subtype' => 'canvas',
-				'match_conditions_strategy' => $prefix
-			]);
+		$single_cb = blocksy_manager()->companion->get_content_block_that_matches([
+			'template_type' => 'single',
+			'template_subtype' => 'canvas',
+			'match_conditions_strategy' => $prefix
+		]);
 
-			if ($single_cb) {
-				$content_block_atts = blocksy_get_post_options($single_cb);
+		if ($single_cb) {
+			$content_block_atts = blocksy_get_post_options($single_cb);
 
-				$strategy = [
-					'strategy' => $content_block_atts
-				];
+			$strategy = [
+				'strategy' => $content_block_atts
+			];
 
-				$page_structure_key = 'content_block_structure';
-			}
+			$page_structure_key = 'content_block_structure';
 		}
 
 		$page_structure = blocksy_akg_or_customizer(

@@ -97,6 +97,10 @@ if (! function_exists('blocksy_display_posts_pagination')) {
 			return '';
 		}
 
+		// Load styles for pagination. WP Collocation mechanism will move styles
+		// to <head>.
+		wp_enqueue_style('ct-pagination-styles');
+
 		$button_output = '';
 
 		if (
@@ -135,6 +139,7 @@ if (! function_exists('blocksy_display_posts_pagination')) {
 							from="0 12 12"
 							to="360 12 12"
 							repeatCount="indefinite"
+							begin="indefinite"
 						/>
 					</path>
 				</svg>
@@ -184,6 +189,27 @@ if (! function_exists('blocksy_display_posts_pagination')) {
 		}
 
 		$prefix = blocksy_manager()->screen->get_prefix();
+		$pagination_label = __('Posts pagination', 'blocksy');
+
+		if ($args['prefix'] === 'search') {
+			$pagination_label = __('Search results pagination', 'blocksy');
+		}
+
+		if ($args['prefix'] === 'woo_categories') {
+			$pagination_label = __('Products pagination', 'blocksy');
+		}
+
+		if (strpos($args['prefix'], '_archive') !== false) {
+			$maybe_cpt = str_replace('_archive', '', $args['prefix']);
+			$post_type_object = get_post_type_object($maybe_cpt);
+
+			if ($post_type_object) {
+				$pagination_label = blocksy_safe_sprintf(
+					__('%s pagination', 'blocksy'),
+					$post_type_object->labels->name
+				);
+			}
+		}
 
 		$deep_link_args = [];
 
@@ -192,7 +218,7 @@ if (! function_exists('blocksy_display_posts_pagination')) {
 		}
 
 		$template = '
-		<nav class="' . $pagination_class . '" data-pagination="' . $args['pagination_type'] . '" ' . $divider_output . ' ' . blocksy_generic_get_deep_link($deep_link_args) . '>
+		<nav class="' . $pagination_class . '" aria-label="' . esc_attr($pagination_label) . '" data-pagination="' . $args['pagination_type'] . '" ' . $divider_output . ' ' . blocksy_generic_get_deep_link($deep_link_args) . '>
 			%1$s
 			%2$s
 		</nav>';
@@ -308,4 +334,3 @@ if (! function_exists('blocksy_display_posts_pagination')) {
 		);
 	}
 }
-

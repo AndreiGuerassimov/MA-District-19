@@ -358,11 +358,7 @@ $options = [
 										],
 
 										[
-											(
-												function_exists('blc_site_has_feature')
-												&&
-												blc_site_has_feature('base_pro')
-											) ? [
+											(blocksy_manager()->companion->has('base_pro')) ? [
 												'has_related_video_thumbnail' => [
 													'label' => __( 'Video Thumbnail', 'blocksy' ),
 													'type' => 'ct-switch',

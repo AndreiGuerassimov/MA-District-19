@@ -28,7 +28,7 @@ if (isset($args['search_through_taxonomy'])) {
 if (isset($args['ct_product_status'])) {
 	$show_product_status = $args['ct_product_status'];
 } else {
-	$show_product_status = blocksy_get_theme_mod('searchProductPrice', 'no') === 'yes';
+	$show_product_status = blocksy_get_theme_mod('searchProductStatus', 'no') === 'yes';
 }
 
 if (isset($args['search_live_results'])) {
@@ -67,11 +67,25 @@ if (
 	$class_output = 'class="modal-field"';
 }
 
+/**
+ * Filters the URL the search form submits to.
+ *
+ * @since 2.0.9
+ *
+ * @param string $home_url The search form action URL. Default site home URL.
+ */
 $home_url = apply_filters(
 	'blocksy:search-form:home-url',
 	home_url('/')
 );
 
+/**
+ * Filters the icon markup rendered inside the search form submit button.
+ *
+ * @since 1.8.15
+ *
+ * @param string $icon Inline SVG icon markup.
+ */
 $icon = apply_filters(
 	'blocksy:search-form:icon',
 	'<svg class="ct-icon ct-search-button-content" aria-hidden="true" width="15" height="15" viewBox="0 0 15 15"><path d="M14.8,13.7L12,11c0.9-1.2,1.5-2.6,1.5-4.2c0-3.7-3-6.8-6.8-6.8S0,3,0,6.8s3,6.8,6.8,6.8c1.6,0,3.1-0.6,4.2-1.5l2.8,2.8c0.1,0.1,0.3,0.2,0.5,0.2s0.4-0.1,0.5-0.2C15.1,14.5,15.1,14,14.8,13.7z M1.5,6.8c0-2.9,2.4-5.2,5.2-5.2S12,3.9,12,6.8S9.6,12,6.8,12S1.5,9.6,1.5,6.8z"/></svg>'
@@ -249,45 +263,119 @@ if (isset($args['html_atts'])) {
 	);
 }
 
-if (! isset($args['button_type'])) {
-	$args['button_type'] = $html_atts['data-form-controls']  . ':' . $html_atts['data-submit-button'];
-}
-
 if (isset($args['override_html_atts'])) {
 	$html_atts = $args['override_html_atts'];
 }
 
+if (
+	! isset($args['override_html_atts'])
+	&&
+	($html_atts['data-form-controls'] ?? 'inside') === 'inside'
+	&&
+	($html_atts['data-submit-button'] ?? 'icon') === 'icon'
+) {
+	$html_atts['data-submit-button'] = 'minimal:icon';
+}
+
 $button_html_atts = array_merge(
 	[
-		'data-button' => $args['button_type'],
 		'aria-label' => __('Search button', 'blocksy')
 	],
 	isset($args['button_html_atts']) ? $args['button_html_atts'] : []
-)
+);
+
+/**
+ * Filters the minimum number of characters required before the live search
+ * form starts fetching results.
+ *
+ * @since 2.1.19
+ *
+ * @param int $min_length Minimum search query length. Default 1.
+ */
+$search_box_min_length = apply_filters('blocksy:search-form:min-length', 1);
+$results_id = '';
+$status_id = '';
+
+if ($has_live_results === 'yes') {
+	$uid = substr(blocksy_rand_md5(), 0, 3);
+	$results_id = 'ct-search-results-' . $uid;
+	$status_id = 'ct-search-status-' . $uid;
+}
+
+$has_visible_taxonomy_filter = $has_taxonomy_filter && count($options) > 1;
+$form_controls_type = isset($html_atts['data-form-controls']) ? $html_atts['data-form-controls'] : 'inside';
+$inner_wrapper_atts = [];
+$inner_wrapper_classes = ['ct-search-form-inner'];
+
+if ($form_controls_type === 'inside') {
+	$inner_wrapper_classes[] = 'ct-pseudo-input';
+}
+
+$inner_wrapper_class = implode(' ', $inner_wrapper_classes);
 
 ?>
 
 
-<form role="search" method="get" class="ct-search-form" <?php echo blocksy_attr_to_html($html_atts); ?> action="<?php echo esc_url($home_url); ?>" aria-haspopup="listbox" <?php echo wp_kses_post($search_live_results_output) ?>>
+<form role="search" method="get" class="ct-search-form" <?php echo blocksy_attr_to_html($html_atts); ?> action="<?php echo esc_url($home_url); ?>" <?php echo wp_kses_post($search_live_results_output) ?>>
 
-	<input type="search" <?php echo $class_output ?> placeholder="<?php echo $placeholder; ?>" value="<?php echo get_search_query(); ?>" name="s" autocomplete="off" title="<?php echo __('Search for...', 'blocksy') ?>" aria-label="<?php echo __('Search for...', 'blocksy') ?>">
-
-	<div class="ct-search-form-controls">
+	<div class="<?php echo esc_attr($inner_wrapper_class); ?>" <?php echo blocksy_attr_to_html($inner_wrapper_atts); ?>>
 		<?php if (
-			$has_taxonomy_filter
+			$form_controls_type === 'outside'
 			&&
-			count($options) > 1
-		) {
-			echo blocksy_html_tag(
-				'select',
-				[
-					'class' => 'ct-select-taxonomy' . (! empty(trim($taxonomy_filter_visibility) ) ? $taxonomy_filter_visibility : ''),
-					'name' => 'ct_tax_query',
-					'aria-label' => __('Search in category', 'blocksy')
-				],
-				implode('', $options)
-			);
-			?>
+			($html_atts['data-taxonomy-filter'] ?? 'false') === 'true'
+			&&
+			$has_visible_taxonomy_filter
+		) { ?>
+			<div class="ct-pseudo-input">
+		<?php } ?>
+
+			<input
+				type="search" <?php echo $class_output ?>
+				placeholder="<?php echo $placeholder; ?>"
+				value="<?php echo get_search_query(); ?>"
+				name="s"
+				autocomplete="off"
+				title="<?php echo __('Search for...', 'blocksy') ?>"
+				aria-label="<?php echo __('Search for...', 'blocksy') ?>"
+				<?php if ($has_live_results === 'yes') { ?>
+					role="combobox"
+					aria-autocomplete="list"
+					aria-controls="<?php echo esc_attr($results_id); ?>"
+					aria-describedby="<?php echo esc_attr($status_id); ?>"
+					aria-expanded="false"
+				<?php } ?>
+				<?php
+				if (
+					isset($search_box_min_length)
+					&&
+					$search_box_min_length > 1
+				) {
+					echo 'data-min-length="' . esc_attr($search_box_min_length) . '"';
+				}
+				?>
+			>
+
+			<?php if ($has_visible_taxonomy_filter) {
+				echo blocksy_html_tag(
+					'select',
+					[
+						'class' => 'ct-select-taxonomy' . (! empty(trim($taxonomy_filter_visibility) ) ? $taxonomy_filter_visibility : ''),
+						'name' => 'ct_tax_query',
+						'aria-label' => __('Search in category', 'blocksy')
+					],
+					implode('', $options)
+				);
+				?>
+			<?php } ?>
+
+		<?php if (
+			$form_controls_type === 'outside'
+			&&
+			($html_atts['data-taxonomy-filter'] ?? 'false') === 'true'
+			&&
+			$has_visible_taxonomy_filter
+		) { ?>
+			</div>
 		<?php } ?>
 
 		<button type="submit" class="wp-element-button" <?php echo blocksy_attr_to_html($button_html_atts); ?>>
@@ -313,6 +401,7 @@ $button_html_atts = array_merge(
 							from="0 12 12"
 							to="360 12 12"
 							repeatCount="indefinite"
+							begin="indefinite"
 						/>
 					</path>
 				</svg>
@@ -333,7 +422,15 @@ $button_html_atts = array_merge(
 
 
 		<?php
-			if ($has_live_results === 'yes') {
+			// Only output the nonce for logged-in users. This allows page cache
+			// for non-logged-in users to have a longer TTL since there's no
+			// user-specific nonce in the HTML. The REST API works without a
+			// nonce for public endpoints.
+			if (
+				$has_live_results === 'yes'
+				&&
+				is_user_logged_in()
+			) {
 				echo blocksy_html_tag(
 					'input',
 					[
@@ -347,11 +444,13 @@ $button_html_atts = array_merge(
 	</div>
 
 	<?php if ($has_live_results === 'yes') { ?>
-		<div class="screen-reader-text" aria-live="polite" role="status">
+		<div
+			class="screen-reader-text"
+			id="<?php echo esc_attr($status_id); ?>"
+			aria-live="polite"
+			role="status">
 			<?php echo __('No results', 'blocksy') ?>
 		</div>
 	<?php } ?>
 
 </form>
-
-

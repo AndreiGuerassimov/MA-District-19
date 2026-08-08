@@ -98,13 +98,33 @@ wp.customize('product_gallery_ratio', (val) =>
 				const flexyItems = article.querySelector('.flexy-items')
 
 				if (flexyItems) {
-					if (to !== 'original' && flexyItems) {
+					if (to !== 'original') {
 						flexyItems.removeAttribute('style')
-						flexyItems.removeAttribute('data-height')
-					} else {
-						flexyItems.dataset.height = 'dynamic'
 					}
 				}
 			})
+	})
+)
+
+wp.customize('product_gallery_thumbs_ratio', (val) =>
+	val.bind((to) => {
+		if (!document.body.classList.contains('single-product')) {
+			return
+		}
+
+		const article = document.querySelector('.ct-product-gallery-container')
+
+		if (!article) {
+			return
+		}
+
+		;[...article.querySelectorAll('.flexy-pills .ct-media-container')].map(
+			(el) => {
+				setRatioFor({
+					ratio: to,
+					el,
+				})
+			}
+		)
 	})
 )

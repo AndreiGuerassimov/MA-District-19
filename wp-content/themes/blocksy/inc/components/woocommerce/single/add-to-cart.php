@@ -28,11 +28,12 @@ class WooCommerceAddToCart {
 		[
 			'action' => 'woocommerce_after_add_to_cart_button',
 			'priority' => 100
-		],
+		]
+	];
 
+	private $filters = [
 		[
-			'action' => 'woocommerce_post_class',
-			'priority' => 10
+			'action' => 'blocksy:woocommerce:single-product:post-class'
 		]
 	];
 
@@ -73,6 +74,14 @@ class WooCommerceAddToCart {
 		if (! isset($_REQUEST['blocksy_add_to_cart'])) {
 			return;
 		}
+
+		// Signal that this is an AJAX request for plugins that check wp_doing_ajax().
+		// Since this request doesn't go through admin-ajax.php, the DOING_AJAX constant
+		// is not defined. Plugins like "Advanced Product Fields for WooCommerce" use
+		// wp_doing_ajax() to detect mini-cart context and display custom field data.
+		//
+		// https://wordpress.org/plugins/advanced-product-fields-for-woocommerce/
+		add_filter('wp_doing_ajax', '__return_true');
 
 		ob_start();
 		wc_print_notices();
@@ -127,9 +136,20 @@ class WooCommerceAddToCart {
 			return;
 		}
 
+		/**
+		 * Filters the HTML attributes applied to the single product cart actions wrapper.
+		 *
+		 * @since 1.8.3.4
+		 *
+		 * @param array $attr Key-value pairs of HTML attributes applied to the cart actions wrapper.
+		 */
 		$attr = apply_filters('blocksy:woocommerce:cart-actions:attr', [
 			'class' => 'ct-cart-actions'
 		]);
+
+		if (blocksy_woo_has_ajax_add_to_cart()) {
+			$attr['data-add-to-cart'] = 'ajax';
+		}
 
 		echo '<div ' . blocksy_attr_to_html($attr) . '>';
 
@@ -294,25 +314,8 @@ class WooCommerceAddToCart {
 
 	}
 
-	public function woocommerce_post_class($classes) {
+	public function blocksy_woocommerce_single_product_post_class($classes) {
 		global $product;
-		global $woocommerce_loop;
-
-		if ($this->product_was_handled($product)) {
-			return $classes;
-		}
-
-		$classes = apply_filters(
-			'blocksy:woocommerce:single-product:post-class',
-			$classes
-		);
-
-		$default_product_layout = blocksy_get_woo_single_layout_defaults();
-
-		$layout = blocksy_get_theme_mod(
-			'woo_single_layout',
-			blocksy_get_woo_single_layout_defaults()
-		);
 
 		if (
 			(
@@ -321,30 +324,9 @@ class WooCommerceAddToCart {
 				! blocksy_has_product_specific_layer('product_add_to_cart')
 			)
 			||
-			! $product
-			||
 			$product->is_type('external')
-			||
-			(
-				! blocksy_manager()->screen->is_product()
-				&&
-				! wp_doing_ajax()
-			)
 		) {
 			return $classes;
-		}
-
-		$has_ajax_add_to_cart = blocksy_get_theme_mod(
-			'has_ajax_add_to_cart',
-			'yes'
-		);
-
-		if (
-			$has_ajax_add_to_cart === 'yes'
-			&&
-			get_option('woocommerce_cart_redirect_after_add', 'no') === 'no'
-		) {
-			$classes[] = 'ct-ajax-add-to-cart';
 		}
 
 		if (! empty($this->finalize_action_name)) {
@@ -377,4 +359,3 @@ class WooCommerceAddToCart {
 		return in_array($product->get_type(), $allowed_custom_product_types);
 	}
 }
-

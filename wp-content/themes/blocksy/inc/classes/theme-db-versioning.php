@@ -68,7 +68,18 @@ class DbVersioning {
 				update_option('blocksy_db_version', $current_version);
 			}
 
+			/**
+			 * Fires to purge all Blocksy managed caches.
+			 *
+			 * @since 1.7.52
+			 */
 			do_action('blocksy:cache-manager:purge-all');
+
+			/**
+			 * Fires to refresh the dynamic CSS caches.
+			 *
+			 * @since 1.8.0
+			 */
 			do_action('blocksy:dynamic-css:refresh-caches');
 		}
 	}
@@ -422,6 +433,30 @@ class DbVersioning {
 					$obj = new DbVersioning\V2110();
 					$obj->migrate();
 				}
+			],
+
+			[
+				'version' => '2.1.44-dev1',
+				'cb' => function () {
+					$obj = new DbVersioning\V2144();
+					$obj->migrate();
+				}
+			],
+
+			[
+				'version' => '2.1.45-dev9',
+				'cb' => function () {
+					$obj = new DbVersioning\V2145();
+					return $obj->migrate();
+				}
+			],
+
+			[
+				'version' => '2.1.50-dev1',
+				'cb' => function () {
+					$obj = new DbVersioning\V2150();
+					$obj->migrate();
+				}
 			]
 		];
 	}
@@ -441,13 +476,8 @@ class DbVersioning {
 	}
 
 	public function v_1_7_17() {
-		if (
-			get_theme_mod('has_trending_block', '__empty__') === 'yes'
-			&&
-			class_exists('\Blocksy\Plugin')
-		) {
-			$manager = \Blocksy\Plugin::instance()->extensions;
-			$manager->activate_extension('trending');
+		if (get_theme_mod('has_trending_block', '__empty__') === 'yes') {
+			blocksy_manager()->companion->activate_extension(['id' => 'trending']);
 		}
 
 		// TODO: options to migrate
@@ -1042,11 +1072,7 @@ class DbVersioning {
 			return;
 		}
 
-		if (! class_exists('\Blocksy\Plugin')) {
-			return;
-		}
-
-		$conditions = \Blocksy\Plugin::instance()->header->get_conditions();
+		$conditions = get_theme_mod('blocksy_premium_header_conditions', []);
 
 		$transparent_header_conditions = null;
 
@@ -1058,7 +1084,7 @@ class DbVersioning {
 			}
 		}
 
-		\Blocksy\Plugin::instance()->header->set_conditions($conditions);
+		set_theme_mod('blocksy_premium_header_conditions', $conditions);
 
 		if (
 			! $transparent_header_conditions
@@ -1311,13 +1337,8 @@ class DbVersioning {
 	}
 
 	public function v_1_8_4() {
-		if (
-			class_exists('\Blocksy\Plugin')
-			&&
-			in_array('mailchimp', get_option('blocksy_active_extensions', []))
-		) {
-			$manager = \Blocksy\Plugin::instance()->extensions;
-			$manager->activate_extension('newsletter-subscribe');
+		if (in_array('mailchimp', get_option('blocksy_active_extensions', []))) {
+			blocksy_manager()->companion->activate_extension(['id' => 'newsletter-subscribe']);
 		}
 
 		$this->migrate_options([

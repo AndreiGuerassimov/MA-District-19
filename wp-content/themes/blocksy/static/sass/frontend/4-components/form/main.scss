@@ -1,5 +1,6 @@
-@import 'typography';
-@import 'form';
-@import 'fieldset';
-@import 'checkbox-radio';
-@import 'label';
+@use 'typography';
+@use 'form';
+@use 'pseudo-input';
+@use 'checkbox-radio';
+@use 'fieldset';
+@use 'label';

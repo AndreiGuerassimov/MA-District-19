@@ -7,13 +7,13 @@ add_action(
 			return;
 		}
 
-		if (! blocksy_woocommerce_has_flexy_view()) {
-			return;
+		wp_enqueue_style('ct-flexy-styles');
+
+		if (blocksy_woocommerce_has_flexy_view()) {
+			echo blocksy_render_view(dirname(__FILE__) . '/woo-gallery-template.php');
+
+			ob_start();
 		}
-
-		echo blocksy_render_view(dirname(__FILE__) . '/woo-gallery-template.php');
-
-		ob_start();
 	},
 	4, 4
 );
@@ -25,99 +25,27 @@ add_action(
 			return;
 		}
 
-		if (! blocksy_woocommerce_has_flexy_view()) {
-			return;
+		if (blocksy_woocommerce_has_flexy_view()) {
+			ob_end_clean();
 		}
-
-		ob_get_clean();
 	},
 	4, 4
 );
 
-
 add_filter(
 	'blocksy:woocommerce:single-product:post-class',
-	function($classes) {
-		if (! blocksy_manager()->screen->is_product()) {
-			return $classes;
-		}
-
-		global $blocksy_is_quick_view;
-		global $product;
-
-		if (
-			! $blocksy_is_quick_view
-			&&
-			// Integration with Custom Product Boxes plugin
-			$product->get_type() !== 'wdm_bundle_product'
-		) {
-			$classes[] = 'ct-default-gallery';
-		}
-
-		return $classes;
-	}
+	'blocksy_woo_single_post_class'
 );
 
-add_filter(
-	'woocommerce_post_class',
-	'blocksy_woo_single_post_class',
-	999,
-	2
-);
-
-function blocksy_woo_single_post_class($classes, $product) {
+function blocksy_woo_single_post_class($classes) {
+	// Not redundant with the filter's own scoping — the filter also fires
+	// for AJAX renders (quick view), where these gallery classes must not
+	// be applied.
 	if (! blocksy_manager()->screen->is_product()) {
 		return $classes;
 	}
 
 	$product_view_type = blocksy_get_product_view_type();
-
-	if (blocksy_woocommerce_has_flexy_view()) {
-		$has_gallery = count($product->get_gallery_image_ids()) > 0;
-
-		if ($product->get_type() === 'variable') {
-			$maybe_current_variation = blocksy_manager()
-				->woocommerce
-				->retrieve_product_default_variation($product);
-
-			if ($maybe_current_variation) {
-				$variation_values = blocksy_get_post_options(
-					blocksy_translate_post_id(
-						$maybe_current_variation->get_id(),
-						[
-							'use_wpml_default_language_woo' => true
-						]
-					)
-				);
-
-				$gallery_source = blocksy_akg(
-					'gallery_source',
-					$variation_values,
-					'default'
-				);
-
-				if ($gallery_source !== 'default') {
-					$has_gallery = count(blocksy_akg(
-						'images',
-						$variation_values,
-						[]
-					)) > 0;
-				}
-			}
-		}
-
-		if ($has_gallery) {
-			if (
-				blocksy_get_theme_mod('gallery_style', 'horizontal') === 'vertical'
-				&&
-				$product_view_type === 'default-gallery'
-			) {
-				$classes[] = 'thumbs-left';
-			} else {
-				$classes[] = 'thumbs-bottom';
-			}
-		}
-	}
 
 	if (
 		$product_view_type === 'default-gallery'
@@ -137,15 +65,15 @@ function blocksy_woo_single_post_class($classes, $product) {
 }
 
 function blocksy_get_product_view_type() {
+	/**
+	 * Filters the view type used for the main single product gallery layout.
+	 *
+	 * @since 2.0.1
+	 *
+	 * @param string $view_type Product gallery view type. Default 'default-gallery'.
+	 */
 	return apply_filters(
 		'blocksy:woocommerce:product-single:view-type',
 		'default-gallery'
 	);
-}
-
-// Only for backwards compatibility with Companion <= 2.0.73
-function blocksy_retrieve_product_default_variation($product, $object = true) {
-	return blocksy_manager()
-		->woocommerce
-		->retrieve_product_default_variation($product, $object);
 }

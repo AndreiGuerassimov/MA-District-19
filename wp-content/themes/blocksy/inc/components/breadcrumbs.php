@@ -45,8 +45,8 @@ class BreadcrumbsBuilder {
 		if (blocksy_get_theme_mod('breadcrumb_home_item', 'text') === 'icon') {
 			$home_icon = '<svg class="ct-icon ct-home-icon" width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true" focusable="false"><path d="M7.5 1 0 7.8h2.1v6.1h4.1V9.8h2.7v4.1H13V7.8h2.1L7.5 1Z"/></svg>';
 
-			if (function_exists('blc_get_icon')) {		
-				$home_icon = blc_get_icon([
+			if (blocksy_manager()->companion->has('custom_icons')) {
+				$home_icon = blocksy_manager()->companion->get_icon([
 					'icon_descriptor' => blocksy_get_theme_mod(
 						'breadcrumb_home_icon',
 						['icon' => 'blc blc-home-alt']
@@ -629,11 +629,20 @@ class BreadcrumbsBuilder {
 	public function get_breadcrumbs() {
 		$result = $this->build_breadcrumbs();
 
-		if (class_exists('WC_Breadcrumb')) {
+		if (
+			class_exists('WC_Breadcrumb')
+			&&
+			function_exists('is_woocommerce')
+			&&
+			is_woocommerce()
+		) {
 			$woo_compatible_breadcrumbs = new \WC_Breadcrumb();
 
 			foreach ($result as $item) {
-				$woo_compatible_breadcrumbs->add_crumb($item['name'], $item['url']);
+				$woo_compatible_breadcrumbs->add_crumb(
+					$item['name'] ?? __('No title', 'blocksy'),
+					$item['url'] ?? ''
+				);
 			}
 
 			do_action(
@@ -647,7 +656,7 @@ class BreadcrumbsBuilder {
 						'wrap_after'  => '</nav>',
 						'before'      => '',
 						'after'       => '',
-						'home'        => _x( 'Home', 'breadcrumb', 'blocksy' ),
+						'home'        => _x('Home', 'breadcrumb', 'blocksy'),
 					]
 				)
 			);
@@ -784,14 +793,14 @@ class BreadcrumbsBuilder {
 			blocksy_get_theme_mod('breadcrumb_separator', 'type-1')
 		];
 
-		if (function_exists('blc_get_icon')) {
-			$icon_source = blocksy_get_theme_mod(
-				'breadcrumb_separator_icon_source',
-				'default'
-			);
-	
-			if ($icon_source === 'custom') {
-				$separator = blc_get_icon([
+		$icon_source = blocksy_get_theme_mod(
+			'breadcrumb_separator_icon_source',
+			'default'
+		);
+
+		if ($icon_source === 'custom') {
+			if (blocksy_manager()->companion->has('custom_icons')) {
+				$separator = blocksy_manager()->companion->get_icon([
 					'icon_descriptor' => blocksy_get_theme_mod(
 						'breadcrumb_custom_separator',
 						['icon' => 'blc blc-arrow-right']
@@ -847,7 +856,7 @@ class BreadcrumbsBuilder {
 						}
 
 						if (isset($items[$i]['url']) && $should_be_link) {
-							echo '<a href="' . esc_attr( $items[ $i ]['url'] ) . '" ' . blocksy_schema_org_definitions('item'). '>';
+							echo '<a href="' . esc_attr($items[ $i ]['url']) . '" ' . blocksy_schema_org_definitions('item'). '>';
 
 							$span_attr = blocksy_schema_org_definitions('name', [
 								'array' => true
@@ -891,7 +900,7 @@ class BreadcrumbsBuilder {
 							&&
 							isset($items[$i]['url'])
 						) {
-							echo '<meta itemprop="url" content="' . esc_attr( $items[ $i ]['url'] ) . '"/>';
+							echo '<meta itemprop="url" content="' . esc_attr($items[ $i ]['url']) . '"/>';
 						}
 
 						echo '</span>';
@@ -946,7 +955,7 @@ class BreadcrumbsBuilder {
 						}
 
 						if (isset($items[$i]['url'])) {
-							echo '<a href="' . esc_attr( $items[ $i ]['url'] ) . '" ' . blocksy_schema_org_definitions('item') . '>';
+							echo '<a href="' . esc_attr($items[ $i ]['url']) . '" ' . blocksy_schema_org_definitions('item') . '>';
 
 							$span_attr = blocksy_schema_org_definitions('name', [
 								'array' => true
@@ -975,7 +984,7 @@ class BreadcrumbsBuilder {
 							&&
 							isset($items[$i]['url'])
 						) {
-							echo '<meta itemprop="url" content="' . esc_attr( $items[ $i ]['url'] ) . '"/>';
+							echo '<meta itemprop="url" content="' . esc_attr($items[ $i ]['url']) . '"/>';
 						}
 
 						echo $separator;
@@ -991,5 +1000,3 @@ class BreadcrumbsBuilder {
 		return ob_get_clean();
 	}
 }
-
-

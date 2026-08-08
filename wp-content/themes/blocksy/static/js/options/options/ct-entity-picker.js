@@ -1,7 +1,14 @@
-import { createElement, useEffect, useState, useMemo } from '@wordpress/element'
+import {
+	createElement,
+	useEffect,
+	useState,
+	useMemo,
+	useRef
+} from '@wordpress/element'
 import { __ } from 'ct-i18n'
+import { nanoid } from 'nanoid'
 
-import cachedFetch from 'ct-wordpress-helpers/cached-fetch'
+import cachedFetch from '@creative-themes/wordpress-helpers/cached-fetch'
 import Select from './ct-select'
 
 const withUniqueIDs = (data) =>
@@ -18,11 +25,21 @@ const EntityIdPicker = ({
 		post_type = 'post',
 		placeholder,
 		additionOptions = [],
+
+		selectParams = {}
 	},
 	return_type = 'id',
 	purpose,
-	onChange,
+	onChange
 }) => {
+	const fetcherRef = useRef(null)
+
+	if (!fetcherRef.current) {
+		fetcherRef.current = `entity-picker-${nanoid()}`
+	}
+
+	const fetcherId = fetcherRef.current
+
 	const [allEntities, setAllEntities] = useState([])
 	const requestBody = useMemo(() => {
 		const requestBody = {}
@@ -37,7 +54,7 @@ const EntityIdPicker = ({
 
 		return {
 			...requestBody,
-			...(value ? { alsoInclude: value } : {}),
+			...(value ? { alsoInclude: value } : {})
 		}
 	}, [entity, post_type, value])
 
@@ -48,13 +65,10 @@ const EntityIdPicker = ({
 				entity,
 
 				...(searchQuery ? { search_query: searchQuery } : {}),
-				...requestBody,
+				...requestBody
 			},
 			{
-				// Abort intermediary requests.
-				// TODO: maybe add a more specific name to the fetcherName to
-				// avoid clashes with other instances of the same component.
-				fetcherName: `entity-picker`,
+				fetcherName: fetcherId
 			}
 		)
 			.then((r) => r.json())
@@ -83,10 +97,11 @@ const EntityIdPicker = ({
 					...allEntities.map((entity) => ({
 						key: entity.id,
 						value: entity.label,
-						...(entity.group ? { group: entity.group } : {}),
-					})),
+						...(entity.group ? { group: entity.group } : {})
+					}))
 				],
 				search: true,
+				...selectParams
 			}}
 			value={value}
 			onChange={(entity_id) => {

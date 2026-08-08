@@ -21,6 +21,8 @@ class Blocksy_Manager {
 	public $colors = null;
 	public $entity_id_picker = null;
 
+	public $companion = null;
+
 	public $archive = null;
 
 	private $hooks = null;
@@ -52,6 +54,8 @@ class Blocksy_Manager {
 
 	private function early_init() {
 		$this->register_autoloader();
+
+		$this->companion = new \Blocksy\CompanionBridge();
 
 		$this->db = new \Blocksy\Database();
 		$this->db_versioning = new \Blocksy\DbVersioning();
@@ -148,7 +152,6 @@ class Blocksy_Manager {
 			'wp',
 			function () {
 				$this->screen->wipe_caches();
-				$this->post_types->wipe_caches();
 			},
 			PHP_INT_MAX
 		);
@@ -161,6 +164,14 @@ class Blocksy_Manager {
 			$this->current_template = $template;
 			return $template;
 		}, 900000000);
+
+		// WP 6.9 feature that loads core block assets separately.
+		// Fixed in WP 6.9.1-RC1, so we only need this workaround for earlier versions.
+		global $wp_version;
+
+		if (version_compare($wp_version, '6.9.1-RC1', '<')) {
+			add_filter('should_load_separate_core_block_assets', '__return_false');
+		}
 
 		add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts'], 10);
 
@@ -231,6 +242,7 @@ class Blocksy_Manager {
 			'more_text' => __('More', 'blocksy'),
 			'search_live_results' => __('Search results', 'blocksy'),
 			'search_live_no_results' => __('No results', 'blocksy'),
+			'search_live_results_closed' => __('Search results closed.', 'blocksy'),
 
 			'search_live_no_result' => __('No results', 'blocksy'),
 			'search_live_one_result' => _n(
@@ -245,6 +257,11 @@ class Blocksy_Manager {
 				5,
 				'blocksy'
 			),
+
+			'search_live_stock_status_texts' => [
+				'instock' => __('In stock', 'blocksy'),
+				'outofstock' => __('Out of stock', 'blocksy'),
+			],
 
 			'clipboard_copied' => __('Copied!', 'blocksy'),
 			'clipboard_failed' => __('Failed to Copy', 'blocksy'),
@@ -301,6 +318,17 @@ class Blocksy_Manager {
 							get_template_directory_uri() . '/static/bundle/flexy.min.css'
 						)
 					),
+				],
+
+				[
+					'selector' => '.ct-pagination',
+					'url' => add_query_arg(
+						'ver',
+						$theme->get('Version'),
+						blocksy_cdn_url(
+							get_template_directory_uri() . '/static/bundle/pagination.min.css'
+						)
+					),
 				]
 			]
 		]);
@@ -344,6 +372,8 @@ class Blocksy_Manager {
 		if (is_singular() && comments_open() && get_option('thread_comments')) {
 			wp_enqueue_script('comment-reply');
 		}
+
+		do_action('blocksy:frontend:scripts-enqueued');
 	}
 
 	public function get_dynamic_js_chunks() {
@@ -355,11 +385,16 @@ class Blocksy_Manager {
 		global $wp_scripts;
 
 		$theme = blocksy_get_wp_parent_theme();
+		$version = $theme->get('Version');
 
 		foreach ($all_chunks as $index => $chunk) {
+			if (isset($chunk['version'])) {
+				$version = $chunk['version'];
+			}
+
 			$all_chunks[$index]['url'] = add_query_arg(
 				'ver',
-				$theme->get('Version'),
+				$version,
 				$chunk['url']
 			);
 

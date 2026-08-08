@@ -2,7 +2,7 @@
 .notice-blocksy-blocks-move,
 .notice-blocksy-woo-deprecation {
 	position: relative;
-	padding: 25px 20px;
+	padding: 25px 20px !important;
 	border-left-color: #00a0d2;
 }
 
@@ -55,10 +55,11 @@
 			}
 		}
 
-		i {
+		i.dashicons {
 			width: 18px;
 			height: 18px;
 			font-size: 18px;
+			line-height: 1;
 			margin-left: 7px;
 			animation: spin 1.5s infinite linear;
 		}

@@ -25,7 +25,10 @@ add_action('after_setup_theme', function () {
 	add_theme_support('custom-logo');
 	add_theme_support('lifterlms-sidebars');
 	add_theme_support('boostify-header-footer');
-	add_theme_support('rank-math-breadcrumbs');
+
+	if (blocksy_get_theme_mod('breadcrumbs_source', 'default') === 'rankmath') {
+		add_theme_support('rank-math-breadcrumbs');
+	}
 
 	add_theme_support('fl-theme-builder-headers');
 	add_theme_support('fl-theme-builder-footers');
@@ -46,11 +49,26 @@ add_action('after_setup_theme', function () {
 
 	add_theme_support(
 		'editor-color-palette',
+		/**
+		 * Filters the block editor color palette registered by the theme.
+		 *
+		 * @since 1.8.0
+		 *
+		 * @param array $gutenberg_colors List of color palette definitions.
+		 */
 		apply_filters('blocksy:editor-color-palette', $gutenberg_colors)
 	);
 
 	add_theme_support(
 		'editor-gradient-presets',
+		/**
+		 * Filters the block editor gradient presets registered by the theme.
+		 *
+		 * @since 1.8.21
+		 *
+		 * @param array $gradients     List of gradient preset definitions.
+		 * @param array $color_palette The theme color palette.
+		 */
 		apply_filters('blocksy:editor-gradient-presets', [
 			[
 				'name' => 'Vivid cyan blue to vivid purple',
@@ -180,13 +198,13 @@ add_action('after_setup_theme', function () {
 
 			[
 				'name' => 'Teen Party',
-				'gradient' => 'linear-gradient(-225deg, #FF057C 0%, #8D0B93 50%, #321575 100%)',
+				'gradient' => 'linear-gradient(135deg, #FF057C 0%, #8D0B93 50%, #321575 100%)',
 				'slug' => 'teen-party',
 			],
 
 			[
 				'name' => 'Fabled Sunset',
-				'gradient' => 'linear-gradient(-225deg, #231557 0%, #44107A 29%, #FF1361 67%, #FFF800 100%)',
+				'gradient' => 'linear-gradient(135deg, #231557 0%, #44107A 29%, #FF1361 67%, #FFF800 100%)',
 				'slug' => 'fabled-sunset',
 			],
 
@@ -252,7 +270,7 @@ add_action('after_setup_theme', function () {
 
 			[
 				'name' => 'Happy Memories',
-				'gradient' => 'linear-gradient(-60deg, #ff5858 0%, #f09819 100%)',
+				'gradient' => 'linear-gradient(300deg, #ff5858 0%, #f09819 100%)',
 				'slug' => 'happy-memories',
 			],
 
@@ -264,25 +282,25 @@ add_action('after_setup_theme', function () {
 
 			[
 				'name' => 'Morning Salad',
-				'gradient' => 'linear-gradient(-225deg, #B7F8DB 0%, #50A7C2 100%)',
+				'gradient' => 'linear-gradient(135deg, #B7F8DB 0%, #50A7C2 100%)',
 				'slug' => 'morning-salad',
 			],
 
 			[
 				'name' => 'Night Call',
-				'gradient' => 'linear-gradient(-225deg, #AC32E4 0%, #7918F2 48%, #4801FF 100%)',
+				'gradient' => 'linear-gradient(135deg, #AC32E4 0%, #7918F2 48%, #4801FF 100%)',
 				'slug' => 'night-call',
 			],
 
 			[
 				'name' => 'Mind Crawl',
-				'gradient' => 'linear-gradient(-225deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)',
+				'gradient' => 'linear-gradient(135deg, #473B7B 0%, #3584A7 51%, #30D2BE 100%)',
 				'slug' => 'mind-crawl',
 			],
 
 			[
 				'name' => 'Angel Care',
-				'gradient' => 'linear-gradient(-225deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)',
+				'gradient' => 'linear-gradient(135deg, #FFE29F 0%, #FFA99F 48%, #FF719A 100%)',
 				'slug' => 'angel-care',
 			],
 
@@ -300,7 +318,7 @@ add_action('after_setup_theme', function () {
 
 			[
 				'name' => 'Mole Hall',
-				'gradient' => 'linear-gradient(-20deg, #616161 0%, #9bc5c3 100%)',
+				'gradient' => 'linear-gradient(340deg, #616161 0%, #9bc5c3 100%)',
 				'slug' => 'mole-hall',
 			],
 
@@ -336,7 +354,7 @@ add_action('after_setup_theme', function () {
 
 			[
 				'name' => 'Kind Steel',
-				'gradient' => 'linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%)',
+				'gradient' => 'linear-gradient(340deg, #e9defa 0%, #fbfcdb 100%)',
 				'slug' => 'kind-steel',
 			],
 
@@ -384,7 +402,7 @@ add_action('after_setup_theme', function () {
 
 			[
 				'name' => 'Perfect White',
-				'gradient' => 'linear-gradient(-225deg, #E3FDF5 0%, #FFE6FA 100%)',
+				'gradient' => 'linear-gradient(135deg, #E3FDF5 0%, #FFE6FA 100%)',
 				'slug' => 'perfect-white',
 			],
 		], blocksy_manager()->colors->get_color_palette())
@@ -408,6 +426,13 @@ add_action('after_setup_theme', function () {
 	$all_menus['menu_2'] = esc_html__('Header Menu 2', 'blocksy');
 	$all_menus['menu_mobile'] = esc_html__('Mobile Menu', 'blocksy');
 
+	/**
+	 * Filters the list of nav menu locations registered by the theme.
+	 *
+	 * @since 1.8.0
+	 *
+	 * @param array $all_menus Map of menu location slug => label.
+	 */
 	$all_menus = apply_filters('blocksy:register_nav_menus:input', $all_menus);
 
 	// This theme uses wp_nav_menu in one location.
@@ -427,6 +452,7 @@ add_action('after_setup_theme', function () {
 			'comment-list',
 			'gallery',
 			'caption',
+			'navigation-widgets',
 		]
 	);
 
@@ -449,6 +475,13 @@ add_action('after_setup_theme', function () {
 	// This variable is intended to be overruled from themes.
 	// Open WPCS issue: {@link https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/issues/1043}.
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+	/**
+	 * Filters the theme content width in pixels.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $content_width The content width in pixels.
+	 */
 	$GLOBALS['content_width'] = apply_filters(
 		'blocksy_content_width',
 		blocksy_get_theme_mod('maxSiteWidth', 1290)
@@ -477,6 +510,13 @@ add_action(
 			]
 		);
 
+		/**
+		 * Fires after the main sidebar is registered.
+		 *
+		 * @since 1.7.11
+		 *
+		 * @param string $sidebar_title_tag The HTML tag used for widget titles.
+		 */
 		do_action('blocksy:widgets_init', $sidebar_title_tag);
 
 		$number_of_sidebars = 6;
@@ -582,7 +622,6 @@ require get_template_directory() . '/inc/integrations/bbpress.php';
 require get_template_directory() . '/inc/integrations/fluent-forms.php';
 require get_template_directory() . '/inc/integrations/coauthors.php';
 require get_template_directory() . '/inc/integrations/disqus.php';
-require get_template_directory() . '/inc/integrations/secupress.php';
 require get_template_directory() . '/inc/integrations/wpc-variations-table.php';
 
 if (function_exists('get_rocket_cdn_url')) {
@@ -595,7 +634,6 @@ require get_template_directory() . '/inc/components/archive/archive-card.php';
 /**
  * Custom template tags for this theme.
  */
-require get_template_directory() . '/inc/template-actions.php';
 require get_template_directory() . '/inc/template-tags.php';
 require get_template_directory() . '/inc/footer.php';
 
@@ -605,6 +643,11 @@ require get_template_directory() . '/admin/helpers/all.php';
  * Customizer additions.
  */
 
+/**
+ * Fires before the customizer configuration is loaded.
+ *
+ * @since 1.8.7
+ */
 do_action('blocksy:customizer:load:before');
 
 global $wp_customize;
@@ -653,4 +696,3 @@ class Blocksy_Fonts_Manager {
 		return [];
 	}
 }
-

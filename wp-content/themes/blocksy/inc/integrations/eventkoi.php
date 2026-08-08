@@ -111,6 +111,13 @@ if (! function_exists('blocksy_eventkoi_content_open')) {
 			'array' => true
 		]));
 
+		/**
+		 * Filters whether the default hero section renders on a single post.
+		 *
+		 * @since 1.7.60
+		 *
+		 * @param bool $has_default_hero Whether the default hero is shown.
+		 */
 		if (apply_filters('blocksy:single:has-default-hero', true)) {
 			$resulting_hero = blocksy_output_hero_section([
 				'type' => 'type-2'
@@ -163,6 +170,20 @@ add_filter('blocksy:customizer:sync:whole-page', function ($args) {
 	return $args;
 });
 
-add_filter('get_the_archive_title', function($title, $original_title) {
-	return $original_title;
-}, 10, 2);
+add_action('init', function() {
+	if (
+		! class_exists('\EventKoi\Init')
+		||
+		! is_tax('event_cal')
+		||
+		! is_singular('eventkoi_event')
+		||
+		! is_singular('evnt')
+	) {
+		return;
+	}
+
+	add_filter('get_the_archive_title', function($title, $original_title) {
+		return $original_title;
+	}, 10, 2);
+});

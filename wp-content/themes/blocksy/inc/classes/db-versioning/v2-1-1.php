@@ -17,12 +17,11 @@ class V211 {
 			return;
 		}
 
-		if (! class_exists('\Blocksy\Extensions\WoocommerceExtra\Storage')) {
+		$settings = get_option('blocksy_ext_woocommerce_extra_settings', []);
+
+		if (! is_array($settings)) {
 			return;
 		}
-
-		$storage = new \Blocksy\Extensions\WoocommerceExtra\Storage();
-		$settings = $storage->get_settings();
 
 		if (
 			! isset($settings['features']['variation-swatches'])
@@ -55,9 +54,9 @@ class V211 {
 			) {
 				continue;
 			}
-			
+
 			$limit = blocksy_akg('limit', $layer['options'], 10);
-			
+
 			set_theme_mod('limit_number_of_swatches', 'yes');
 			set_theme_mod('archive_limit_number_of_swatches_number', $limit);
 		}

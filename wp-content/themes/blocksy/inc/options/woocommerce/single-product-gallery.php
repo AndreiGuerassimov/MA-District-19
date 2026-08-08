@@ -314,7 +314,7 @@ $options = [
 									'options' => [
 
 										'gallery_style' => [
-											'label' => __('Position', 'blocksy'),
+											'label' => __('Container Position', 'blocksy'),
 											'type' => 'ct-radio',
 											'value' => 'horizontal',
 											'view' => 'text',
@@ -331,27 +331,56 @@ $options = [
 											])
 										],
 
+										blocksy_rand_md5() => [
+											'type' => 'ct-condition',
+											'condition' => [ 'gallery_style' => 'vertical' ],
+											'options' => [
+
+												'product_thumbs_width' => [
+													'label' => __( 'Container Width', 'blocksy' ),
+													'type' => 'ct-slider',
+													'value' => 100,
+													'min' => 10,
+													'max' => 500,
+													'divider' => 'bottom',
+													'setting' => [ 'transport' => 'postMessage' ],
+												],
+
+											],
+										],
+
 									],
 								],
 
-								'gallery_thumbnail_image_width' => [
-									'type' => 'text',
-									'label' => __('Image Size', 'blocksy'),
-									'desc' => __('Image size used for the gallery thumbnails on single product pages.', 'blocksy'),
-									'value' => 100,
-									'design' => 'inline',
-									'divider' => 'bottom',
-								],
-
 								'product_thumbs_spacing' => [
-									'label' => __( 'Spacing', 'blocksy' ),
+									'label' => __( 'Items Spacing', 'blocksy' ),
 									'type' => 'ct-slider',
-									'value' => '15px',
-									'units' => blocksy_units_config([
-										[ 'unit' => 'px', 'min' => 0, 'max' => 100 ],
-									]),
+									'value' => 15,
+									'min' => 0,
+									'max' => 100,
+									'divider' => 'bottom',
 									'responsive' => true,
 									'setting' => [ 'transport' => 'postMessage' ],
+								],
+
+								'product_gallery_thumbs_ratio' => [
+									'label' => __( 'Image Ratio', 'blocksy' ),
+									'type' => 'ct-ratio',
+									'value' => '1/1',
+									'design' => 'block',
+									'attr' => [ 'data-type' => 'compact' ],
+									'setting' => [ 'transport' => 'postMessage' ],
+									'preview_width_key' => 'gallery_thumbnail_image_width',
+									'view' => 'inline',
+									'inner-options' => [
+										'gallery_thumbnail_image_width' => [
+											'type' => 'text',
+											'label' => __('Image Size', 'blocksy'),
+											'desc' => __('Image size used for the gallery thumbnails on single product pages.', 'blocksy'),
+											'value' => 100,
+											'design' => 'inline',
+										],
+									],
 								],
 
 							],

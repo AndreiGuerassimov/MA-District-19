@@ -116,19 +116,17 @@ if (empty($icon_type)) {
 }
 
 $icon = $icon[$icon_type];
+$icon_source = blocksy_default_akg('icon_source', $atts, 'default');
 
-if (function_exists('blc_get_icon')) {
-	$icon_source = blocksy_default_akg('icon_source', $atts, 'default');
-
-	if ( $icon_source === 'custom' ) {
-		$icon = blc_get_icon([
+if ($icon_source === 'custom') {
+	if (blocksy_manager()->companion->has('custom_icons')) {
+		$icon = blocksy_manager()->companion->get_icon([
 			'icon_descriptor' => blocksy_akg('icon', $atts, [
 				'icon' => 'blc blc-cart'
 			]),
 			'icon_container' => false
 		]);
 	}
-
 }
 
 $item_class = 'ct-cart-item';
@@ -212,10 +210,44 @@ $aria_label = __('Shopping cart', 'blocksy');
 
 $label = $before_totals . $totals_output . $after_totals;
 
-if (
-	! empty($before_totals)
+$label_visisbility = blocksy_default_akg(
+	'cart_subtotal_visibility',
+	$atts,
+	[
+		'desktop' => true,
+		'tablet' => true,
+		'mobile' => true,
+	]
+);
+
+$has_visible_label = (
+	(
+		is_array($label_visisbility)
+		&&
+		(
+			$label_visisbility['desktop'] !== false
+			||
+			$label_visisbility['tablet'] !== false
+			||
+			$label_visisbility['mobile'] !== false
+		)
+	)
 	||
-	! empty($after_totals)
+	(
+		! is_array($label_visisbility)
+		&&
+		$label_visisbility
+	)
+);
+
+if (
+	(
+		! empty($before_totals)
+		||
+		! empty($after_totals)
+	)
+	&&
+	$has_visible_label
 ) {
 	$aria_label = '';
 }
@@ -251,16 +283,18 @@ $icon_classes = [
 	<?php
 		echo $screen_reader_text;
 
-		echo blocksy_html_tag(
-			'span',
-			array_merge(
-				[
-					'class' => $cart_total_class,
-					'data-price' => strpos($label_mask, '{price}') !== false ? 'yes' : 'no'
-				],
-			),
-			$label
-		);
+		if ($has_visible_label) {
+			echo blocksy_html_tag(
+				'span',
+				array_merge(
+					[
+						'class' => $cart_total_class,
+						'data-price' => strpos($label_mask, '{price}') !== false ? 'yes' : 'no'
+					],
+				),
+				$label
+			);
+		}
 	?>
 
 	<span class="<?php echo esc_attr(implode(' ', $icon_classes)) ?>" aria-hidden="true">

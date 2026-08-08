@@ -4,7 +4,12 @@ import './events'
 import ctEvents from 'ct-events'
 
 import { watchLayoutContainerForReveal } from './frontend/animated-element'
-import { onDocumentLoaded, handleEntryPoints, loadStyle } from './helpers'
+import {
+	onDocumentLoaded,
+	handleEntryPoints,
+	loadStyle,
+	preloadAssetsForContent
+} from './helpers'
 
 import { getCurrentScreen } from './frontend/helpers/current-screen'
 import { mountDynamicChunks } from './dynamic-chunks'
@@ -24,7 +29,7 @@ document.addEventListener('click', (x) => 0)
 
 import {
 	fastOverlayHandleClick,
-	fastOverlayMount,
+	fastOverlayMount
 } from './frontend/fast-overlay'
 // import { mount } from './frontend/social-buttons'
 
@@ -35,37 +40,37 @@ let allFrontendEntryPoints = [
 	{
 		els: '[data-parallax]',
 		load: () => import('./frontend/parallax/register-listener'),
-		events: ['blocksy:parallax:init'],
+		events: ['blocksy:parallax:init']
 	},
 
 	{
 		els: '.flexy-container[data-flexy*="no"]',
 		load: () => import('./frontend/flexy'),
-		trigger: ['hover-with-touch'],
+		trigger: ['hover-with-touch']
 	},
 
 	{
 		els: '.ct-share-box [data-network="pinterest"]',
 		load: () => import('./frontend/social-buttons'),
-		trigger: ['click'],
+		trigger: ['click']
 	},
 
 	{
 		els: '.ct-share-box [data-network="clipboard"]',
 		load: () => import('./frontend/social-buttons'),
-		trigger: ['click'],
+		trigger: ['click']
 	},
 
 	{
 		els: '.ct-media-container[data-media-id]:not([data-state*="hover"]), .ct-dynamic-media[data-media-id]:not([data-state*="hover"])',
 		load: () => import('./frontend/lazy/video-on-click'),
-		trigger: ['click', 'slight-mousemove', 'scroll'],
+		trigger: ['click', 'slight-mousemove', 'scroll']
 	},
 
 	{
 		els: '.ct-media-container[data-media-id][data-state*="hover"], .ct-dynamic-media[data-media-id][data-state*="hover"]',
 		load: () => import('./frontend/lazy/video-on-click'),
-		trigger: ['click', 'hover-with-touch'],
+		trigger: ['click', 'hover-with-touch']
 	},
 
 	{
@@ -75,14 +80,23 @@ let allFrontendEntryPoints = [
 		condition: () =>
 			!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 				navigator.userAgent
-			),
+			)
+	},
+
+	{
+		els: [
+			'*:has(> .ct-tooltip):not([class*="ct-price-filter-range-handle"])',
+			'.ct-price-filter-slider input[type="range"]'
+		],
+		load: () => import('./frontend/tooltip'),
+		trigger: ['hover']
 	},
 
 	{
 		els: () => {
 			const popperEls = [
 				'.ct-language-switcher > .ct-active-language',
-				'.ct-header-account[data-interaction="dropdown"] > .ct-account-item',
+				'.ct-header-account[data-interaction="dropdown"] > .ct-account-item'
 			]
 
 			const maybeCart = document.querySelector(
@@ -97,39 +111,62 @@ let allFrontendEntryPoints = [
 			return popperEls
 		},
 		load: () => import('./frontend/popper-elements'),
-		trigger: ['hover-with-click'],
+		trigger: ['hover-with-click']
 	},
 
 	{
 		els: '.ct-back-to-top, .ct-shortcuts-bar [data-shortcut*="scroll_top"]',
 		load: () => import('./frontend/back-to-top-link'),
 		events: ['ct:back-to-top:mount'],
-		trigger: ['scroll'],
+		trigger: ['scroll']
 	},
 
 	{
-		els: '.ct-pagination:not([data-pagination="simple"])',
+		els: '.ct-pagination[data-pagination="load_more"] .ct-load-more',
 		load: () => import('./frontend/layouts/infinite-scroll'),
-		trigger: ['scroll'],
+		trigger: [{ id: 'click', once: true }],
+		mount: ({ mount, el, event }) =>
+			mount(el.closest('.ct-pagination'), { event })
 	},
 
 	{
-		els: ['.entries[data-layout]', '[data-products].products'],
+		els: '.ct-pagination[data-pagination="infinite_scroll"]',
+		load: () => import('./frontend/layouts/infinite-scroll'),
+		trigger: ['scroll']
+	},
+
+	{
+		els: () => [
+			...new Set(
+				[...document.querySelectorAll('[data-reveal*="no"]')]
+					.map((el) => el.closest('.entries, .products'))
+					.filter((el) => !!el)
+			)
+		],
 		load: () =>
-			new Promise((r) => r({ mount: watchLayoutContainerForReveal })),
+			new Promise((r) => r({ mount: watchLayoutContainerForReveal }))
+	},
+
+	{
+		els: [
+			'.ct-has-link-overlay.is-layout-slider .flexy-item:has(> * > .ct-link-overlay)',
+			'.ct-has-link-overlay:not(.is-layout-slider) *:has(> .ct-link-overlay)'
+		],
+		load: () => import('./frontend/link-overlay'),
+		trigger: ['click']
 	},
 
 	{
 		els: ['.ct-modal-action'],
 		load: () => new Promise((r) => r({ mount: fastOverlayMount })),
 		events: ['ct:header:update'],
-		trigger: ['click'],
+		trigger: ['click']
 	},
 
 	{
 		els: ['.ct-expandable-trigger'],
 		load: () => import('./frontend/generic-accordion'),
-		trigger: ['click'],
+		trigger: ['click']
 	},
 
 	{
@@ -138,12 +175,12 @@ let allFrontendEntryPoints = [
 		mount: ({ mount, el, ...rest }) => {
 			mount(el, {
 				...rest,
-				focus: true,
+				focus: true
 			})
 		},
 		events: [],
-		trigger: ['click'],
-	},
+		trigger: ['click']
+	}
 ]
 
 if (document.body.className.indexOf('woocommerce') > -1) {
@@ -152,19 +189,19 @@ if (document.body.className.indexOf('woocommerce') > -1) {
 
 		handleEntryPoints(allFrontendEntryPoints, {
 			immediate: true,
-			skipEvents: true,
+			skipEvents: true
 		})
 	})
 }
 
 handleEntryPoints(allFrontendEntryPoints, {
-	immediate: /comp|inter|loaded/.test(document.readyState),
+	immediate: /comp|inter|loaded/.test(document.readyState)
 })
 
 const initOverlayTrigger = () => {
 	;[
 		...document.querySelectorAll('.ct-header-trigger'),
-		...document.querySelectorAll('.ct-offcanvas-trigger'),
+		...document.querySelectorAll('.ct-offcanvas-trigger')
 	].map((menuToggle) => {
 		if (menuToggle && !menuToggle.hasListener) {
 			menuToggle.hasListener = true
@@ -211,7 +248,7 @@ const initOverlayTrigger = () => {
 						return offcanvas.querySelector(
 							'.ct-panel-content > .ct-panel-content-inner'
 						)
-					},
+					}
 				})
 			})
 		}
@@ -262,12 +299,12 @@ onDocumentLoaded(() => {
 	let inputs = [
 		...document.querySelectorAll(
 			'.comment-form [class*="comment-form-field"]'
-		),
+		)
 	]
 		.reduce(
 			(result, parent) => [
 				...result,
-				parent.querySelector('input,textarea'),
+				parent.querySelector('input,textarea')
 			],
 			[]
 		)
@@ -309,8 +346,8 @@ onDocumentLoaded(() => {
 					}
 
 					return c.nodeValue.toLowerCase().includes('litespeed')
-				}),
-		},
+				})
+		}
 	])
 })
 
@@ -319,12 +356,21 @@ let isPageLoad = true
 ctEvents.on('blocksy:frontend:init', () => {
 	handleEntryPoints(allFrontendEntryPoints, {
 		immediate: true,
-		skipEvents: true,
+		skipEvents: true
 	})
 
 	mountDynamicChunks()
 
 	initOverlayTrigger()
+
+	// If assets detected in main container, preload them.
+	// It will not cover assets for elements from drawer canvas, as those
+	// will be opened later when corresponding items open.
+	//
+	// Also, need to do it on this first load because woo fragments may
+	// already have updated the cart content before our main script runs,
+	// so we need to make sure to cover those assets as well.
+	preloadAssetsForContent(document.querySelector('#main-container'))
 
 	if (isPageLoad) {
 		isPageLoad = false
@@ -332,33 +378,33 @@ ctEvents.on('blocksy:frontend:init', () => {
 		mountIntegrations([
 			{
 				promise: () => import('./frontend/integration/stackable'),
-				check: () => true,
+				check: () => true
 			},
 
 			{
 				promise: () => import('./frontend/integration/greenshift'),
-				check: () => !!window.gsInitTabs,
+				check: () => !!window.gsInitTabs
 			},
 
 			{
 				promise: () => import('./frontend/integration/cf7'),
-				check: () => !!window.wpcf7,
+				check: () => !!window.wpcf7
 			},
 
 			{
 				promise: () => import('./frontend/integration/turnstile'),
-				check: () => !!window.turnstile,
+				check: () => !!window.turnstile
 			},
 
 			{
 				promise: () => import('./frontend/integration/elementor'),
-				check: () => !!window.elementorFrontend,
+				check: () => !!window.elementorFrontend
 			},
 
 			{
 				promise: () =>
 					import('./frontend/integration/elementor-premium-addons'),
-				check: () => !!window.premiumWooProducts,
+				check: () => !!window.premiumWooProducts
 			},
 
 			{
@@ -366,8 +412,8 @@ ctEvents.on('blocksy:frontend:init', () => {
 					import(
 						'./frontend/integration/advanced-product-fields-for-woocommerce'
 					),
-				check: () => !!window._wapf,
-			},
+				check: () => !!window._wapf
+			}
 		])
 	}
 })
@@ -378,18 +424,21 @@ ctEvents.on(
 		fastOverlayHandleClick(e, {
 			...(href
 				? {
-						container: document.querySelector(href),
-				  }
+						container: document.querySelector(href)
+					}
 				: {}),
 
 			...(container ? { container } : {}),
-			...options,
+			...options
 		})
 	}
 )
 
-export { loadStyle, handleEntryPoints, onDocumentLoaded } from './helpers'
+export {
+	loadStyle,
+	preloadAssetsForContent,
+	handleEntryPoints,
+	onDocumentLoaded
+} from './helpers'
 export { registerDynamicChunk, loadDynamicChunk } from './dynamic-chunks'
 export { getCurrentScreen } from './frontend/helpers/current-screen'
-
-export { fastOverlayPreloadAssets as overlayPreloadAssets } from './frontend/fast-overlay'

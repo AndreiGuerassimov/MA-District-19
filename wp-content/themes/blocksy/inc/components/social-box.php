@@ -10,6 +10,7 @@ if (! function_exists('blocksy_social_icons')) {
 				'size' => 'custom',
 				'fill' => false,
 				'label_attr' => [],
+				'root_attr' => [],
 				'label_visibility' => [
 				  'desktop' => false,
 				  'tablet' => false,
@@ -40,7 +41,7 @@ if (! function_exists('blocksy_social_icons')) {
 		}
 
 		return blocksy_get_social_box([
-			'attr' => $attr,
+			'attr' => array_merge($attr, $args['root_attr']),
 			'socials' => $socials_descriptor,
 			'label_attr' => $args['label_attr'],
 			'label_visibility' => $args['label_visibility'],
@@ -502,7 +503,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'apple_podcast' => [
-				'name' => __( 'Apple Podcasts', 'blocksy' ),
+				'name' => __('Apple Podcasts', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20px"
@@ -619,7 +620,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'vk' => [
-				'name' => __( 'VK', 'blocksy' ),
+				'name' => __('VK', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20px"
@@ -632,7 +633,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'ok' => [
-				'name' => __( 'Odnoklassniki', 'blocksy' ),
+				'name' => __('Odnoklassniki', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20px"
@@ -658,7 +659,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'facebook_group' => [
-				'name' => __( 'Facebook Group', 'blocksy' ),
+				'name' => __('Facebook Group', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20px"
@@ -671,7 +672,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'facebook_messenger' => [
-				'name' => __( 'Facebook Messenger', 'blocksy' ),
+				'name' => __('Facebook Messenger', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20px"
@@ -906,7 +907,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'phone' => [
-				'name' => __( 'Phone', 'blocksy' ),
+				'name' => __('Phone', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20"
@@ -919,7 +920,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'email' => [
-				'name' => __( 'Email', 'blocksy' ),
+				'name' => __('Email', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20"
@@ -932,7 +933,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'clipboard' => [
-				'name' => __( 'Copy to Clipboard', 'blocksy' ),
+				'name' => __('Copy to Clipboard', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20"
@@ -945,7 +946,7 @@ if (! function_exists('blocksy_get_social_metadata')) {
 			],
 
 			'bluesky' => [
-				'name' => __( 'Bluesky', 'blocksy' ),
+				'name' => __('Bluesky', 'blocksy'),
 				'icon' => '
 					<svg
 					width="20"
@@ -1371,11 +1372,11 @@ function blocksy_get_social_box($args = []) {
 								$metadata['icon']
 							);
 
-							if (function_exists('blc_get_icon')) {
-								$icon_source = blocksy_default_akg('icon_source', $single_social, 'default');
+							$icon_source = blocksy_default_akg('icon_source', $single_social, 'default');
 
-								if ( $icon_source === 'custom' ) {
-									$icon = blc_get_icon([
+							if ($icon_source === 'custom') {
+								if (blocksy_manager()->companion->has('custom_icons')) {
+									$icon = blocksy_manager()->companion->get_icon([
 										'icon_descriptor' => blocksy_akg(
 											'icon',
 											$single_social,
@@ -1386,7 +1387,6 @@ function blocksy_get_social_box($args = []) {
 										]
 									]);
 								}
-
 							}
 
 							if ($args['has_tooltip']) {
@@ -1449,7 +1449,7 @@ function blocksy_get_social_box($args = []) {
  * @param string $str String to encode for URL.
  */
 if (! function_exists('blocksy_encode_uri_component')) {
-	function blocksy_encode_uri_component( $str ) {
+	function blocksy_encode_uri_component($str) {
 		$revert = [
 			'%21' => '!',
 			'%2A' => '*',
@@ -1458,7 +1458,7 @@ if (! function_exists('blocksy_encode_uri_component')) {
 			'%29' => ')',
 		];
 
-		return strtr( rawurlencode( $str ), $revert );
+		return strtr(rawurlencode($str), $revert);
 	}
 }
 
@@ -1470,7 +1470,7 @@ if (! function_exists('blocksy_get_social_networks_list')) {
 			],
 
 			'apple_podcast' => [
-				'label' => __( 'Apple Podcasts', 'blocksy' ),
+				'label' => __('Apple Podcasts', 'blocksy'),
 			],
 
 			'behance' => [
@@ -1498,7 +1498,7 @@ if (! function_exists('blocksy_get_social_networks_list')) {
 			],
 
 			'email' => [
-				'label' => __( 'Email', 'blocksy' ),
+				'label' => __('Email', 'blocksy'),
 			],
 
 			'facebook' => [
@@ -1506,11 +1506,11 @@ if (! function_exists('blocksy_get_social_networks_list')) {
 			],
 
 			'facebook_group' => [
-				'label' => __( 'Facebook Group', 'blocksy' ),
+				'label' => __('Facebook Group', 'blocksy'),
 			],
 
 			'facebook_messenger' => [
-				'label' => __( 'Facebook Messenger', 'blocksy' ),
+				'label' => __('Facebook Messenger', 'blocksy'),
 			],
 
 			'flickr' => [
@@ -1554,7 +1554,7 @@ if (! function_exists('blocksy_get_social_networks_list')) {
 			],
 
 			'ok' => [
-				'label' => __( 'Odnoklassniki', 'blocksy' ),
+				'label' => __('Odnoklassniki', 'blocksy'),
 			],
 
 			'parler' => [
@@ -1566,7 +1566,7 @@ if (! function_exists('blocksy_get_social_networks_list')) {
 			],
 
 			'phone' => [
-				'label' => __( 'Phone', 'blocksy' ),
+				'label' => __('Phone', 'blocksy'),
 			],
 
 			'pinterest' => [
@@ -1646,7 +1646,7 @@ if (! function_exists('blocksy_get_social_networks_list')) {
 			],
 
 			'vk' => [
-				'label' => __( 'VK', 'blocksy' ),
+				'label' => __('VK', 'blocksy'),
 			],
 
 			'viber' => [

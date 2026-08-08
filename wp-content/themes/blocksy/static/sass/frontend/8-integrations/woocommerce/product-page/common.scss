@@ -1,3 +1,5 @@
+@use "../../../1-helpers/functions";
+
 form.cart {
 
 	table {
@@ -18,7 +20,8 @@ form.cart {
 }
 
 
-.product[class*="gallery"] {
+.product:has([data-gallery]) {
+	
 	form.cart {
 		&:before, &:after {
 			content: '';
@@ -47,7 +50,7 @@ form.cart {
 		--item-order: 1;
 		--quantity-height: var(--theme-button-min-height);
 
-		@include media-breakpoint-down (xs) {
+		@include functions.media-breakpoint-down (xs) {
 			&[data-type='type-1'] {
 				--quantity-width: 80px;
 			}
@@ -73,7 +76,7 @@ form.cart {
 		--theme-button-background-initial-color: rgba(224,229,235,0.6);
 		--theme-button-background-hover-color: rgba(224,229,235,1);
 
-		@include media-breakpoint-up (sm) {
+		@include functions.media-breakpoint-up (sm) {
 			flex: 1;
 		}
 	}

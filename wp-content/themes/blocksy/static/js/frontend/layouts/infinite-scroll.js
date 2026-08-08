@@ -1,5 +1,6 @@
 import InfiniteScroll from 'infinite-scroll'
 import { watchLayoutContainerForReveal } from '../animated-element'
+import { setLoaderState } from '../helpers/set-loader-state'
 import ctEvents from 'ct-events'
 
 const generateQuerySelector = (el) => {
@@ -9,7 +10,7 @@ const generateQuerySelector = (el) => {
 		'active',
 		'ct-active',
 		'wpgb-enabled',
-		'e-lazyloaded',
+		'e-lazyloaded'
 	]
 
 	let parents = []
@@ -57,7 +58,7 @@ const generateQuerySelector = (el) => {
 
 			if (elForSelector === el) {
 				const layoutIndex = [
-					...elForSelector.parentNode.children,
+					...elForSelector.parentNode.children
 				].indexOf(elForSelector)
 
 				if (layoutIndex > -1) {
@@ -87,7 +88,32 @@ InfiniteScroll.prototype.onPageScroll = InfiniteScroll.throttle(function () {
 	}
 })
 
-export const mount = (paginationContainer) => {
+// The library's history behavior binds its cleanup handler to the deprecated
+// `unload` event, which browsers report as "Permissions policy violation:
+// unload is not allowed in this document" when the host forbids the feature.
+// `unload` is referenced in this one method only — rebinding it to `pagehide`
+// (skipping bfcache freezes, where the page keeps living) is the whole fix.
+//
+// https://github.com/metafizzy/infinite-scroll/issues/980
+InfiniteScroll.prototype.bindHistoryAppendEvents = function (isBind) {
+	const addRemove = isBind ? 'addEventListener' : 'removeEventListener'
+
+	this.scroller[addRemove]('scroll', this.scrollHistoryHandler)
+
+	if (!this.pageHideHandler) {
+		this.pageHideHandler = (event) => {
+			if (event.persisted) {
+				return
+			}
+
+			this.onUnload()
+		}
+	}
+
+	window[addRemove]('pagehide', this.pageHideHandler)
+}
+
+export const mount = (paginationContainer, { event } = {}) => {
 	let layoutEl = [...paginationContainer.parentNode.children]
 		.reduce(
 			(a, c) => {
@@ -120,19 +146,30 @@ export const mount = (paginationContainer) => {
 
 	const paginationSelector =
 		getAppendSelectorFor(layoutEl, {
-			toAppend: '.ct-pagination',
+			toAppend: '.ct-pagination'
 		}) || '.ct-pagination'
 
 	const nextEl = paginationContainer.querySelector('.next')
 
 	let pathParam = `${paginationSelector} .next`
 
-	if (nextEl && nextEl.href && nextEl.href.indexOf('paged=') > -1) {
+	if (nextEl && nextEl.href) {
 		const parsedHref = new URL(nextEl.href)
+		let hasTemplateParam = false
 
-		parsedHref.searchParams.set('paged', '{{#}}')
+		;[...parsedHref.searchParams.keys()].forEach((key) => {
+			if (key === 'paged' || key.endsWith('_paged')) {
+				parsedHref.searchParams.set(key, '{{#}}')
+				hasTemplateParam = true
+			}
+		})
 
-		pathParam = decodeURIComponent(parsedHref.toString())
+		// Pretty permalinks carry no paged param — without one the URL has no
+		// {{#}} template and the library would treat it as a CSS selector and
+		// throw. Keep the selector fallback in that case.
+		if (hasTemplateParam) {
+			pathParam = decodeURIComponent(parsedHref.toString())
+		}
 	}
 
 	let inf = new InfiniteScroll(layoutEl, {
@@ -158,9 +195,12 @@ export const mount = (paginationContainer) => {
 
 		onInit() {
 			this.on('load', (response) => {
-				paginationContainer
-					.querySelector('.ct-load-more-helper')
-					.classList.remove('ct-loading')
+				const helper = paginationContainer.querySelector(
+					'.ct-load-more-helper'
+				)
+
+				helper.classList.remove('ct-loading')
+				setLoaderState(helper, { enabled: false })
 
 				setTimeout(() => {
 					ctEvents.trigger('ct:infinite-scroll:load')
@@ -188,9 +228,12 @@ export const mount = (paginationContainer) => {
 			})
 
 			this.on('request', () => {
-				paginationContainer
-					.querySelector('.ct-load-more-helper')
-					.classList.add('ct-loading')
+				const helper = paginationContainer.querySelector(
+					'.ct-load-more-helper'
+				)
+
+				helper.classList.add('ct-loading')
+				setLoaderState(helper, { enabled: true })
 			})
 
 			this.on('last', () => {
@@ -200,16 +243,25 @@ export const mount = (paginationContainer) => {
 						: 'ct-last-page'
 				)
 			})
-		},
+		}
 	})
 
 	paginationContainer.infiniteScroll = inf
+
+	if (paginationType === 'load_more' && event) {
+		const loadMoreButton =
+			paginationContainer.querySelector('.ct-load-more')
+
+		if (loadMoreButton) {
+			setTimeout(() => loadMoreButton.click())
+		}
+	}
 }
 
 function getAppendSelectorFor(layoutEl, args = {}) {
 	args = {
 		toAppend: 'default',
-		...args,
+		...args
 	}
 
 	if (layoutEl.closest('.ct-posts-shortcode')) {
@@ -226,10 +278,18 @@ function getAppendSelectorFor(layoutEl, args = {}) {
 		}
 	}
 
-	if (layoutEl.closest('.wp-block-blocksy-query')) {
-		const prefix = `.wp-block-blocksy-query[data-id="${
-			layoutEl.closest('.wp-block-blocksy-query').dataset.id
-		}"]`
+	const queryBlock = layoutEl.closest(
+		'.wp-block-blocksy-query, .wp-block-blocksy-tax-query'
+	)
+
+	if (queryBlock) {
+		const blockClass = queryBlock.classList.contains(
+			'wp-block-blocksy-query'
+		)
+			? 'wp-block-blocksy-query'
+			: 'wp-block-blocksy-tax-query'
+
+		const prefix = `.${blockClass}[data-id="${queryBlock.dataset.id}"]`
 
 		return `${prefix} ${
 			args.toAppend === 'default'

@@ -9,11 +9,11 @@ export default class ImageUploader extends Component {
 		height: 250,
 		width: 250,
 		flex_width: true,
-		flex_height: true,
+		flex_height: true
 	}
 
 	state = {
-		attachment_info: null,
+		attachment_info: null
 	}
 
 	getUrlFor = (attachmentInfo) =>
@@ -28,8 +28,8 @@ export default class ImageUploader extends Component {
 										: _.omit(attachmentInfo.sizes, 'full')
 								),
 								({ width }) => width
-						  )) || {}
-			  ).url || attachmentInfo.url
+							)) || {}
+				).url || attachmentInfo.url
 			: null
 
 	onChange = (value, attachment_info = null) =>
@@ -39,8 +39,8 @@ export default class ImageUploader extends Component {
 				: {
 						...this.props.value,
 						url: this.getUrlFor(attachment_info),
-						attachment_id: value,
-				  }
+						attachment_id: value
+					}
 		)
 
 	getAttachmentId = (props = this.props) => {
@@ -49,7 +49,10 @@ export default class ImageUploader extends Component {
 		// Special case for custom logo. Sometimes, the custom logo is set but
 		// not published, so we need to get the default straight from the
 		// customizer.
-		if (!defaultValue && props.id === 'custom_logo') {
+		//
+		// For custom logo, always read default from customizer setting because
+		// the option default value might be outdated.
+		if (props.id === 'custom_logo') {
 			defaultValue = wp.customize('custom_logo')() || ''
 		}
 
@@ -65,20 +68,20 @@ export default class ImageUploader extends Component {
 		this.frame = wp.media({
 			button: {
 				text: 'Select',
-				close: false,
+				close: false
 			},
 			states: [
 				new wp.media.controller.Library({
 					title:
 						this.props.option.label || __('Select logo', 'blocksy'),
 					library: wp.media.query({
-						type: this.props.option.mediaType || 'image',
+						type: this.props.option.mediaType || 'image'
 					}),
 					multiple: false,
 					date: false,
 					priority: 20,
 					suggestedWidth: (this.props.option.logo || {}).width,
-					suggestedHeight: (this.props.option.logo || {}).height,
+					suggestedHeight: (this.props.option.logo || {}).height
 				}),
 
 				...(this.props.option.skipCrop || true
@@ -87,10 +90,10 @@ export default class ImageUploader extends Component {
 							new wp.media.controller.CustomizeImageCropper({
 								imgSelectOptions:
 									this.calculateImageSelectOptions,
-								control: this,
-							}),
-					  ]),
-			],
+								control: this
+							})
+						])
+			]
 		})
 
 		this.frame.on('select', this.onSelect, this)
@@ -194,7 +197,7 @@ export default class ImageUploader extends Component {
 			x1: x1,
 			y1: y1,
 			x2: xInit + x1,
-			y2: yInit + y1,
+			y2: yInit + y1
 		}
 
 		if (flexHeight === false && flexWidth === false) {
@@ -264,42 +267,54 @@ export default class ImageUploader extends Component {
 	 * @param {object} attachment
 	 */
 	setImageFromAttachment(attachment) {
-		this.onChange(
-			attachment.id,
-			JSON.parse(
-				JSON.stringify(wp.media.attachment(attachment.id).toJSON())
-			)
-		)
+		wp.media.attachment(attachment.id).set(attachment)
+
+		this.onChange(attachment.id, attachment)
 
 		this.updateAttachmentInfo()
 	}
 
-	updateAttachmentInfo = (force = false) => {
+	updateAttachmentInfo = () => {
 		let id = this.getAttachmentId()
 
 		if (!id) return
 
-		if (!wp.media.attachment(id).get('url') || force) {
+		this.detachListener()
+
+		// An unhydrated model is a bare `{id}` stub with no `url`, so fetch it
+		// once from the server. A hydrated model already carries its data.
+		if (wp.media.attachment(id).get('url')) {
+			this.syncInfoFromModel()
+		} else {
 			wp.media
 				.attachment(id)
 				.fetch()
-				.then(() =>
-					this.setState({
-						attachment_info: JSON.parse(
-							JSON.stringify(wp.media.attachment(id).toJSON())
-						),
-					})
-				)
-		} else {
-			this.setState({
-				attachment_info: JSON.parse(
-					JSON.stringify(wp.media.attachment(id).toJSON())
-				),
-			})
+				.then(() => {
+					if (this.getAttachmentId() === id) {
+						this.syncInfoFromModel()
+					}
+				})
 		}
 
-		this.detachListener()
-		wp.media.attachment(id).on('change', this.updateAttachmentInfo)
+		wp.media.attachment(id).on('change', this.syncInfoFromModel)
+	}
+
+	// The `change` handler only re-reads the model into state — never fetches.
+	// A `change` means the attributes already updated in memory, so a fetch is
+	// redundant; worse, fetching here re-enters over admin-ajax on every change,
+	// and for attachments whose response markup is non-deterministic (e.g. ACF's
+	// `compat` field) that becomes an infinite loop (issue #5385).
+	syncInfoFromModel = () => {
+		let id = this.getAttachmentId()
+
+		if (!id) return
+
+		// Snapshot only the fields `getUrlFor` reads. `toJSON()` also carries
+		// bulky, unused data (ACF's `compat` markup, nonces, editLink…) that we
+		// have no reason to hold in state.
+		let { url, width, sizes } = wp.media.attachment(id).toJSON()
+
+		this.setState({ attachment_info: { url, width, sizes } })
 	}
 
 	detachListener() {
@@ -307,14 +322,14 @@ export default class ImageUploader extends Component {
 
 		wp.media
 			.attachment(this.getAttachmentId())
-			.off('change', this.updateAttachmentInfo)
+			.off('change', this.syncInfoFromModel)
 	}
 
 	componentDidUpdate(prevProps) {
 		if (this.getAttachmentId() !== this.getAttachmentId(prevProps)) {
 			wp.media
 				.attachment(this.getAttachmentId(prevProps))
-				.off('change', this.updateAttachmentInfo)
+				.off('change', this.syncInfoFromModel)
 
 			this.updateAttachmentInfo()
 		}
@@ -335,7 +350,7 @@ export default class ImageUploader extends Component {
 					['landscape']:
 						this.getAttachmentId() && this.state.attachment_info,
 					['attachment-media-view-image']:
-						this.getAttachmentId() && this.state.attachment_info,
+						this.getAttachmentId() && this.state.attachment_info
 				})}
 				{...(this.props.option.attr || {})}>
 				{this.getAttachmentId() && this.state.attachment_info ? (
@@ -377,13 +392,13 @@ export default class ImageUploader extends Component {
 									)}
 									dimensions={{
 										width: 400,
-										height: 100,
+										height: 100
 									}}
 									value={this.props.value}
 									onChange={(drag_position) => {
 										this.props.onChange({
 											...this.props.value,
-											...drag_position,
+											...drag_position
 										})
 									}}
 								/>
@@ -406,7 +421,7 @@ export default class ImageUploader extends Component {
 										onClick={(e) => {
 											e.stopPropagation()
 											this.setState({
-												attachment_info: null,
+												attachment_info: null
 											})
 											this.onChange(null)
 										}}

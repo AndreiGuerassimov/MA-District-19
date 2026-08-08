@@ -12,7 +12,7 @@
  *
  * @see     https://woocommerce.com/document/template-structure/
  * @package WooCommerce\Templates
- * @version 10.1.0
+ * @version 11.0.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -40,7 +40,7 @@ $image_ratio = blocksy_get_theme_mod('cart_page_image_ratio', '1/1');
 				<th scope="col" class="product-name" colspan="2"><?php esc_html_e( 'Product', 'blocksy' ); ?></th>
 				<th scope="col" class="product-quantity"><?php esc_html_e( 'Quantity', 'blocksy' ); ?></th>
 				<th scope="col" class="product-subtotal"><?php esc_html_e( 'Subtotal', 'blocksy' ); ?></th>
-				<th class="product-remove">&nbsp;</th>
+				<th scope="col" class="product-remove"><span class="screen-reader-text"><?php esc_html_e( 'Remove item', 'blocksy' ); ?></span></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -50,43 +50,60 @@ $image_ratio = blocksy_get_theme_mod('cart_page_image_ratio', '1/1');
 			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 				$_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 				$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+
 				/**
-				 * Filter the product name.
+				 * Filter whether this cart item is visible in the cart.
 				 *
 				 * @since 2.1.0
-				 * @param string $product_name Name of the product in the cart.
-				 * @param array $cart_item The product in the cart.
-				 * @param string $cart_item_key Key for the product in the cart.
+				 * @param bool   $visible       Whether the cart item is visible. Default true.
+				 * @param array  $cart_item     The cart item data.
+				 * @param string $cart_item_key The cart item key.
 				 */
-				$product_name = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
+				$visible = apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key );
 
-				if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
+				if ( $_product instanceof WC_Product && $_product->exists() && $cart_item['quantity'] > 0 && $visible ) {
+					/**
+					 * Filter the product name.
+					 *
+					 * @since 2.1.0
+					 * @param string $product_name Name of the product in the cart.
+					 * @param array $cart_item The product in the cart.
+					 * @param string $cart_item_key Key for the product in the cart.
+					 */
+					$product_name      = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
 					$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
 					?>
 					<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 
 						<td class="product-thumbnail">
 							<?php
-								echo apply_filters(
+								$thumbnail_args = [
+									'no_image_type' => 'woo',
+									'attachment_id' => $_product->get_image_id(),
+									'post_id' => $_product->get_id(),
+									'size' => $image_size,
+									'ratio' => $image_ratio,
+								];
+
+								if ( $product_permalink ) {
+									$thumbnail_args['tag_name'] = 'a';
+									$thumbnail_args['html_atts'] = [
+										'href' => esc_url( $product_permalink ),
+									];
+								}
+
+								$thumbnail = apply_filters(
 									'woocommerce_cart_item_thumbnail',
-									blocksy_media([
-										'no_image_type' => 'woo',
-										'attachment_id' => $_product->get_image_id(),
-										'post_id' => $_product->get_id(),
-										'size' => $image_size,
-										'ratio' => $image_ratio,
-										'tag_name' => 'a',
-										'html_atts' => [
-											'href' => esc_url( $_product->get_permalink() )
-										],
-									]),
+									blocksy_media( $thumbnail_args ),
 									$cart_item,
 									$cart_item_key
 								);
+
+								echo $thumbnail; // PHPCS: XSS ok.
 							?>
 						</td>
 
-						<td class="product-name" data-title="<?php esc_attr_e( 'Product', 'blocksy' ); ?>">
+						<td role="rowheader" class="product-name" data-title="<?php esc_attr_e( 'Product', 'blocksy' ); ?>">
 							<?php
 								if ( ! $product_permalink ) {
 									echo wp_kses_post( $product_name . '&nbsp;' );
@@ -175,7 +192,7 @@ $image_ratio = blocksy_get_theme_mod('cart_page_image_ratio', '1/1');
 											</a>',
 											esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
 											/* translators: %s is the product name */
-											esc_attr( blocksy_safe_sprintf( __( 'Remove %s from cart', 'blocksy' ), wp_strip_all_tags($product_name) ) ),
+											esc_attr( blocksy_safe_sprintf( __( 'Remove %s from cart', 'blocksy' ), wp_strip_all_tags( $product_name ) ) ),
 											esc_attr( $product_id ),
 											esc_attr( $_product->get_sku() )
 										),
@@ -223,7 +240,7 @@ $image_ratio = blocksy_get_theme_mod('cart_page_image_ratio', '1/1');
 										</a>',
 										esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
 										/* translators: %s is the product name */
-										esc_attr( blocksy_safe_sprintf( __( 'Remove %s from cart', 'blocksy' ), $product_name ) ),
+										esc_attr( blocksy_safe_sprintf( __( 'Remove %s from cart', 'blocksy' ), wp_strip_all_tags( $product_name ) ) ),
 										esc_attr( $product_id ),
 										esc_attr( $_product->get_sku() )
 									),
@@ -287,4 +304,3 @@ $image_ratio = blocksy_get_theme_mod('cart_page_image_ratio', '1/1');
 
 	do_action('woocommerce_after_cart');
 ?>
-

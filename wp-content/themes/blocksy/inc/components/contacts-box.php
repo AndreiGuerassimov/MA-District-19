@@ -1,7 +1,7 @@
 <?php
 
-if (! function_exists('blc_get_contacts_output')) {
-	function blc_get_contacts_output($args = []) {
+if (! function_exists('blocksy_get_contacts_output')) {
+	function blocksy_get_contacts_output($args = []) {
 		$args = wp_parse_args($args, [
 			'data' => [],
 			'link_target' => 'no',
@@ -151,8 +151,8 @@ if (! function_exists('blc_get_contacts_output')) {
 							$icon = $svg_icons_defaults[$single_layer['id']];
 						}
 
-						if (function_exists('blc_get_icon')) {
-							$icon = blc_get_icon([
+						if (blocksy_manager()->companion->has('custom_icons')) {
+							$icon = blocksy_manager()->companion->get_icon([
 								'icon_descriptor' => blocksy_akg(
 									'icon',
 									$single_layer,

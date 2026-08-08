@@ -505,20 +505,63 @@ blocksy_output_background_css([
 	)
 ]);
 
+// Form border radius
+$search_form_border_radius = blocksy_akg('search_form_border_radius', $atts, 20);
+$forms_type = blocksy_get_theme_mod('forms_type', 'classic-forms');
+
+if ($forms_type === 'classic-forms') {
+	blocksy_output_responsive([
+		'css' => $css,
+		'tablet_css' => $tablet_css,
+		'mobile_css' => $mobile_css,
+		'selector' => blocksy_assemble_selector(
+			$root_selector[0] . ' #search-modal .ct-search-form'
+		),
+		'variableName' => 'theme-form-border-radius',
+		'value' => $search_form_border_radius
+	]);
+}
+
 // Image border radius
-blocksy_output_spacing([
-	'css' => $css,
-	'tablet_css' => $tablet_css,
-	'mobile_css' => $mobile_css,
-	'selector' => blocksy_assemble_selector(
-		$root_selector[0] . ' #search-modal .ct-search-results'
-	),
-	'property' => 'search-image-radius',
-	'value' => blocksy_akg('search_thumb_radius', $atts,
-		blocksy_spacing_value()
-	),
-	'empty_value' => 2
-]);
+$search_thumb_radius = blocksy_akg('search_thumb_radius', $atts, 10);
+
+// Legacy ct-spacing format (pre-2.1.44): convert to ct-slider scalar
+if (is_array($search_thumb_radius)) {
+	$expanded = blocksy_expand_responsive_value($search_thumb_radius);
+
+	if (
+		is_array($expanded['desktop'])
+		&&
+		isset($expanded['desktop']['values'])
+	) {
+		$values = [
+			'desktop' => 10,
+			'tablet' => 10,
+			'mobile' => 10,
+		];
+
+		foreach (['desktop', 'tablet', 'mobile'] as $device) {
+			if (isset($expanded[$device]['values'][0]['value'])) {
+				$values[$device] = intval($expanded[$device]['values'][0]['value']);
+			}
+		}
+
+		$search_thumb_radius = blocksy_default_responsive_value($values);
+	}
+}
+
+if ($search_thumb_radius !== 10) {
+	blocksy_output_responsive([
+		'css' => $css,
+		'tablet_css' => $tablet_css,
+		'mobile_css' => $mobile_css,
+		'selector' => blocksy_assemble_selector(
+			$root_selector[0] . ' #search-modal .ct-search-results'
+		),
+		'variableName' => 'search-image-radius',
+		'value' => $search_thumb_radius,
+	]);
+}
 
 
 // Icon margin

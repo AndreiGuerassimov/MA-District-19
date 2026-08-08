@@ -1,6 +1,6 @@
 <?php
 
-$is_pro = function_exists('blc_site_has_feature') && blc_site_has_feature('base_pro');
+$is_pro = blocksy_manager()->companion->has('base_pro');
 
 $cpt_choices = [
 	'post' => __('Posts', 'blocksy'),
@@ -31,9 +31,7 @@ if (class_exists('Tribe__Events__Main')) {
 
 foreach ($all_cpts as $single_cpt) {
 	if (get_post_type_object($single_cpt)) {
-		$cpt_choices[$single_cpt] = get_post_type_labels(
-			get_post_type_object($single_cpt)
-		)->singular_name;
+		$cpt_choices[$single_cpt] = get_post_type_object($single_cpt)->labels->singular_name;
 	} else {
 		$cpt_choices[$single_cpt] = ucfirst($single_cpt);
 	}
@@ -453,7 +451,7 @@ $options = [
 					'label' => __( 'Placeholder Text', 'blocksy' ),
 					'type' => 'text',
 					'design' => 'block',
-					'value' => __( 'Search', 'blocksy' ),
+					'value' => __( 'Start typing to search', 'blocksy' ),
 					'sync' => 'live'
 				],
 
@@ -699,6 +697,45 @@ $options = [
 				],
 			],
 
+			blocksy_rand_md5() => [
+				'type' => 'ct-condition',
+				'condition' => [ 'forms_type' => 'classic-forms' ],
+				'values_source' => 'global',
+				'options' => [
+
+					'search_form_border_radius' => [
+						'label' => __( 'Input Border Radius', 'blocksy' ),
+						'type' => 'ct-slider',
+						'min' => 0,
+						'max' => 200,
+						'value' => 20,
+						'responsive' => true,
+						'divider' => 'top',
+						'setting' => [ 'transport' => 'postMessage' ],
+					],
+
+				],
+			],
+
+			blocksy_rand_md5() => [
+				'type' => 'ct-condition',
+				'condition' => [ 'searchHeaderImages' => 'yes' ],
+				'options' => [
+
+					'search_thumb_radius' => [
+						'label' => __( 'Image Border Radius', 'blocksy' ),
+						'type' => 'ct-slider',
+						'divider' => 'top',
+						'value' => 10,
+						'min' => 0,
+						'max' => 200,
+						'responsive' => true,
+						'setting' => [ 'transport' => 'postMessage' ],
+					],
+
+				],
+			],
+
 			'searchHeaderBackground' => [
 				'label' => __( 'Modal Background', 'blocksy' ),
 				'type'  => 'ct-background',
@@ -712,27 +749,6 @@ $options = [
 						],
 					],
 				])
-			],
-
-			blocksy_rand_md5() => [
-				'type' => 'ct-condition',
-				'condition' => [ 'searchHeaderImages' => 'yes' ],
-				'options' => [
-
-					'search_thumb_radius' => [
-						'label' => __( 'Image Border Radius', 'blocksy' ),
-						'type' => 'ct-spacing',
-						'divider' => 'top',
-						'value' => blocksy_spacing_value(),
-						'inputAttr' => [
-							'placeholder' => '2'
-						],
-						'min' => 0,
-						'responsive' => true,
-						'sync' => 'live',
-					],
-
-				],
 			],
 
 			'search_close_button_type' => [

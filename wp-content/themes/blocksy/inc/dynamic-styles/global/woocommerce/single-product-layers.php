@@ -55,7 +55,7 @@ foreach ($woo_single_layout as $layer) {
 		// companion
 		'product_brands' => '.entry-summary-items > .ct-product-brands-single',
 		'product_sharebox' => '.entry-summary-items > .ct-share-box',
-		'free_shipping' => '.entry-summary-items > .ct-shipping-progress',
+		'free_shipping' => '.entry-summary-items > .ct-shipping-progress-single',
 		'product_actions' => '.entry-summary-items > .ct-product-additional-actions',
 		'product_countdown' => '.entry-summary-items > .ct-product-sale-countdown',
 		'product_stock_scarcity' => '.entry-summary-items > .ct-product-stock-scarcity',
@@ -533,7 +533,7 @@ if (
 
 	blocksy_output_border([
 		'css' => $css,
-		'selector' => '.product[class*=top-gallery] .entry-summary',
+		'selector' => '.product-entry-wrapper:has([data-gallery="top"], [data-gallery="columns-top"]) .entry-summary',
 		'variableName' => 'container-border',
 		'value' => blocksy_get_theme_mod('entry_summary_container_border'),
 		'default' => [
@@ -549,7 +549,7 @@ if (
 		'css' => $css,
 		'tablet_css' => $tablet_css,
 		'mobile_css' => $mobile_css,
-		'selector' => '.product[class*=top-gallery] .entry-summary',
+		'selector' => '.product-entry-wrapper:has([data-gallery="top"], [data-gallery="columns-top"]) .entry-summary',
 		'property' => 'container-border-radius',
 		'value' => blocksy_get_theme_mod('entry_summary_container_border_radius',
 			blocksy_spacing_value()

@@ -12,6 +12,7 @@ if (! function_exists('blocksy_render_archive_cards')) {
 
 				'has_slideshow' => false,
 				'has_slideshow_arrows' => false,
+				'has_slideshow_pills' => false,
 				'has_slideshow_autoplay' => false,
 				'has_slideshow_autoplay_speed' => 3,
 
@@ -27,10 +28,24 @@ if (! function_exists('blocksy_render_archive_cards')) {
 		]);
 
 		if ($args['query']->have_posts()) {
+			// Load styles for entries. WP Collocation mechanism will move styles
+			// to <head>.
+			wp_enqueue_style('ct-entries-styles');
+
 			$entries_open = [
 				'class' => 'entries',
 			];
 
+			/**
+			 * Filters the custom output used in place of the default posts listing container.
+			 *
+			 * Returning a non-null value marks the archive listing as custom and skips
+			 * the theme's default container output behavior.
+			 *
+			 * @since 2.1.47
+			 *
+			 * @param string|null $container_output Custom container output. Default null.
+			 */
 			$container_output = apply_filters(
 				'blocksy:posts-listing:container:custom-output',
 				null
@@ -39,7 +54,7 @@ if (! function_exists('blocksy_render_archive_cards')) {
 			$has_cards_type = true;
 
 			if ($container_output) {
-				$hook_id = blc_get_content_block_that_matches([
+				$hook_id = blocksy_manager()->companion->get_content_block_that_matches([
 					'template_type' => 'archive'
 				]);
 
@@ -58,7 +73,15 @@ if (! function_exists('blocksy_render_archive_cards')) {
 				$entries_open['data-archive'] = "default";
 			}
 
-			$entries_open['data-layout'] = esc_attr($blog_post_structure);
+			// don't apply data-layout attribute when grid/enhanced-grid
+			// https://github.com/Creative-Themes/blocksy/issues/5217
+			if (
+				! $args['has_slideshow']
+				||
+				! in_array($blog_post_structure, ['grid', 'enhanced-grid'], true)
+			) {
+				$entries_open['data-layout'] = esc_attr($blog_post_structure);
+			}
 
 			if ($has_cards_type) {
 				$card_type = blocksy_get_listing_card_type([
@@ -111,6 +134,11 @@ if (! function_exists('blocksy_render_archive_cards')) {
 				])
 			);
 
+			/**
+			 * Fires before the archive loop output is rendered.
+			 *
+			 * @since 2.0.1
+			 */
 			do_action('blocksy:loop:before');
 
 			if ($args['has_slideshow']) {
@@ -158,23 +186,54 @@ if (! function_exists('blocksy_render_archive_cards')) {
 
 			if ($args['has_slideshow']) {
 				$arrows = '';
+				$pills = '';
 
 				if ($args['has_slideshow_arrows']) {
+					/**
+					 * Filters the SVG icons used for Flexy slideshow navigation arrows.
+					 *
+					 * @since 2.0.98
+					 *
+					 * @param array $arrow_icons {
+					 *     List of slideshow arrow icons.
+					 *
+					 *     @type string $prev SVG markup for the previous arrow icon.
+					 *     @type string $next SVG markup for the next arrow icon.
+					 * }
+					 */
 					$arrow_icons = apply_filters(
 						'blocksy:flexy:arrows',
 						[
 							'prev' => '<svg width="16" height="10" fill="currentColor" viewBox="0 0 16 10"><path d="M15.3 4.3h-13l2.8-3c.3-.3.3-.7 0-1-.3-.3-.6-.3-.9 0l-4 4.2-.2.2v.6c0 .1.1.2.2.2l4 4.2c.3.4.6.4.9 0 .3-.3.3-.7 0-1l-2.8-3h13c.2 0 .4-.1.5-.2s.2-.3.2-.5-.1-.4-.2-.5c-.1-.1-.3-.2-.5-.2z"></path></svg>',
 							'next' => '<svg width="16" height="10" fill="currentColor" viewBox="0 0 16 10"><path d="M.2 4.5c-.1.1-.2.3-.2.5s.1.4.2.5c.1.1.3.2.5.2h13l-2.8 3c-.3.3-.3.7 0 1 .3.3.6.3.9 0l4-4.2.2-.2V5v-.3c0-.1-.1-.2-.2-.2l-4-4.2c-.3-.4-.6-.4-.9 0-.3.3-.3.7 0 1l2.8 3H.7c-.2 0-.4.1-.5.2z"></path></svg>'
 						]
-					);	
+					);
 
 					$arrows = '<span class="flexy-arrow-prev">' . $arrow_icons['prev'] . '</span>
 							<span class="flexy-arrow-next">' . $arrow_icons['next'] . '</span>';
 				}
 
-				echo $arrows . '</div></div></div>';
+				if ($args['has_slideshow_pills']) {
+					ob_start();
+					blocksy_flexy_pills([
+						'pills_count' => $args['query']->post_count,
+						'pills_container_attr' => [
+							'data-flexy' => $args['query']->post_count <= 5
+								? 'no:paused'
+								: 'no',
+						],
+					]);
+					$pills = ob_get_clean();
+				}
+
+				echo $arrows . '</div></div>' . $pills . '</div>';
 			}
 
+			/**
+			 * Fires after the archive loop output is rendered.
+			 *
+			 * @since 2.0.1
+			 */
 			do_action('blocksy:loop:after');
 
 			/**
@@ -194,4 +253,3 @@ if (! function_exists('blocksy_render_archive_cards')) {
 		}
 	}
 }
-

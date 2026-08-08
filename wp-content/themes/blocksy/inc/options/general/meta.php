@@ -145,6 +145,19 @@ if (! empty($comments_options)) {
 	];
 }
 
+$comments_options = array_merge(
+	[
+		'show_empty_state' => [
+			'label' => __('Show if empty', 'blocksy'),
+			'desc' => __('Shows the “No comments” text when a post has no comments.', 'blocksy'),
+			'type' => 'ct-switch',
+			'design' => 'inline',
+			'value' => 'no',
+		]
+	],
+	$comments_options
+);
+
 $meta_elements = apply_filters(
 	'blocksy:options:meta:meta_default_elements',
 	$meta_elements,
@@ -269,7 +282,6 @@ $options = [
 			'comments' => [
 				'label' => __('Comments', 'blocksy'),
 				'options' => $comments_options,
-				'options_condition' => $comments_options_conditions,
 			],
 
 			'post_date' => [
@@ -404,21 +416,18 @@ $options = [
 						],
 					],
 
-					(
-						function_exists('blc_get_ext')
-						&&
-						blc_get_ext('post-types-extra')
-						&&
-						isset(blc_get_ext('post-types-extra')->taxonomies_customization)
-						&&
-						blc_get_ext('post-types-extra')->taxonomies_customization
-					) ? [
-						'has_term_accent_color' => [
-							'type'  => 'ct-switch',
-							'label' => __('Terms accent color', 'blocksy'),
-							'value' => 'yes',
-						]
-					] : []
+					/**
+					 * Filters the extra option definitions appended to the taxonomy
+					 * meta layer in the post meta builder.
+					 *
+					 * @since 2.1.47
+					 *
+					 * @param array $options Extra option definitions. Default empty array.
+					 */
+					apply_filters(
+						'blocksy:options:meta:taxonomy_options',
+						[],
+					)
 				],
 			]
 		] : [], apply_filters(

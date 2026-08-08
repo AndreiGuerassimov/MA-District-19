@@ -1,10 +1,13 @@
+@use "../../../../1-helpers/functions";
+
 .quantity[data-type="type-2"] {
 	width: var(--quantity-width, 130px);
 
 	input[type="number"] {
-		border-width: 1px;
 		padding-block: 0px;
 		padding-inline: calc(var(--quantity-height, 55px) / 1.8 + 9%);
+
+		--theme-form-field-border-width: 1px;
 	}
 
 	.ct-increase, 
@@ -44,7 +47,7 @@
 .mini_cart_item .ct-product-actions,
 table.shop_table .ct-checkout-cart-item {
 
-	@include media-breakpoint-down (xs) {
+	@include functions.media-breakpoint-down (xs) {
 
 		.quantity[data-type="type-2"] {
 			--quantity-width: 80px;
