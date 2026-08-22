@@ -573,7 +573,7 @@ Specific calls:
 
 ### 8.2 Page container — ✅ **ANSWERED**
 
-**`wideSize: 1184px`, root padding 48px.** The prototype is drawn at 1280px with 48px gutters, so its true content width is exactly **1280 − 96 = 1184px**. Setting `wideSize` to that reproduces the drawn composition precisely and stops it stretching beyond; full-bleed bands (green about band, footer) stay edge-to-edge as designed. Useful side effect: the 1440px Playwright diff should land close to exact for centred content, because the content box is identical to the prototype's.
+**`wideSize: 1184px`, root padding 48px.** The prototype is drawn at 1280px with 48px gutters, so its true content width is exactly **1280 − 96 = 1184px**. Setting `wideSize` to that reproduces the drawn composition precisely and stops it stretching beyond; full-bleed bands (green about band, footer) stay edge-to-edge as designed. **Correction from actually running the harness:** I first wrote that this would make the 1440px diff near-exact. It won't. The prototype has *no* max-width, so at 1440px its content stretches to 1344px while ours caps at 1184px — they can't line up. The meaningful comparison is at **1280px**, the prototype's native design width, where our 1184px content box matches it exactly. The harness now captures 1280px as the fidelity check, with 1440px and 390px kept as our own responsive-regression baselines.
 
 `contentSize: 820px` matches the About band's constrained column. Prose blocks additionally get a `ch`-based measure, as the prototypes already do (52ch / 60ch / 70ch).
 

@@ -1,0 +1,17 @@
+{
+  "name": "matoronto-visual-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Visual fidelity harness: renders the local site and the design prototypes at the same widths and diffs them. Dev tooling only - never ships with the theme.",
+  "scripts": {
+    "visual": "node tools/visual/compare.mjs",
+    "visual:site": "node tools/visual/compare.mjs --only=site",
+    "visual:design": "node tools/visual/compare.mjs --only=design",
+    "visual:install": "PLAYWRIGHT_BROWSERS_PATH=./.playwright playwright install chromium"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0",
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0"
+  }
+}

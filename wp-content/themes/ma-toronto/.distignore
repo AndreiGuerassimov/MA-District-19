@@ -1,0 +1,20 @@
+# Excluded from production builds (wp dist-archive / Create Block Theme).
+# NOTE: design/ and database/ live at the WP root, OUTSIDE this theme, so they
+# cannot ship with the theme regardless. They are listed here only in case the
+# theme directory ever becomes the repo root. Exclude them in the deploy path too.
+.distignore
+.gitignore
+.git
+.github
+CLAUDE.md
+docs
+design
+database
+node_modules
+.playwright
+tools
+package.json
+package-lock.json
+*.log
+*.sql
+.DS_Store

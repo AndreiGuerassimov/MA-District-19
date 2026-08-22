@@ -1,1 +1,9 @@
 .DS_Store
+
+# Visual test harness (dev tooling only - never ships)
+node_modules/
+.playwright/
+tools/visual/output/
+
+# Local database dumps - never deploy, never commit
+database/
