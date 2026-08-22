@@ -7,25 +7,25 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: GlotPress/4.0.3\n"
+"X-Generator: GlotPress/4.1.0\n"
 "Language: en_CA\n"
 "Project-Id-Version: Themes - Twenty Twenty-Three\n"
 
-#: patterns/hidden-404.php:13
+#: patterns/hidden-404.php:19
 msgctxt "Error code for a webpage that is not found."
 msgid "404"
 msgstr "404"
 
 #. Translators: WordPress link.
-#: patterns/footer-default.php:20
+#: patterns/footer-default.php:26
 msgid "Proudly powered by %s"
 msgstr "Proudly powered by %s"
 
-#: patterns/hidden-404.php:22 patterns/hidden-no-results.php:14
+#: patterns/hidden-404.php:28 patterns/hidden-no-results.php:20
 msgid "Search"
 msgstr "Search"
 
-#: patterns/hidden-404.php:22 patterns/hidden-no-results.php:14
+#: patterns/hidden-404.php:28 patterns/hidden-no-results.php:20
 msgctxt "label"
 msgid "Search"
 msgstr "Search"
@@ -45,26 +45,26 @@ msgctxt "Custom template name"
 msgid "Blank"
 msgstr "Blank"
 
-#: styles/aubergine.json styles/block-out.json styles/canary.json
+#: theme.json styles/aubergine.json styles/block-out.json styles/canary.json
 #: styles/electric.json styles/grapes.json styles/marigold.json
 #: styles/pilgrimage.json styles/pitch.json styles/sherbet.json
-#: styles/whisper.json theme.json
+#: styles/whisper.json
 msgctxt "Color name"
 msgid "Tertiary"
 msgstr "Tertiary"
 
-#: styles/aubergine.json styles/block-out.json styles/canary.json
+#: theme.json styles/aubergine.json styles/block-out.json styles/canary.json
 #: styles/electric.json styles/grapes.json styles/marigold.json
 #: styles/pilgrimage.json styles/pitch.json styles/sherbet.json
-#: styles/whisper.json theme.json
+#: styles/whisper.json
 msgctxt "Color name"
 msgid "Secondary"
 msgstr "Secondary"
 
-#: styles/aubergine.json styles/block-out.json styles/canary.json
+#: theme.json styles/aubergine.json styles/block-out.json styles/canary.json
 #: styles/electric.json styles/grapes.json styles/marigold.json
 #: styles/pilgrimage.json styles/pitch.json styles/sherbet.json
-#: styles/whisper.json theme.json
+#: styles/whisper.json
 msgctxt "Color name"
 msgid "Primary"
 msgstr "Primary"
@@ -86,7 +86,7 @@ msgid "the WordPress team"
 msgstr "the WordPress team"
 
 #. Author URI of the theme
-#: style.css patterns/footer-default.php:21
+#: style.css patterns/footer-default.php:27
 #, gp-priority: low
 msgid "https://wordpress.org"
 msgstr "https://en-ca.wordpress.org"
