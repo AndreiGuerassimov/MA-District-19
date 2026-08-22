@@ -3,6 +3,17 @@
 **Status:** planning only, no code written.
 **Scope:** `design/Home.dc.html` plus the two components it imports (`SiteHeader.dc.html`, `SiteFooter.dc.html`). Other pages in `design/` are out of scope for this pass.
 
+**Decisions taken since first draft:**
+- **Quotes slider is deferred** — not built this pass, to be scoped separately (§4.5).
+- **Standing latitude to depart from the prototype where it improves SEO or accessibility** (§0.1). Changes made under this are logged, not silently applied.
+- **Open questions resolved using best judgment** (§8). Each is marked ✅ **ANSWERED** with the original question preserved beneath it, so any call can be reversed.
+- **Build architecture settled** (§10): layered, modular, and locked with `templateLock: "contentOnly"` so the layout cannot be rearranged by accident.
+- **Hero "Next meeting" card deferred** to the Meetings phase (§4.2) — it needs a real data model first.
+- **Recommend updating to WordPress 7.1 before coding** (§0.2).
+
+**Deferred to later phases:** quotes slider (§4.5), "Next meeting" card (§4.2).
+**Still genuinely open:** real image and logo assets (§8.5). Does not block the build.
+
 ## 0. Environment as found on disk
 
 Several placeholders in the brief resolved differently than assumed. Confirming what is actually here:
@@ -10,7 +21,7 @@ Several placeholders in the brief resolved differently than assumed. Confirming 
 | Item | Brief said | Actually |
 |---|---|---|
 | WordPress | `[version]` | **7.0.3** |
-| PHP | `[version]` | **8.5.5** (CLI) |
+| PHP | `[version]` | **8.3.14** (the web server's runtime — `Apache/2.4.62`, via `X-Powered-By`). Note the CLI is 8.5.5; the *server* version is the one that matters for theme PHP |
 | Local stack | `[wp-env / DDEV / Local]` | MAMP-style Apache at **http://localhost:8888/matoronto** (returns 200) |
 | Workspace root | `wp-content/themes/` | **Repo root is the whole WP install** (`/Users/andre/Sites/matoronto`), git-tracked from there |
 | Theme slug | `[theme-slug]` | **`ma-toronto`** — active, Create Block Theme skeleton |
@@ -24,6 +35,61 @@ Three consequences worth deciding on early:
 
 Other plugins present: ACF, Contact Form 7 (+ antispam), Redirection, Yoast, Create Block Theme, and two AI plugins. Blocksy + Blocksy Companion are deactivated as stated.
 
+## 0.2 WordPress version — recommend updating to 7.1 before we start
+
+Two updates are available from this install: **7.0.4** (minor) and **7.1 "Mary Lou"**, released **19 August 2026** — three days ago.
+
+**Recommendation: update to 7.1 now, before any code is written.**
+
+Not for general "stay current" reasons. 7.1 ships three things that map directly onto decisions in this plan, each moving work *out of hand-written CSS and into `theme.json`* — which is the constraint you set:
+
+| 7.1 feature | What it replaces in this plan |
+|---|---|
+| **`settings.viewport`** — themes can redefine mobile/tablet breakpoints in `theme.json`, and the Navigation block's overlay follows them automatically | §8.3's 1100px nav breakpoint, currently planned as a CSS override of core's ~600px default. Becomes a token |
+| **Active nav item styling via `theme.json`** | §4.1's active-item underline, currently planned as hand-written CSS on `.current-menu-item` |
+| **Hover / focus / active states in `theme.json`** for Button and Navigation Link | Part of §0.1's focus-visible work and the button hover states, currently planned as CSS |
+
+Also: the font library is fully integrated into `theme.json` in 7.1, which tidies the self-hosted Lora/Karla setup in §7.
+
+**Timing argument.** The cost of upgrading is lowest right now, when there is zero theme code. Upgrading mid-build means re-verifying every template part against changed core block markup and re-baselining every Playwright screenshot. Building on 7.0 and deploying to a 7.1 production is the worst of the options.
+
+**The honest risk.** 7.1 is three days old. ACF, Contact Form 7, and Yoast all have updates pending and their 7.1 compatibility is unverified. Mitigating factors: this is a local environment with no production traffic, and `database/matoronto.sql` exists as a restore point. If 7.1 causes plugin trouble we drop back to 7.0.4 and lose only the conveniences above — **every part of this plan works as written on 7.0**, because the navigation overlay feature it depends on shipped in 7.0.
+
+**Suggested order:** back up the DB → update core to 7.1 → update ACF, CF7, Yoast → load the site and open the Site Editor to confirm both work → then start step 0.
+
+Note this is unrelated to your no-database-writes constraint, which is about content migration. A core update runs schema upgrades by design; it isn't a content write.
+
+**Also worth doing while you're in there:** delete Blocksy and Blocksy Companion rather than leaving them deactivated, so their CSS can't be reintroduced by accident.
+
+## 0.1 Standing latitude: SEO and accessibility over prototype fidelity
+
+Granted. Where the prototype and a correct/accessible result disagree, the accessible result wins and the pixel diff is expected to differ. Everything below is now a decision, not a question — but each one is logged here so nothing is a surprise at review, and any of them can be reverted on request.
+
+**Colour and contrast** (was §8.6, now resolved):
+- `#CE5F35` accent is nudged until it meets **4.5:1** on `#F8F5EC` cream at the small sizes it's used at (12–13px eyebrows and card CTAs). Same treatment for `#7A8B7E` subtle. The hue stays; lightness moves as little as the measurement allows. Measured values recorded in `theme.json` comments and in `CLAUDE.md`.
+- Large display text keeps the drawn accent value where 3:1 is sufficient, so the hero eyebrow and headings look unchanged.
+- The bright accent stays for **non-text** use (pill backgrounds, underlines) where contrast rules differ.
+
+**Document semantics** (invisible, no pixel cost):
+- Exactly one `<h1>` per page — the hero headline. Section titles become `<h2>`.
+- Pathway card titles are `<div>`s in the prototype; they become **`<h3>`**. Because that section has no heading of its own, an `<h2>` is added above the grid so the outline doesn't jump `h1 → h3`. If the design shouldn't show one, it goes in visually-hidden — I'll flag which I used.
+- Real landmarks: `<header>`, `<nav>`, `<main>`, `<footer>` via `tagName` on parts and groups. WordPress's block-theme skip link is left enabled.
+- Decorative `→` arrows and the status dot get `aria-hidden="true"`, so they aren't announced.
+
+**Interaction:**
+- Every interactive element gets a visible `:focus-visible` style. The prototype has **none** — it removes underlines and relies on hover only, so as drawn the design is not keyboard-navigable. After colour contrast, this is the largest accessibility gap.
+- Focus styles use a 2px offset outline in primary green, not a colour-only change.
+- `prefers-reduced-motion` honoured on any transition we add.
+
+**SEO / performance:**
+- Fonts self-hosted (§7) — removes a third-party request and improves LCP.
+- Hero image gets `fetchpriority="high"` and explicit `width`/`height` to protect LCP and CLS. Real alt text required (§8.5).
+- Below-fold images lazy-loaded.
+- Yoast stays authoritative for titles/meta; the theme won't emit competing tags.
+- Organisation schema left to Yoast rather than hand-rolled. Meeting/event schema is a separate question (§8.4) tied to the Meetings phase.
+
+**Explicitly *not* changed without asking:** layout, spacing, type scale, or anything that alters the drawn composition. Those stay in §8 as questions.
+
 ---
 
 ## 1. Homepage section inventory (document order)
@@ -33,10 +99,10 @@ Other plugins present: ACF, Contact Form 7 (+ antispam), Redirection, Yoast, Cre
 | # | Section | Description | One-off or recurring |
 |---|---|---|---|
 | 1 | **Site header** (`dc-import SiteHeader`) | 82px bar: circular "MA" mark + two-line wordmark ("Marijuana Anonymous" / "TORONTO" eyebrow), 8-item horizontal nav with active-item underline, terracotta CTA pill "Find a Meeting". Full-bleed, 48px gutter, 1px bottom hairline. | **Recurring** — every page |
-| 2 | **Hero** | 2-column grid `1.05fr / .95fr`, 56px gap, cream→sand vertical gradient. Left: uppercase eyebrow, `h1` 52px Lora, 18px lede, primary pill button + secondary text link with a 2px underline. Right: 340px image placeholder (radius 14, soft shadow) with an **overlapping "Next meeting" card** absolutely positioned at `left:-18px; bottom:-18px` — green status dot + one line of meeting text. | **One-off layout**; the "Next meeting" card is a *recurring data component* likely wanted on Meetings and elsewhere |
+| 2 | **Hero** | 2-column grid `1.05fr / .95fr`, 56px gap, cream→sand vertical gradient. Left: uppercase eyebrow, `h1` 52px Lora, 18px lede, primary pill button + secondary text link with a 2px underline. Right: 340px image placeholder (radius 14, soft shadow). | **One-off layout.** The overlapping **"Next meeting" card** ⏸️ is *deferred* — see §4.2 |
 | 3 | **Pathway cards** | 5-up equal grid, 18px gap, on `#FFFDF6`. Each card is a whole-card `<a>`: Lora 18px title, 14px description, terracotta "… →" CTA pinned to bottom via `margin-top:auto`. Hover raises border to primary green. | **Recurring** — same card shape appears across other prototypes |
 | 4 | **About band + counters** | Full-bleed primary-green band. Centred 820px column: `h2` 30px Lora, body paragraph, then a highlighted sand-coloured paragraph. Below: two stat blocks (46px Lora numbers `392+` / `$366,218+` with uppercase labels) separated by a 1px vertical rule, 120px gap. | Band is **one-off**; the stat pair is **recurring** |
-| 5 | **Quotes slider** | Centred. Eyebrow, then prev/next 44px circular buttons flanking an italic 34px Lora quote, then a row of 4–5 dot buttons. **Interactive:** 5 hard-coded quotes, `setInterval` autoplay every 6s, clicking any control clears the timer. | **One-off** on the homepage; the pattern could recur |
+| 5 | **Quotes slider** ⏸️ *deferred* | Centred. Eyebrow, then prev/next 44px circular buttons flanking an italic 34px Lora quote, then a row of 4–5 dot buttons. **Interactive:** 5 hard-coded quotes, `setInterval` autoplay every 6s, clicking any control clears the timer. | **Deferred — see §4.5.** Not built this pass |
 | 6 | **Site footer** (`dc-import SiteFooter`) | Deep-green band. 4-column grid `1.4fr 1fr 1fr 1fr`, 40px gap: brand lockup + blurb, then Program / Resources / Connect link columns with uppercase micro-labels. Bottom hairline + copyright paragraph. | **Recurring** — every page |
 
 ### Dynamic values in the prototype
@@ -200,15 +266,15 @@ Only four in the entire system:
 
 Recommend three tokens (`sm`, `md`, `lg`) with the header CTA moving to the ink-based `sm`.
 
-### 2.6 Contrast — needs measurement before we commit
+### 2.6 Contrast — ✅ resolved, fixing under §0.1
 
-Two combinations look likely to fail WCAG AA for normal text and should be measured properly before they go into `theme.json`:
+Two combinations look likely to fail WCAG AA for normal text. **Per §0.1 these will be measured and corrected** rather than shipped as drawn:
 
 - **`#CE5F35` accent on `#F8F5EC` cream** — used for the 12px uppercase eyebrows and the 13px card CTAs. My rough estimate is ≈3.9:1, i.e. **below the 4.5:1 required for text under 18.66px bold / 24px regular.**
 - **`#7A8B7E` subtle on cream** — used for meta text; estimated below 4.5:1.
 - `#A9BCA6` on `#2F5D47` (stat labels) is worth checking too.
 
-These are estimates from the hex values, not measured. I'd rather fix the ramp now than retrofit it. Given this is a recovery-support site with a broad audience, I'd treat AA as non-negotiable.
+These are estimates from the hex values, not measured — the build starts by measuring them properly. The corrected values become the tokens; the drawn values are kept as comments so the change stays traceable.
 
 ### 2.7 Breakpoints
 
@@ -277,11 +343,20 @@ What WP 7.0 adds that makes this fully designable — and why the version matter
 - Left: `core/paragraph` (eyebrow, `is-style-eyebrow`), `core/heading` h1, `core/paragraph` lede, `core/buttons` with a filled pill + a `is-style-underline-link` variant.
 - Right: `core/image` with radius + shadow from `theme.json`.
 
-**Where core can't reach:** the "Next meeting" card overlaps the image by 18px on two axes and must stay anchored to the image's bottom-left across widths. Core has no negative-offset or overlap primitive, and `theme.json` cannot express it.
+#### ⏸️ "Next meeting" card — DEFERRED to the Meetings phase
 
-**Proposal:** keep it as a `core/group` inside the column with a class (`.ma-hero__card`), and write ~10 lines of CSS for the positioning, including a mobile rule that unsticks it to normal flow below `md`. A classed group + CSS, not a custom block — the markup stays editable in the editor and there is no block registration to maintain.
+Parked at your request. It has to be genuinely dynamic, and it can't be designed sensibly before the meetings data model exists — a card that displays the next meeting is a *view onto the meetings system*, so building it first would mean guessing at the shape of data we haven't defined.
 
-**Second issue:** the card's content ("Next meeting: Tonight 7:30 PM — Never Alone · CAMH, 100 Stokes St") is clearly meant to be live. See §8.4 — if it needs to be dynamic, this becomes the strongest candidate for a small custom dynamic block, and I'd build it as one rather than fake it.
+Carried forward for that scoping conversation:
+- Where meeting data lives: CPT + ACF, a taxonomy for location/format, or an external MA feed.
+- Timezone handling — "Tonight 7:30 PM" is America/Toronto; caching a rendered time is a classic way to serve the wrong one.
+- Whether the card is dynamic on the server (correct for SEO, needs cache-awareness) or hydrated client-side (always fresh, invisible to crawlers).
+- Whether it recurs on other pages — if so, Block Bindings rather than a repeated pattern (§10.3).
+- Empty state: what shows when there is no next meeting, or when the feed fails.
+
+**Effect on Phase 1** — a simplification. The card was the only thing in the hero needing overlap positioning, so the ~10 lines of negative-offset CSS are gone and **the hero becomes pure core blocks**. The hero's right column is now just the image. Phase 1's only hand-written layout CSS is now the stretched-link on the pathway cards.
+
+The content risk I raised is also resolved by deferring: no hardcoded meeting time can go stale, because there won't be one.
 
 ### 4.3 Pathway cards — pattern `ma-toronto/pathway-cards`
 
@@ -307,23 +382,17 @@ The 5→3→2→1 reflow is CSS on the pattern's grid.
 
 If the two stat figures need to be live rather than typed, see §8.4.
 
-### 4.5 Quotes slider — **custom block** `ma-toronto/quote-slider`
+### 4.5 Quotes slider — ⏸️ **DEFERRED, not built this pass**
 
-**This is the one place core genuinely cannot reproduce the design.** Being plain about it, as you asked:
+Parked at your request, to be scoped before anything is written. **No custom block is built in Phase 1**, which means Phase 1 now contains **zero custom blocks** — everything remaining is core blocks, `theme.json`, and about 20 lines of CSS.
 
-There is no carousel/slider block in core. The nearest options and why they don't work:
-- `core/gallery` — image-only, wrong semantics.
-- Stacking all five quotes — a different design, loses prev/next and dots.
-- A third-party slider block — you've ruled out page-builder plugins, and I agree.
+**Carried forward for the scoping conversation:**
+- Does it need to be a carousel at all, or would a static set of quotes serve the same purpose? Core has no slider block, so "carousel" is the expensive answer and every alternative is cheap.
+- If it is a carousel: a small custom block on the **WordPress Interactivity API** (the mechanism core itself uses for Navigation, Search, and Query) is the route I'd recommend — no third-party dependency, no bundler, ships with WP 7.0, degrades to a readable list without JS.
+- Who owns the quote list — hard-coded, a block attribute, or editable inner `core/quote` blocks?
+- **The prototype's 6-second autoplay with no pause control fails WCAG 2.2.2 (Pause, Stop, Hide).** Any interactive version needs a pause control, `prefers-reduced-motion` handling, `aria-live="polite"`, and labelled dots. That's a real argument for dropping autoplay entirely.
 
-**Proposal: a small custom dynamic block using the WordPress Interactivity API** — the same mechanism core uses for the Navigation, Search, and Query blocks. No third-party dependency, no bundler required (the Interactivity API ships with WP 7.0), and it degrades to a readable static list of quotes without JS.
-
-Sketch:
-- `blocks/quote-slider/` with `block.json`, `render.php`, `view.js` (script module), `style.css`.
-- Quotes stored as an attribute (editable array) or as inner `core/quote` blocks — inner blocks are the better call, since editors then use the normal block editor rather than a custom UI.
-- Server-renders all quotes; JS shows one at a time.
-
-**Accessibility notes to build in, and one design flag:** the prototype autoplays every 6 seconds with no pause control. That fails **WCAG 2.2.2 (Pause, Stop, Hide)** — any auto-updating content over 5 seconds needs a mechanism to pause it. I'd add a visible pause/play control, honour `prefers-reduced-motion` by not autoplaying at all, use `aria-live="polite"` on the quote region, and give the dots proper `aria-label`s with current state. Worth a decision: dropping autoplay entirely is simpler and arguably better here.
+**What fills the slot meanwhile.** The homepage would otherwise have a hole between the green about band and the footer. Unless you say otherwise I'll build a **static pull-quote section** as a pure-core pattern (`patterns/quotes-static.php`) — eyebrow plus one italic Lora quote at the drawn size, same padding and background, no controls. It matches the design's typography and spacing, carries no JS, has no accessibility debt, and is a clean swap-out once the real component is scoped. Say so if you'd rather leave the section out entirely for now.
 
 ### 4.6 Site footer — `parts/footer.html`
 
@@ -335,13 +404,14 @@ Sketch:
 |---|---|---|---|---|---|
 | Header | ✅ | — | ✅ `header` | small | — |
 | Mobile nav overlay | ✅ | — | ✅ `navigation-overlay` | small | **not needed** (core handles it) |
-| Hero | ✅ | ✅ | — | ~10 lines (overlap) | only if "next meeting" goes live |
+| Hero | ✅ | ✅ | — | — | — |
+| ↳ "Next meeting" card | ⏸️ | — | — | — | **deferred — §4.2** |
 | Pathway cards | ✅ | ✅ | — | ~6 lines (stretched link) | — |
 | About + counters | ✅ | ✅ | — | minimal | — |
-| Quotes slider | ✅ | — | — | ✅ | **✅ required** |
+| Quotes slider | ⏸️ | ⏸️ static placeholder | — | — | **deferred — §4.5** |
 | Footer | ✅ | — | ✅ `footer` | minimal | — |
 
-**One custom block total.** Everything else is core blocks, `theme.json`, and roughly 20 lines of positioning CSS.
+**Zero custom blocks in Phase 1**, now that the slider is deferred. Everything is core blocks, `theme.json`, and roughly 20 lines of positioning CSS — which also means no build step and no `node_modules` in the shipped theme.
 
 ---
 
@@ -363,9 +433,9 @@ Sketch:
 | File | Why |
 |---|---|
 | `templates/front-page.html` | Composes hero + cards + about + slider |
-| `patterns/hero-home.php` | Hero layout is unique to the homepage |
+| `patterns/section-hero.php` | Hero layout is unique to the homepage |
 | `patterns/about-band.php` | Green band + counters, homepage only so far |
-| `blocks/quote-slider/` | Homepage only, but built to be reusable |
+| `patterns/quotes-static.php` | Placeholder for the deferred slider (§4.5) |
 
 Since the header/footer carry to every page, I'd rather spend proportionally more care there than on the homepage-only sections.
 
@@ -383,7 +453,7 @@ ma-toronto/
 │                                 #   spacing scale, radii, shadows, layout, per-block styles
 ├── functions.php                 # Small. Registers: pattern categories, block styles
 │                                 #   (pill-accent, eyebrow, underline-link), wp_enqueue_block_style()
-│                                 #   for per-block CSS, the quote-slider block, and self-hosted fonts
+│                                 #   for per-block CSS, and self-hosted fonts
 ├── .distignore                   # docs/, tests/, node_modules/, .playwright/, design/, *.log
 │
 ├── templates/
@@ -396,20 +466,13 @@ ma-toronto/
 │   └── footer.html               # ← §1.6  Site footer
 │
 ├── patterns/
-│   ├── hero-home.php             # ← §1.2  Hero + "Next meeting" card
+│   ├── section-hero.php          # ← §1.2  Hero (next-meeting card deferred, §4.2)
 │   ├── pathway-cards.php         # ← §1.3  5-up card grid
-│   └── about-band.php            # ← §1.4  Green band + counters
-│
-├── blocks/
-│   └── quote-slider/             # ← §1.5  Quotes slider (only custom block)
-│       ├── block.json
-│       ├── render.php
-│       ├── view.js               # Interactivity API script module
-│       └── style.css
+│   ├── about-band.php            # ← §1.4  Green band + counters
+│   └── quotes-static.php         # ← §1.5  Static pull-quote (slider deferred, §4.5)
 │
 ├── assets/
 │   ├── css/
-│   │   ├── hero.css              # Overlap positioning for the "Next meeting" card
 │   │   ├── card.css              # Stretched-link + hover border
 │   │   ├── header.css            # Nav active state, overlay panel, CTA pill
 │   │   └── footer.css
@@ -426,10 +489,10 @@ ma-toronto/
 |---|---|
 | Site header | `parts/header.html` + `assets/css/header.css` |
 | Mobile nav | `parts/navigation-overlay.html` |
-| Hero | `patterns/hero-home.php` + `assets/css/hero.css` |
+| Hero | `patterns/section-hero.php` (no custom CSS — card deferred) |
 | Pathway cards | `patterns/pathway-cards.php` + `assets/css/card.css` |
 | About + counters | `patterns/about-band.php` |
-| Quotes slider | `blocks/quote-slider/` |
+| Quotes section | `patterns/quotes-static.php` (slider deferred) |
 | Footer | `parts/footer.html` + `assets/css/footer.css` |
 | All tokens | `theme.json` |
 
@@ -463,39 +526,85 @@ Also note `database/matoronto.sql` sits in the repo root and is currently untrac
 
 Ordered by how much they block work.
 
-### 8.1 Editability — which parts must editors change themselves? *(blocking, as you flagged)*
+### 8.1 Who is allowed to change the words on the homepage? *(blocking)*
 
-This determines pattern vs. fixed markup for every section. For each, I need a yes/no:
+Plainest possible version, because my first attempt at this question was jargon:
 
-| Element | If editable | If fixed |
+Think of the homepage like a poster on the wall.
+
+Some parts of the poster I can put on with **sticky notes**. Anyone at MA Toronto can peel a sticky note off and write a new one. They don't need me. They just log in, click the words, and type. The risk is that someone types too much and the poster looks messy.
+
+Other parts I can **glue down**. Nobody can peel those off by accident, so the poster always looks right — but if you ever want those words changed, you have to ask me or another developer to do it.
+
+**My question is: which parts get sticky notes, and which parts get glued down?**
+
+I need to know before I build, because sticky notes and glue are built differently. Changing my mind later means rebuilding that piece.
+
+Here is the list. For each one: sticky note, or glued?
+
+| Part of the homepage | Sticky note (they change it) | Glued (they ask us) |
 |---|---|---|
-| Hero headline / lede / buttons | Pattern in `front-page.html`, editable in place | Locked into the template |
-| "Next meeting" card | Editable pattern or dynamic block | Hard-coded |
-| Pathway cards — text | Pattern | Template markup |
-| Pathway cards — **number of cards** | Must be a pattern with a flexible grid | Fixed 5-up grid, simpler CSS |
-| About band copy | Pattern | Template |
-| Stat figures (`392+`, `$366,218+`) | Pattern or dynamic | Template |
-| Quotes list | Inner blocks in the custom block | Block attribute / hard-coded |
-| Footer link columns | `core/navigation` (menu admin) | `core/list` in the part |
-| Nav menu items | `core/navigation` (already editable) | — |
+| The big sentence at the top — "You are no longer alone." | ☐ | ☐ |
+| The paragraph under it | ☐ | ☐ |
+| The "Find a Meeting" button | ☐ | ☐ |
+| The "Next meeting: Tonight 7:30 PM…" box | ☐ | ☐ |
+| The words on the 5 cards (Meetings, A Solution, …) | ☐ | ☐ |
+| **How many cards there are** (5 today — could they add a 6th?) | ☐ | ☐ |
+| The green section's paragraphs | ☐ | ☐ |
+| The two big numbers (`392+` and `$366,218+`) | ☐ | ☐ |
+| The menu at the top of every page | ☐ | ☐ |
+| The link lists in the footer | ☐ | ☐ |
 
-My default if you don't want to go item by item: **everything on the homepage becomes editable patterns**, except the quote slider's mechanics and the header/footer structure. Say the word and I'll proceed on that basis.
+### ✅ **ANSWERED — using best judgment**
 
-### 8.2 Page container — what happens above 1280px? *(blocking for layout)*
+**Sticky notes for every word. Glue under everything else.** Delivered via `templateLock: "contentOnly"` (§10.3), which is better than either extreme: editors retype any text and swap any image, and the design controls that would let them wreck the layout are not present in the interface at all.
+
+Specific calls:
+
+| Part | Decision |
+|---|---|
+| Hero headline, paragraph, button label + URL | Editable text |
+| "Next meeting" box | Editable text (dynamic deferred — §8.4) |
+| The 5 cards' words and links | Editable text |
+| **Number of cards** | **Locked at 5.** Adding a 6th breaks the 5-up grid — the exact accident you want to prevent. CSS will tolerate 4 or 6 so we can change it deliberately later |
+| Green band paragraphs, the two big numbers | Editable text |
+| Top menu, footer links | Fully editable — normal menu management, no layout risk |
+| All spacing, colour, alignment, block order | Locked |
+
+### 8.2 Page container — ✅ **ANSWERED**
+
+**`wideSize: 1184px`, root padding 48px.** The prototype is drawn at 1280px with 48px gutters, so its true content width is exactly **1280 − 96 = 1184px**. Setting `wideSize` to that reproduces the drawn composition precisely and stops it stretching beyond; full-bleed bands (green about band, footer) stay edge-to-edge as designed. Useful side effect: the 1440px Playwright diff should land close to exact for centred content, because the content box is identical to the prototype's.
+
+`contentSize: 820px` matches the About band's constrained column. Prose blocks additionally get a `ch`-based measure, as the prototypes already do (52ch / 60ch / 70ch).
+
+<details><summary>Original question</summary>
 
 The prototypes were drawn at exactly 1280px and **have no max-width on any section** — content is full-bleed with a 48px gutter. On a 1440px or 2560px monitor the hero and 5-up grid will keep stretching. This directly affects your 1440px screenshot diff: the prototype and our build will *both* stretch, but any container cap we add will show as a diff.
 
 Options: (a) cap content at ~1200px centred, gutter grows — my recommendation; (b) cap at 1440px; (c) no cap, stretch forever as drawn. Needs your call before `theme.json` layout is set.
+</details>
 
-### 8.3 Navigation breakpoint and item count
+### 8.3 Navigation breakpoint and item count — ✅ **ANSWERED**
+
+**Overlay engages below 1100px**, above core's ~600px default, because 8 items + wordmark + CTA stop fitting around ~1150px. All items go in the overlay; nothing is hidden from mobile users. The overlay is a **full-screen cream panel** — more forgiving than a drawer at small sizes, and it gives the items room to be large tap targets. No prototype exists for it, so I'm designing it from the established tokens; it's the one screen I'll want you to look at before it's final.
+
+<details><summary>Original question</summary>
 
 8 top-level items + wordmark + CTA stop fitting around ~1150px. Do we (a) switch to the overlay early (~1100px), (b) cut top-level items to 5 with the rest in the overlay only, or (c) allow a smaller nav font between 900–1150px? Also: what does the overlay panel look like — full-screen cream, or a side drawer? No prototype exists for it.
+</details>
 
-### 8.4 Dynamic data — how live is the homepage?
+### 8.4 Dynamic data — ✅ **RESOLVED by deferral**
+
+- **"Next meeting" card** — ⏸️ deferred to the Meetings phase (§4.2). Not built, not faked.
+- **The two statistics** (`392+`, `$366,218+`) — built as **editable text**. These change rarely and have no timezone or freshness hazard, so a volunteer retyping them once a year is the proportionate answer. If they turn out to come from MA World Services, they can be bound to a field later without redesigning the section.
+- **Meeting/event structured data** — belongs with the Meetings build, not here.
+
+<details><summary>Original question</summary>
 
 - **"Next meeting: Tonight 7:30 PM — Never Alone · CAMH, 100 Stokes St"** — is this pulled from real meeting data? If so, where does that data live on the current site — a CPT, ACF fields, an external MA feed? This decides whether we need a second custom block.
 - **`392+` meetings worldwide / `$366,218+` saved** — typed by an editor, or fetched from somewhere?
 - Do meetings need structured data (schema.org `Event`) for search? Relevant since Yoast is installed.
+</details>
 
 ### 8.5 Assets
 
@@ -503,29 +612,51 @@ Options: (a) cap content at ~1200px centred, gutter grows — my recommendation;
 - The logo is a CSS circle with the letters "MA". Is there a real logo file (SVG preferred), or do we build the mark in CSS as drawn?
 - `design/uploads/` holds three inspiration PNGs and a PDF — reference only, or assets to use?
 
-### 8.6 Colour contrast — §2.6
+### 8.6 Colour contrast — ✅ **ANSWERED**
 
-Do you want me to fix the accent/subtle colours to meet AA (small hue/lightness shifts to `#CE5F35` and `#7A8B7E`), or keep the prototype values exactly and accept the failures? Given the audience I'd push for the fix, but it's a visible design change and it's your call.
+Resolved by the standing latitude in §0.1. Fixing to AA; drawn values preserved in comments.
 
-### 8.7 Token normalisation sign-off — §2
+### 8.7 Token normalisation — ✅ **ANSWERED, applying §2 proposals**
+
+Applying all of it: 22 font sizes → 11; six creams → three; one body green; three radii; one letter-spacing token. Worst-case visual shift is 1px on a handful of text elements. Original values recorded as comments in `theme.json` so any collapse can be reversed individually.
+
+<details><summary>Original question</summary>
 
 Specifically: collapse 22 font sizes to ~11? Collapse the six near-duplicate creams to three? One body-text green instead of two? Three radii instead of six? One letter-spacing token instead of five?
+</details>
 
-### 8.8 The quote slider
+### 8.8 The quote slider — ⏸️ **DEFERRED**
 
-Keep 6-second autoplay (with a pause control, per WCAG), or drop autoplay and leave it manual? And should the quote list be editor-managed?
+Out of this pass. Scoping questions carried forward in §4.5. The only live question is whether the static placeholder pattern is wanted meanwhile — my assumption is yes.
 
-### 8.9 Front page wiring
+### 8.9 Front page wiring — ✅ **ANSWERED**
+
+Resolved by §10.4. `front-page.html` is top of the template hierarchy for the front page whether or not a static page is set, so it renders with **zero database writes**. Your constraint holds.
+
+<details><summary>Original question</summary>
 
 Using `templates/front-page.html` means it applies automatically when a static front page is set. **Setting the front page is a `wp_options` write**, which your no-database-writes constraint excludes from this pass. Confirm that's handled in the separate content migration, or tell me you want `front-page.html` to work off the blog index instead.
+</details>
 
-### 8.10 `design/` location — §7
+### 8.10 `design/` location — ✅ **ANSWERED**
+
+**Leaving `design/` where it is.** Being outside the theme, it cannot ship with the theme — the risk was overstated in the first draft. Adding `.distignore` to the theme regardless, plus a documented deploy exclude. No file moves, no churn to the Playwright paths.
+
+Related: `database/matoronto.sql` at the repo root should also never deploy, and probably shouldn't be committed. Adding both to `.gitignore` / deploy excludes.
+
+<details><summary>Original question</summary>
 
 Move `design/` inside the theme so `.distignore` genuinely covers it, or leave it at the repo root and handle exclusion in the deploy path?
+</details>
 
-### 8.11 Missing pages
+### 8.11 Missing pages — ✅ **ANSWERED**
+
+Building the menu with the **6 items that have designs**, omitting "Our Stories" and "7th Tradition" until those pages exist. Links to `#` are bad for users and for SEO, and the menu is editable, so adding them later is a two-minute job with no code change.
+
+<details><summary>Original question</summary>
 
 Nav links "Our Stories" and "7th Tradition" point to `#` — no prototype exists. Placeholder menu items for now, or omit until those pages are designed?
+</details>
 
 ---
 
@@ -541,5 +672,109 @@ Two notes on B, so it isn't a surprise later:
 - The prototypes render through `support.js` (a client-side runtime) and load fonts from Google. I'll add a settle/wait step and, once fonts are self-hosted, screenshot against local fonts so the diff isn't network-dependent. `design/Home-standalone.html` (3MB, fully bundled) is the more reliable capture target than `Home.dc.html`, and I'll verify which renders identically.
 
 ---
+
+## 10. Build architecture — how this gets assembled
+
+Driven by two requirements you gave: **an editor must not be able to break the layout by accident**, and **modularise as much as possible**.
+
+### 10.1 What "modular" means here, concretely
+
+Not an abstraction for its own sake. Four properties, each of which I can point at a file for:
+
+1. **One concept lives in exactly one place.** A colour is defined once in `theme.json`. Changing the green means editing one line, not grepping for `#2F5D47`.
+2. **Sections are swappable units.** Each homepage section is one pattern file. Deleting the About band = deleting one line from the template. Reordering sections = reordering lines.
+3. **Appearance is separable from composition.** "Green band on dark" is a named *section style* in its own JSON file, not styling baked into markup. Re-skin without touching structure.
+4. **Nothing loads that isn't used.** Per-block CSS registered via `wp_enqueue_block_style()` only ships when that block actually renders.
+
+The practical payoff: several decisions in §8 stop being expensive. Because every section is a self-contained pattern, moving the homepage from a template to a static Page later, or re-theming the palette, doesn't mean rewriting sections.
+
+### 10.2 The layer stack
+
+```
+theme.json              <- tokens: colour, type, spacing, radii, shadows, layout
+  v referenced by
+styles/blocks/*.json    <- named block styles: eyebrow, pill-accent, card
+styles/sections/*.json  <- named section styles: green-band, cream-surface
+  v applied by name in
+patterns/*.php          <- one file per homepage section (the modules)
+  v composed by
+templates/front-page.html + parts/*.html   <- thin assembly, ~10 lines
+  v hardened by
+templateLock: contentOnly                  <- the anti-breakage layer
+```
+
+Rule enforced throughout: **a layer may only reference the layer above it.** No pattern hardcodes a hex value; no template contains layout logic. Anything violating that is a bug.
+
+### 10.3 Anti-breakage — the actual mechanism
+
+Revision-rollback is the last resort, not the plan. WordPress has real locking, and this install supports all of it (verified in `wp-includes/blocks/blocks-json.php` and `wp-includes/block-bindings/`).
+
+**Primary: `templateLock: "contentOnly"`** on each section's outer group. This is the exact behaviour you described wanting:
+
+| Editor can | Editor cannot |
+|---|---|
+| Click any text and retype it | Move a block |
+| Swap an image | Delete a block |
+| Edit link URLs | Insert a new block |
+| - | Change colours, fonts, spacing, alignment |
+
+In `contentOnly` mode the block toolbar's design controls are hidden entirely and List View shows only editable fields. There is no button to press that rearranges the layout - the failure mode you're worried about stops being reachable through the UI.
+
+**Secondary: per-block `lock`** - `{"lock":{"move":true,"remove":true}}` for individual blocks needing protection inside an otherwise open area.
+
+**Held in reserve: Block Bindings / pattern overrides.** Warranted if the same content (the "Next meeting" card) ends up on several pages and must stay in sync from one source. Overkill for the homepage alone; noted so we recognise the moment it's justified.
+
+**One honest limit:** `contentOnly` is enforced by the **editor UI**, not by user capability. An administrator who opens the Code Editor can still edit raw markup. It reliably prevents *accidents*, which is what you asked for - it is not a permissions boundary against someone determined. If you later want a genuine boundary, that's a capability/role change and a different piece of work.
+
+**Recovery, in order of severity:**
+1. Undo (Cmd-Z) in the editor.
+2. Template revisions in the Site Editor.
+3. **"Clear customizations"** - resets the template to the theme file. Because the layout lives in git-tracked theme files rather than the database, this is a genuine restore-to-known-good, not a partial one. This is the strongest argument for template-based over page-based content, and the reason for §10.4.
+
+### 10.4 Where the homepage content lives - decided
+
+**`templates/front-page.html`**, with locked patterns, rather than a static Page.
+
+Reasoning: it keeps the git-tracked theme file authoritative, which makes recovery total; and `front-page.html` sits at the top of the template hierarchy for the front page **whether or not a static page is set** - so it renders immediately with **no database write**, resolving §8.9 within your constraint.
+
+Trade-off, stated plainly: editors reach it via Appearance -> Editor rather than the more familiar Pages screen. If that proves awkward for volunteers, moving the sections into a Page is cheap precisely because they're patterns - the pattern files don't change, only where they're inserted. I'd rather see it working first than guess now.
+
+### 10.5 Build sequence
+
+Each step ends at a checkpoint where you can look at something real.
+
+| Step | What | Checkpoint |
+|---|---|---|
+| **0** | `CLAUDE.md` (your step A) + Playwright harness (your step B) | Screenshot script runs against localhost |
+| **1** | `theme.json` - full token set from §2, normalised per §8.7, contrast-corrected per §0.1 | Site Editor shows the real palette and type scale |
+| **2** | `styles/blocks/*.json`, `styles/sections/*.json`, block style registrations | Named styles appear in the editor |
+| **3** | `parts/header.html`, `parts/navigation-overlay.html`, `parts/footer.html` | **Keyboard + screen reader pass on the nav before anything else** - it's on every page, so a defect here is a site-wide defect |
+| **4** | `patterns/` - hero, pathway-cards, about-band, quotes-static | Each pattern inserted and reviewed in isolation |
+| **5** | `templates/front-page.html` assembly + `contentOnly` locks | **You try to break it in the editor.** That's the acceptance test for the locking approach |
+| **6** | Per-block CSS modules + responsive reflow (5->3->2->1) | Renders correctly 390 -> 1440 |
+| **7** | Verification: 1440px Playwright diff, keyboard traversal, contrast measurement | Diff reviewed, deviations explained |
+
+Step 3 before step 4 is deliberate: header and footer carry to every later page, so they earn the most scrutiny. Step 5's checkpoint is you actively trying to break the layout - if you can do it accidentally, the locking is wrong and I fix it before we go further.
+
+### 10.6 Naming conventions (locked in now, since they're hard to change later)
+
+| Thing | Convention | Example |
+|---|---|---|
+| Pattern slug | `ma-toronto/section-*` | `ma-toronto/section-hero` |
+| Pattern file | kebab-case, matches slug | `patterns/section-hero.php` |
+| Pattern category | one custom category | `ma-toronto` |
+| Block style | `is-style-*` | `is-style-eyebrow` |
+| Section style file | numbered for editor ordering | `styles/sections/01-green-band.json` |
+| CSS class | BEM-ish, `ma-` prefixed | `.ma-hero__card` |
+| CSS file | matches its block/section | `assets/css/hero.css` |
+| theme.json slug | kebab-case, semantic not literal | `primary`, not `green-2f5d47` |
+
+Semantic token names matter for point 1 of §10.1: `accent` survives a rebrand, `terracotta` doesn't.
+
+---
+
+**Follow-ups parked, both to be scoped before they're written:**
+- The quotes slider (§4.5).
+- The "Next meeting" card (§4.2) — blocked on the Meetings data model, so it naturally belongs to that phase.
 
 **No files have been created or modified other than this plan.** Nothing has been written to the database. Ready for your review.
