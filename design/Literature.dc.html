@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F8F5EC;font-family:Karla,system-ui,sans-serif}
+a{color:#2F5D47}a:hover{color:#CE5F35}
+</style>
+</helmet>
+<div style="background:#F8F5EC;color:#21372C">
+
+  <dc-import name="SiteHeader" current="Literature" hint-size="100%,82px"></dc-import>
+
+  <div style="padding:56px 48px 40px;background:linear-gradient(180deg,#F8F5EC 0%,#F3EEDF 100%)">
+    <div style="font:700 12px Karla,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#CE5F35;margin-bottom:12px">Literature</div>
+    <h1 style="font:500 46px/1.15 Lora,serif;margin:0 0 14px;color:#21372C">Reading for recovery</h1>
+    <p style="font:400 17.5px/1.65 Karla,sans-serif;color:#44584C;margin:0;max-width:62ch">Official Marijuana Anonymous literature — books, pamphlets, and daily readings. Available through MA World Services; many pieces are free to read online.</p>
+  </div>
+
+  <div style="padding:48px 48px 64px;background:#F8F5EC">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:26px">
+      <sc-for list="{{ items }}" as="it" hint-placeholder-count="6">
+        <a href="#" style="text-decoration:none;background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:14px;overflow:hidden;display:flex;flex-direction:column" style-hover="border-color:#2F5D47">
+          <div style="{{ it.coverStyle }}">
+            <span style="font:600 12px Karla,sans-serif;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.85)">{{ it.kind }}</span>
+            <span style="font:500 22px/1.25 Lora,serif;color:#FFFDF6;margin-top:8px">{{ it.title }}</span>
+          </div>
+          <div style="padding:22px 24px;display:flex;flex-direction:column;gap:10px;flex:1">
+            <div style="font:600 18px Lora,serif;color:#21372C">{{ it.title }}</div>
+            <div style="font:400 14.5px/1.6 Karla,sans-serif;color:#5B6E61;flex:1">{{ it.desc }}</div>
+            <div style="font:700 13.5px Karla,sans-serif;color:#CE5F35">{{ it.cta }} →</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+    <p style="font:400 13.5px/1.6 Karla,sans-serif;color:#7A8B7E;margin:32px 0 0;max-width:70ch">Cover images are placeholders — send me the real covers and I'll drop them in. All proceeds from MA literature support the fellowship's primary purpose.</p>
+  </div>
+
+  <dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280}}">
+class Component extends DCLogic {
+  renderVals() {
+    const covers = [
+      "linear-gradient(150deg,#2F5D47,#24463A)",
+      "linear-gradient(150deg,#CE5F35,#B0521F)",
+      "linear-gradient(150deg,#3F8A5F,#2F5D47)",
+      "linear-gradient(150deg,#E9A13B,#C77F2C)",
+      "linear-gradient(150deg,#4A6B8A,#2F4A63)",
+      "linear-gradient(150deg,#7A5C8A,#513A63)",
+    ];
+    const data = [
+      { kind: "Book", title: "Life with Hope", desc: "The basic text of Marijuana Anonymous — the 12 Steps and 12 Traditions as they apply to marijuana addiction, with members' experience throughout.", cta: "Read online" },
+      { kind: "Daily reader", title: "A New Leaf", desc: "A page for every day of the year — short reflections and meditations to carry recovery into daily life.", cta: "Learn more" },
+      { kind: "Pamphlet", title: "Detoxing from Marijuana", desc: "What to expect physically and emotionally in early abstinence, and how the fellowship helps you through it.", cta: "Read online" },
+      { kind: "Pamphlet", title: "The Twelve Questions", desc: "Twelve honest questions to help you decide for yourself whether MA is for you.", cta: "Read online" },
+      { kind: "Pamphlet", title: "For the Newcomer", desc: "A gentle introduction to your first meetings — what happens, what to expect, and why you're welcome.", cta: "Read online" },
+      { kind: "Booklet", title: "Twelve Steps Workbook", desc: "Guided questions for working each of the Twelve Steps, on your own or with a sponsor.", cta: "Learn more" },
+    ];
+    return {
+      items: data.map((d, i) => ({
+        ...d,
+        coverStyle: "height:190px;padding:26px;display:flex;flex-direction:column;justify-content:flex-end;background:" + covers[i % covers.length],
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

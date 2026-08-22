@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F8F5EC;font-family:Karla,system-ui,sans-serif}
+a{color:#2F5D47}a:hover{color:#CE5F35}
+</style>
+</helmet>
+<div style="background:#F8F5EC;color:#21372C">
+
+  <dc-import name="SiteHeader" current="Meetings" hint-size="100%,82px"></dc-import>
+
+  <!-- page hero -->
+  <div style="padding:56px 48px 40px;background:linear-gradient(180deg,#F8F5EC 0%,#F3EEDF 100%)">
+    <div style="font:700 12px Karla,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#CE5F35;margin-bottom:12px">Meetings</div>
+    <h1 style="font:500 46px/1.15 Lora,serif;margin:0 0 14px;color:#21372C">Find a meeting</h1>
+    <p style="font:400 17.5px/1.65 Karla,sans-serif;color:#44584C;margin:0;max-width:60ch">Every meeting is free and open — newcomers are always welcome, and you never have to speak. In-person meetings run across the GTA; online meetings run on Zoom. Times shown are Eastern (Toronto).</p>
+  </div>
+
+  <!-- controls -->
+  <div style="padding:24px 48px;background:#FFFDF6;border-top:1px solid rgba(33,55,44,.1);border-bottom:1px solid rgba(33,55,44,.1);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+    <div style="display:flex;gap:10px">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+        <button onClick="{{ f.go }}" style="{{ f.style }}">{{ f.label }}</button>
+      </sc-for>
+    </div>
+    <div style="font:600 14px Karla,sans-serif;color:#5B6E61">{{ countLabel }}</div>
+  </div>
+
+  <!-- schedule list -->
+  <div style="padding:40px 48px 56px;background:#F8F5EC">
+    <sc-for list="{{ days }}" as="day" hint-placeholder-count="4">
+      <div style="margin-bottom:34px">
+        <div style="font:600 13px Karla,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#CE5F35;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(33,55,44,.12)">{{ day.name }}</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ day.meetings }}" as="m" hint-placeholder-count="2">
+            <div style="display:grid;grid-template-columns:130px 1fr auto;gap:24px;align-items:center;background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:12px;padding:18px 24px">
+              <div style="font:600 18px Lora,serif;color:#2F5D47">{{ m.time }}</div>
+              <div>
+                <div style="font:600 17px Karla,sans-serif;color:#21372C;margin-bottom:3px">{{ m.name }}</div>
+                <div style="font:400 14px Karla,sans-serif;color:#5B6E61">{{ m.place }}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px">
+                <span style="{{ m.badgeStyle }}">{{ m.type }}</span>
+                <a href="#" style="text-decoration:none;font:700 14px Karla,sans-serif;color:#CE5F35;white-space:nowrap">{{ m.cta }} →</a>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- secondary: calendar + help -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:0 48px 64px;background:#F8F5EC">
+    <div style="background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:14px;padding:28px 30px">
+      <div style="font:600 20px Lora,serif;color:#21372C;margin-bottom:6px">Monthly calendar</div>
+      <p style="font:400 14.5px/1.6 Karla,sans-serif;color:#5B6E61;margin:0 0 18px">Prefer a calendar view? Every meeting and special event, month by month.</p>
+      <div style="border:1px dashed rgba(33,55,44,.25);border-radius:10px;padding:28px;text-align:center;background:#F8F5EC">
+        <div style="font:12px ui-monospace,Menlo,monospace;color:#7A7360">calendar embed — The Events Calendar / 12-Step Meeting List plugin</div>
+      </div>
+    </div>
+    <div style="background:#2F5D47;color:#EFEBDD;border-radius:14px;padding:28px 30px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font:500 22px/1.3 Lora,serif;color:#FFFDF6;margin-bottom:10px">New and not sure where to start?</div>
+      <p style="font:400 15px/1.65 Karla,sans-serif;color:#C8D4C4;margin:0 0 18px">Come a few minutes early and let someone know it's your first meeting. You can just listen. There's nothing to sign and no cost, ever.</p>
+      <a href="Contact.dc.html" style="text-decoration:none;align-self:flex-start;background:#E9A13B;color:#24463A;padding:12px 22px;border-radius:999px;font:700 15px Karla,sans-serif">Contact us</a>
+    </div>
+  </div>
+
+  <dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280}}">
+class Component extends DCLogic {
+  state = { filter: "All" };
+  all = [
+    { day: "Monday", time: "7:30 PM", name: "Never Alone", place: "CAMH, 100 Stokes St · Room 1150", type: "In person", cta: "Get directions" },
+    { day: "Tuesday", time: "7:00 PM", name: "Life With Hope", place: "Zoom · ID 842 1179 4420", type: "Online", cta: "Join on Zoom" },
+    { day: "Wednesday", time: "7:30 PM", name: "Joint Recovery", place: "Church of the Redeemer, 162 Bloor St W", type: "In person", cta: "Get directions" },
+    { day: "Wednesday", time: "8:00 PM", name: "Midweek Reset", place: "Zoom · ID 511 208 6677", type: "Online", cta: "Join on Zoom" },
+    { day: "Thursday", time: "7:00 PM", name: "Hope in Brampton", place: "Grace United Church, 156 Main St N", type: "In person", cta: "Get directions" },
+    { day: "Saturday", time: "10:30 AM", name: "Serenity Saturday", place: "Zoom · ID 738 4412 0091", type: "Online", cta: "Join on Zoom" },
+    { day: "Sunday", time: "6:00 PM", name: "Sunday Sharing", place: "Trinity-St. Paul's, 427 Bloor St W", type: "In person", cta: "Get directions" },
+  ];
+  order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  set(f) { this.setState({ filter: f }); }
+  renderVals() {
+    const f = this.state.filter;
+    const badge = (type) => type === "Online"
+      ? "font:700 11px Karla,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:#2F5D47;background:#E1EEDF;padding:5px 11px;border-radius:999px;white-space:nowrap"
+      : "font:700 11px Karla,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:#B0521F;background:#F7E4D6;padding:5px 11px;border-radius:999px;white-space:nowrap";
+    const visible = this.all.filter((m) => f === "All" || m.type === f);
+    const days = this.order
+      .map((name) => ({ name, meetings: visible.filter((m) => m.day === name).map((m) => ({ ...m, badgeStyle: badge(m.type) })) }))
+      .filter((d) => d.meetings.length > 0);
+    const chip = (label) => {
+      const on = f === label;
+      return {
+        label, go: () => this.set(label),
+        style: "cursor:pointer;font:700 14px Karla,sans-serif;padding:10px 20px;border-radius:999px;border:1px solid " +
+          (on ? "#2F5D47" : "rgba(33,55,44,.2)") + ";background:" + (on ? "#2F5D47" : "transparent") +
+          ";color:" + (on ? "#F8F5EC" : "#2F5D47"),
+      };
+    };
+    return {
+      filters: [chip("All"), chip("In person"), chip("Online")],
+      days,
+      countLabel: visible.length + " meetings this week",
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F8F5EC;font-family:Karla,system-ui,sans-serif}
+a{color:#2F5D47}a:hover{color:#CE5F35}
+input,textarea{font-family:Karla,system-ui,sans-serif}
+input:focus,textarea:focus{outline:none;border-color:#2F5D47 !important}
+</style>
+</helmet>
+<div style="background:#F8F5EC;color:#21372C">
+
+  <dc-import name="SiteHeader" current="Contact" hint-size="100%,82px"></dc-import>
+
+  <div style="display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;padding:64px 48px;align-items:start">
+    <div>
+      <div style="font:700 12px Karla,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#CE5F35;margin-bottom:12px">Contact us</div>
+      <h1 style="font:500 46px/1.15 Lora,serif;margin:0 0 18px;color:#21372C">You are no longer alone.</h1>
+      <p style="font:400 17px/1.7 Karla,sans-serif;color:#44584C;margin:0 0 30px;max-width:44ch">Questions about meetings, the program, or getting started? Reach out. A member will get back to you — everything you share is kept confidential.</p>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <a href="mailto:info@matoronto.org" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:12px;padding:18px 22px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#E1EEDF;color:#2F5D47;display:flex;align-items:center;justify-content:center;font-size:18px">✉</div>
+          <div><div style="font:600 13px Karla,sans-serif;color:#7A8B7E;text-transform:uppercase;letter-spacing:1px">Email</div><div style="font:600 17px Karla,sans-serif;color:#21372C">info@matoronto.org</div></div>
+        </a>
+        <a href="Meetings.dc.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:12px;padding:18px 22px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#F7E4D6;color:#B0521F;display:flex;align-items:center;justify-content:center;font-size:18px">◷</div>
+          <div><div style="font:600 13px Karla,sans-serif;color:#7A8B7E;text-transform:uppercase;letter-spacing:1px">Prefer to just show up?</div><div style="font:600 17px Karla,sans-serif;color:#21372C">See the meeting schedule →</div></div>
+        </a>
+      </div>
+      <p style="font:400 13.5px/1.6 Karla,sans-serif;color:#7A8B7E;margin:24px 0 0;max-width:44ch">If you are in crisis or need immediate help, please call or text 988 (Suicide Crisis Helpline) or 911. MA is a peer-support fellowship, not an emergency service.</p>
+    </div>
+
+    <div style="background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:16px;padding:36px 38px;box-shadow:0 6px 24px rgba(33,55,44,.06)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <label style="display:block">
+          <span style="display:block;font:600 13px Karla,sans-serif;color:#44584C;margin-bottom:7px">Name</span>
+          <input type="text" placeholder="First name (or initials)" style="width:100%;box-sizing:border-box;padding:13px 15px;border:1px solid rgba(33,55,44,.2);border-radius:9px;background:#F8F5EC;font-size:15px;color:#21372C">
+        </label>
+        <label style="display:block">
+          <span style="display:block;font:600 13px Karla,sans-serif;color:#44584C;margin-bottom:7px">Email</span>
+          <input type="email" placeholder="you@example.com" style="width:100%;box-sizing:border-box;padding:13px 15px;border:1px solid rgba(33,55,44,.2);border-radius:9px;background:#F8F5EC;font-size:15px;color:#21372C">
+        </label>
+      </div>
+      <label style="display:block;margin-bottom:20px">
+        <span style="display:block;font:600 13px Karla,sans-serif;color:#44584C;margin-bottom:7px">Subject</span>
+        <input type="text" placeholder="How can we help?" style="width:100%;box-sizing:border-box;padding:13px 15px;border:1px solid rgba(33,55,44,.2);border-radius:9px;background:#F8F5EC;font-size:15px;color:#21372C">
+      </label>
+      <label style="display:block;margin-bottom:24px">
+        <span style="display:block;font:600 13px Karla,sans-serif;color:#44584C;margin-bottom:7px">Message</span>
+        <textarea rows="6" placeholder="Tell us a little about what's going on. There's no wrong way to start." style="width:100%;box-sizing:border-box;padding:13px 15px;border:1px solid rgba(33,55,44,.2);border-radius:9px;background:#F8F5EC;font-size:15px;color:#21372C;resize:vertical"></textarea>
+      </label>
+      <button style="background:#2F5D47;color:#F8F5EC;border:none;padding:15px 30px;border-radius:999px;font:700 16px Karla,sans-serif;cursor:pointer">Send message</button>
+      <p style="font:400 12.5px Karla,sans-serif;color:#7A8B7E;margin:16px 0 0">We typically reply within a day or two. Your details are never shared.</p>
+    </div>
+  </div>
+
+  <dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280}}"></script>
+</body>
+</html>

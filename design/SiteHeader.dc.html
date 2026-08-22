@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+</helmet>
+<div style="display:flex;align-items:center;justify-content:space-between;padding:18px 48px;border-bottom:1px solid rgba(33,55,44,.12);background:#F8F5EC;gap:24px;font-family:Karla,system-ui,sans-serif">
+  <a href="Home.dc.html" style="display:flex;align-items:center;gap:12px;text-decoration:none">
+    <div style="width:44px;height:44px;border-radius:50%;background:#2F5D47;color:#F8F5EC;display:flex;align-items:center;justify-content:center;font:700 15px Karla,sans-serif;letter-spacing:.5px">MA</div>
+    <div>
+      <div style="font:600 17px/1.1 Lora,serif;color:#21372C">Marijuana Anonymous</div>
+      <div style="font:700 11px/1.2 Karla,sans-serif;letter-spacing:2.4px;color:#CE5F35;text-transform:uppercase">Toronto</div>
+    </div>
+  </a>
+  <div style="display:flex;align-items:center;gap:26px;font:600 14.5px Karla,sans-serif">
+    <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
+      <a href="{{ item.href }}" style="{{ item.style }}">{{ item.label }}</a>
+    </sc-for>
+    <a href="Meetings.dc.html" style="text-decoration:none;background:#CE5F35;color:#FFF7EE;padding:10px 18px;border-radius:999px;font-weight:700;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.15)">Find a Meeting</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:82},&quot;current&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Home&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const cur = this.props.current || "Home";
+    const base = "text-decoration:none;color:#21372C;white-space:nowrap;";
+    const active = "text-decoration:none;color:#2F5D47;border-bottom:2px solid #CE5F35;padding-bottom:2px;white-space:nowrap;";
+    const items = [
+      { label: "Home", href: "Home.dc.html" },
+      { label: "Meetings", href: "Meetings.dc.html" },
+      { label: "The Steps", href: "TwelveSteps.dc.html" },
+      { label: "Our Stories", href: "#" },
+      { label: "FAQ", href: "FAQ.dc.html" },
+      { label: "Literature", href: "Literature.dc.html" },
+      { label: "7th Tradition", href: "#" },
+      { label: "Contact", href: "Contact.dc.html" },
+    ];
+    return {
+      navItems: items.map((i) => ({ ...i, style: i.label === cur ? active : base })),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F8F5EC;font-family:Karla,system-ui,sans-serif}
+a{color:#2F5D47}a:hover{color:#CE5F35}
+</style>
+</helmet>
+<div style="background:#F8F5EC;color:#21372C">
+
+  <dc-import name="SiteHeader" current="FAQ" hint-size="100%,82px"></dc-import>
+
+  <div style="padding:56px 48px 40px;background:linear-gradient(180deg,#F8F5EC 0%,#F3EEDF 100%)">
+    <div style="font:700 12px Karla,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#CE5F35;margin-bottom:12px">FAQ</div>
+    <h1 style="font:500 46px/1.15 Lora,serif;margin:0 0 14px;color:#21372C">Questions &amp; answers</h1>
+    <p style="font:400 17.5px/1.65 Karla,sans-serif;color:#44584C;margin:0;max-width:60ch">Answers from people who've been exactly where you are. Don't see your question? <a href="Contact.dc.html">Get in touch.</a></p>
+  </div>
+
+  <div style="padding:40px 48px 64px;background:#F8F5EC">
+    <div style="max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6">
+        <div style="{{ q.wrapStyle }}">
+          <button onClick="{{ q.toggle }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;background:transparent;border:none;padding:22px 26px;cursor:pointer;text-align:left">
+            <span style="font:600 18px Lora,serif;color:#21372C">{{ q.question }}</span>
+            <span style="{{ q.iconStyle }}">+</span>
+          </button>
+          <div style="{{ q.bodyStyle }}">
+            <p style="font:400 15.5px/1.7 Karla,sans-serif;color:#5B6E61;margin:0 26px 22px">{{ q.answer }}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280}}">
+class Component extends DCLogic {
+  state = { open: 0 };
+  faqs = [
+    { question: "What is Marijuana Anonymous?", answer: "MA is a fellowship of people who share their experience, strength, and hope with each other so they may solve their common problem and help others recover from marijuana addiction. We use the same Twelve Steps of recovery founded by Alcoholics Anonymous." },
+    { question: "How much does it cost?", answer: "Nothing. There are no dues or fees for membership. MA is entirely self-supporting through voluntary contributions from members — the 7th Tradition." },
+    { question: "Do I have to speak or share personal details?", answer: "No. You can come to a meeting and simply listen for as long as you like. Many people attend several meetings before sharing anything. Only your first name is ever needed — anonymity is a core principle." },
+    { question: "How do I know if I'm a marijuana addict?", answer: "Only you can decide. Many members found it helpful to read The Twelve Questions — an honest self-inventory about how marijuana affects your life. If marijuana is causing problems and you can't seem to stop, MA may be for you." },
+    { question: "Is MA religious?", answer: "No. MA is not affiliated with any religious or secular organization. The program refers to a 'higher power' of your own understanding — that can be anything, including the group itself. Members hold every belief and none." },
+    { question: "What happens at a meeting?", answer: "Meetings usually open with a reading, followed by members sharing their experience on a topic or a Step. They typically last about an hour. In-person meetings are held around the GTA; online meetings run on Zoom. Newcomers are always welcome." },
+  ];
+  toggle(i) { this.setState((s) => ({ open: s.open === i ? -1 : i })); }
+  renderVals() {
+    const open = this.state.open;
+    return {
+      faqs: this.faqs.map((q, i) => {
+        const isOpen = open === i;
+        return {
+          ...q,
+          toggle: () => this.toggle(i),
+          wrapStyle: "background:#FFFDF6;border:1px solid " + (isOpen ? "#2F5D47" : "rgba(33,55,44,.12)") + ";border-radius:12px;overflow:hidden;transition:border-color .2s",
+          iconStyle: "flex:none;width:30px;height:30px;border-radius:50%;background:" + (isOpen ? "#2F5D47" : "#F0EAD9") + ";color:" + (isOpen ? "#F8F5EC" : "#2F5D47") + ";display:flex;align-items:center;justify-content:center;font-size:20px;font-family:Karla,sans-serif;transform:rotate(" + (isOpen ? "45deg" : "0") + ");transition:transform .2s,background .2s",
+          bodyStyle: "display:" + (isOpen ? "block" : "none"),
+        };
+      }),
+    };
+  }
+}
+</script>
+</body>
+</html>
