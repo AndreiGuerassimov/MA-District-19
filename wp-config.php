@@ -87,6 +87,16 @@ $table_prefix = 'wp_';
  */
 define( 'WP_DEBUG', false );
 
+/*
+ * Theme development mode. Disables WordPress's cache of theme block patterns
+ * and template files, so new patterns/*.php and parts/*.html are picked up
+ * without flushing transients.
+ *
+ * LOCAL DEVELOPMENT ONLY -- remove or set to '' in production, where the cache
+ * is wanted.
+ */
+define( 'WP_DEVELOPMENT_MODE', 'theme' );
+
 /* Add any custom values between this line and the "stop editing" line. */
 
 

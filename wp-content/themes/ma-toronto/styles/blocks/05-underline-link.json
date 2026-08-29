@@ -3,7 +3,9 @@
 	"version": 3,
 	"slug": "underline-link",
 	"title": "Underlined Link",
-	"blockTypes": [ "core/paragraph" ],
+	"blockTypes": [
+		"core/paragraph"
+	],
 	"styles": {
 		"typography": {
 			"fontFamily": "var:preset|font-family|body",
@@ -12,9 +14,17 @@
 		},
 		"elements": {
 			"link": {
-				"color": { "text": "var:preset|color|primary" },
-				"typography": { "textDecoration": "none" },
-				":hover": { "color": { "text": "var:preset|color|accent" } }
+				"color": {
+					"text": "var:preset|color|primary"
+				},
+				"typography": {
+					"textDecoration": "underline"
+				},
+				":hover": {
+					"color": {
+						"text": "var:preset|color|accent"
+					}
+				}
 			}
 		}
 	}

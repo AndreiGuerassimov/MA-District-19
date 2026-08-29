@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 536 340" width="536" height="340" role="img" aria-label="">
+	<title>Placeholder artwork</title>
+	<!--
+		Stand-in for the hero photograph ("Toronto skyline at dawn, soft and
+		muted" in the prototype). Drawn from the theme palette so that if it is
+		never replaced it still reads as a deliberate graphic rather than a
+		broken image. Replace with a real photograph when one exists.
+	-->
+	<defs>
+		<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0%" stop-color="#F3EEDF"/>
+			<stop offset="62%" stop-color="#EFE7D3"/>
+			<stop offset="100%" stop-color="#E7DFC9"/>
+		</linearGradient>
+	</defs>
+	<rect width="536" height="340" fill="url(#sky)"/>
+	<circle cx="392" cy="128" r="34" fill="#F0D9A8" opacity="0.55"/>
+	<g fill="#2F5D47" opacity="0.14">
+		<rect x="36"  y="214" width="34" height="126"/>
+		<rect x="78"  y="186" width="26" height="154"/>
+		<rect x="112" y="238" width="30" height="102"/>
+		<rect x="150" y="150" width="22" height="190"/>
+		<rect x="146" y="96"  width="30" height="58"/>
+		<rect x="158" y="52"  width="6"  height="48"/>
+		<rect x="182" y="204" width="36" height="136"/>
+		<rect x="226" y="172" width="24" height="168"/>
+		<rect x="258" y="226" width="40" height="114"/>
+		<rect x="306" y="196" width="28" height="144"/>
+		<rect x="342" y="242" width="34" height="98"/>
+		<rect x="384" y="210" width="26" height="130"/>
+		<rect x="418" y="232" width="38" height="108"/>
+		<rect x="464" y="198" width="30" height="142"/>
+	</g>
+	<rect y="316" width="536" height="24" fill="#2F5D47" opacity="0.08"/>
+</svg>

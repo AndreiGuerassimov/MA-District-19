@@ -1,0 +1,19 @@
+/**
+ * Paragraph block styles.
+ *
+ * theme.json carries everything it can for these variations; this file adds
+ * only the underline geometry, which has no theme.json equivalent
+ * (text-decoration-thickness / -offset / -color are not supported properties).
+ */
+
+/* The hero's secondary action. The prototype draws a 2px bottom border; a real
+   underline is used instead so it hugs the text and survives wrapping. */
+.is-style-underline-link a {
+	text-decoration-thickness: 2px;
+	text-underline-offset: 5px;
+	text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+}
+
+.is-style-underline-link a:hover {
+	text-decoration-color: currentColor;
+}

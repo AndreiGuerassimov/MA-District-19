@@ -50,6 +50,7 @@ function ma_toronto_enqueue_block_styles(): void {
 		'core/group',
 		'core/navigation',
 		'core/columns',
+		'core/paragraph',
 	);
 
 	foreach ( $blocks as $block ) {
