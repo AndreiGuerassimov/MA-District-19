@@ -30,3 +30,106 @@
 .wp-block-navigation-item.current-menu-item > .wp-block-navigation-item__content {
 	padding-bottom: 2px;
 }
+
+/* --- Offcanvas overlay -------------------------------------------------
+ *
+ * No prototype exists for this screen; it is designed from the theme.json
+ * tokens. Core owns the behaviour (focus trap, Escape, aria-modal) and adds
+ * `disable-default-overlay` when a custom overlay template part is used,
+ * which means core deliberately stops styling the panel — appearance is
+ * entirely ours from here.
+ *
+ * DOM order inside the panel is fixed by core: the menu <ul> is injected
+ * first, then the template part's blocks. The layout below works with that
+ * order rather than fighting it.
+ */
+
+.wp-block-navigation__responsive-container.is-menu-open {
+	background-color: var(--wp--preset--color--base);
+	color: var(--wp--preset--color--ink);
+}
+
+.wp-block-navigation__responsive-container.is-menu-open
+	.wp-block-navigation__responsive-container-content {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: var(--wp--preset--spacing--70);
+	padding: var(--wp--preset--spacing--100) var(--wp--preset--spacing--50)
+		var(--wp--preset--spacing--80);
+}
+
+/* The panel is full-bleed, but its contents should not stretch across a tablet
+   width -- a full-width CTA at 900px reads as a banner rather than a button. */
+.wp-block-navigation__responsive-container.is-menu-open
+	.wp-block-navigation__responsive-container-content > * {
+	width: 100%;
+	max-width: 560px;
+	margin-inline: auto;
+}
+
+/* Menu list: vertical, generous, comfortably tappable. */
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__container {
+	flex-direction: column;
+	align-items: stretch;
+	gap: 0;
+	width: 100%;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-item {
+	border-bottom: 1px solid var(--wp--custom--hairline--color);
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-item__content {
+	display: block;
+	/* Comfortably above the 44px minimum target size (WCAG 2.5.8). */
+	padding: 16px 0;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--x-large);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+	text-decoration: none;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open
+	.current-menu-item .wp-block-navigation-item__content {
+	color: var(--wp--preset--color--primary);
+}
+
+/* Close button: pinned top-right, clear of the menu's first item. */
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-overlay-close {
+	position: absolute;
+	top: var(--wp--preset--spacing--30);
+	right: var(--wp--preset--spacing--30);
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: var(--wp--custom--radius--round);
+	color: var(--wp--preset--color--ink);
+}
+
+.wp-block-navigation__responsive-container.is-menu-open
+	.wp-block-navigation-overlay-close:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+/* The template part's own blocks sit below the menu. */
+.wp-block-navigation__overlay-container .ma-overlay {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--50);
+}
+
+.ma-overlay__cta .wp-block-button__link {
+	display: block;
+	text-align: center;
+}
+
+.ma-overlay__contact {
+	margin: 0;
+}

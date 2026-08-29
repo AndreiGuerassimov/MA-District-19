@@ -157,6 +157,28 @@ failures**. Fidelity to them stops where correctness starts.
 - Mobile nav: use core Navigation's overlay. Core already ships Escape-to-close,
   Tab/Shift-Tab focus cycling, and `aria-modal`. **Do not hand-roll a focus trap.**
 
+## Navigation overlay — two things core forces
+
+**A custom overlay part is all-or-nothing.** When `core/navigation` names an
+overlay template part, core hides everything in the panel except that part's
+blocks:
+
+    .disable-default-overlay.is-menu-open .…-container-content
+      > :not(.wp-block-navigation__overlay-container) { display: none }
+
+So the parent nav's items are rendered but hidden, and the overlay must carry
+its **own** navigation block. That is why `parts/navigation-overlay.html`
+duplicates the six links from `parts/header.html`.
+
+**This duplication is temporary and must be kept in step.** At content
+migration, both navigation blocks switch to the same menu via
+`{"ref":<wp_navigation ID>}`, which collapses them to one source of truth.
+Until then, editing the menu means editing both files.
+
+**Core also owns the overlay's behaviour** — focus trap, Escape, `aria-modal`,
+`role="dialog"`, focus restore. Verified by `npm run a11y:nav` (14 checks).
+Never hand-roll any of it.
+
 ## Deferred — do not build without scoping first
 
 - **Quotes slider** (`design/Home.dc.html` §5) — static pull-quote placeholder for now.
