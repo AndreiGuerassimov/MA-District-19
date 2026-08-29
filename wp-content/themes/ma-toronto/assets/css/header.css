@@ -1,0 +1,81 @@
+/**
+ * Site header.
+ *
+ * Loaded on every page, because the header is on every page. Everything that
+ * theme.json can express lives there; this file holds only what it cannot —
+ * the fixed-size logo mark and the stretched link over the wordmark.
+ */
+
+/* --- Logo lockup ------------------------------------------------------- */
+
+.ma-logo {
+	position: relative;
+}
+
+/* The "MA" roundel. A fixed-size circle is not expressible as a block support,
+   so it lives here. Swap this rule for core/site-logo once a real logo exists.
+   The mark is aria-hidden in the markup: it repeats the wordmark beside it. */
+.ma-logo__mark {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	border-radius: var(--wp--custom--radius--round);
+	background-color: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--base);
+	font-family: var(--wp--preset--font-family--body);
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	line-height: 1;
+}
+
+.ma-logo__text > * {
+	margin: 0;
+}
+
+.ma-logo__name {
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 17px;
+	font-weight: 600;
+	line-height: 1.1;
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-logo__name a {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* Stretch the wordmark's link across the whole lockup so the roundel is
+   clickable too, without wrapping several blocks in one anchor. The accessible
+   name stays the wordmark text rather than becoming "MA Marijuana Anonymous". */
+.ma-logo__name a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.ma-logo__name a:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+.ma-logo__place {
+	line-height: 1.2;
+}
+
+/* --- Layout ------------------------------------------------------------ */
+
+.ma-header__inner {
+	width: 100%;
+}
+
+@media (max-width: 599.98px) {
+	.ma-header {
+		padding-left: var(--wp--preset--spacing--50);
+		padding-right: var(--wp--preset--spacing--50);
+	}
+}

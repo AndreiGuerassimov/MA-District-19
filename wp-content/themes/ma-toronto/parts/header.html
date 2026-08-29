@@ -1,30 +1,54 @@
-<!-- wp:group {"layout":{"inherit":"true"}} -->
-<div class="wp-block-group">
-	<!-- wp:group {"align":"full","layout":{"type":"flex","justifyContent":"space-between"},"style":{"spacing":{"padding":{"bottom":"30px","top":"30px"}}}} -->
-	<div class="wp-block-group alignfull" style="padding-bottom:30px;padding-top:30px">
-	
-		<!-- wp:group {"layout":{"type":"flex"}} -->
-		<div class="wp-block-group">
-			<!-- wp:site-logo {"width":64} /-->
-	
-			<!-- wp:group -->
-			<div class="wp-block-group">
-				<!-- wp:site-title /-->
-				<!-- wp:site-tagline /-->
+<!-- wp:group {"tagName":"header","align":"full","className":"ma-header","style":{"spacing":{"padding":{"top":"18px","bottom":"18px","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}},"border":{"bottom":{"color":"var:custom|hairline|color","style":"solid","width":"1px"}}},"backgroundColor":"base","layout":{"type":"default"}} -->
+<header class="wp-block-group alignfull ma-header has-base-background-color has-background" style="border-bottom-color:var(--wp--custom--hairline--color);border-bottom-style:solid;border-bottom-width:1px;padding-top:18px;padding-right:var(--wp--preset--spacing--80);padding-bottom:18px;padding-left:var(--wp--preset--spacing--80)">
+
+	<!-- wp:group {"className":"ma-header__inner","style":{"spacing":{"blockGap":"var:preset|spacing|50"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
+	<div class="wp-block-group ma-header__inner">
+
+		<!-- wp:group {"className":"ma-logo","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"center"}} -->
+		<div class="wp-block-group ma-logo">
+			<!-- wp:paragraph {"className":"ma-logo__mark","fontSize":"small"} -->
+			<p class="ma-logo__mark has-small-font-size" aria-hidden="true">MA</p>
+			<!-- /wp:paragraph -->
+
+			<!-- wp:group {"className":"ma-logo__text","style":{"spacing":{"blockGap":"0"}},"layout":{"type":"default"}} -->
+			<div class="wp-block-group ma-logo__text">
+				<!-- wp:paragraph {"className":"ma-logo__name"} -->
+				<p class="ma-logo__name"><a href="/">Marijuana Anonymous</a></p>
+				<!-- /wp:paragraph -->
+
+				<!-- wp:paragraph {"className":"is-style-eyebrow ma-logo__place","textColor":"accent","fontSize":"tiny"} -->
+				<p class="is-style-eyebrow ma-logo__place has-accent-color has-text-color has-tiny-font-size">Toronto</p>
+				<!-- /wp:paragraph -->
 			</div>
 			<!-- /wp:group -->
 		</div>
 		<!-- /wp:group -->
-	
-		<!-- wp:navigation {"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"right","orientation":"horizontal"},"style":{"spacing":{"margin":{"top":"0"}}}} /-->
-	
+
+		<!-- wp:group {"className":"ma-header__actions","style":{"spacing":{"blockGap":"var:preset|spacing|50"}},"layout":{"type":"flex","flexWrap":"wrap","verticalAlignment":"center"}} -->
+		<div class="wp-block-group ma-header__actions">
+
+			<!-- wp:navigation {"overlayMenu":"mobile","icon":"menu","ariaLabel":"Main","overlay":"ma-toronto//navigation-overlay","style":{"spacing":{"blockGap":"26px"}},"layout":{"type":"flex","justifyContent":"right","flexWrap":"wrap"}} -->
+				<!-- wp:navigation-link {"label":"Home","url":"/","kind":"custom","isTopLevelLink":true} /-->
+				<!-- wp:navigation-link {"label":"Meetings","url":"/meetings/","kind":"custom","isTopLevelLink":true} /-->
+				<!-- wp:navigation-link {"label":"The Steps","url":"/the-twelve-steps/","kind":"custom","isTopLevelLink":true} /-->
+				<!-- wp:navigation-link {"label":"FAQ","url":"/faq/","kind":"custom","isTopLevelLink":true} /-->
+				<!-- wp:navigation-link {"label":"Literature","url":"/literature/","kind":"custom","isTopLevelLink":true} /-->
+				<!-- wp:navigation-link {"label":"Contact","url":"/contact/","kind":"custom","isTopLevelLink":true} /-->
+			<!-- /wp:navigation -->
+
+			<!-- wp:buttons {"className":"ma-header__cta","layout":{"type":"flex"}} -->
+			<div class="wp-block-buttons ma-header__cta">
+				<!-- wp:button {"className":"is-style-pill-accent","style":{"spacing":{"padding":{"top":"10px","bottom":"10px","left":"18px","right":"18px"}},"typography":{"fontSize":"14px"},"shadow":"var:preset|shadow|sm"}} -->
+				<div class="wp-block-button is-style-pill-accent"><a class="wp-block-button__link wp-element-button" href="/meetings/" style="box-shadow:var(--wp--preset--shadow--sm);padding-top:10px;padding-right:18px;padding-bottom:10px;padding-left:18px;font-size:14px">Find a Meeting</a></div>
+				<!-- /wp:button -->
+			</div>
+			<!-- /wp:buttons -->
+
+		</div>
+		<!-- /wp:group -->
+
 	</div>
 	<!-- /wp:group -->
 
-</div>
+</header>
 <!-- /wp:group -->
-
-<!-- wp:spacer {"height":50} -->
-<div style="height:50px" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
- 

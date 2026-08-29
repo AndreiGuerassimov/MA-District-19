@@ -71,3 +71,28 @@ function ma_toronto_enqueue_block_styles(): void {
 	}
 }
 add_action( 'after_setup_theme', 'ma_toronto_enqueue_block_styles' );
+
+/**
+ * Enqueues stylesheets for site chrome that appears on every page.
+ *
+ * The header and footer are not tied to a single block, so they cannot be
+ * loaded conditionally with wp_enqueue_block_style(). They are unconditional
+ * anyway, since every page renders them.
+ */
+function ma_toronto_enqueue_chrome_styles(): void {
+	foreach ( array( 'header', 'footer' ) as $part ) {
+		$path = "assets/css/{$part}.css";
+
+		if ( ! file_exists( get_theme_file_path( $path ) ) ) {
+			continue;
+		}
+
+		wp_enqueue_style(
+			"ma-toronto-{$part}",
+			get_theme_file_uri( $path ),
+			array(),
+			(string) filemtime( get_theme_file_path( $path ) )
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ma_toronto_enqueue_chrome_styles' );

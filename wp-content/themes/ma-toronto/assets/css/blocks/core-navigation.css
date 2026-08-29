@@ -1,0 +1,32 @@
+/**
+ * Navigation — overlay breakpoint.
+ *
+ * Core reveals the horizontal menu at min-width 600px, hardcoded in the
+ * Navigation block's stylesheet. theme.json's settings.viewport drives
+ * responsive *layout states*, not this threshold, so moving it needs CSS.
+ *
+ * This design needs the overlay earlier: eight items plus the wordmark and the
+ * CTA stop fitting at roughly 1150px. The band below re-asserts overlay
+ * behaviour between core's 600px and our 1100px, mirroring the two rules core
+ * sets at min-width:600px rather than inventing new ones.
+ *
+ * Keep 1100px in step with settings.viewport.tablet in theme.json.
+ */
+@media (min-width: 600px) and (max-width: 1099.98px) {
+
+	/* Core: display:block (menu visible inline). Ours: keep it an overlay. */
+	.wp-block-navigation__responsive-container:not(.hidden-by-default):not(.is-menu-open) {
+		display: none;
+	}
+
+	/* Core: display:none (hamburger hidden). Ours: keep the hamburger. */
+	.wp-block-navigation__responsive-container-open:not(.always-shown) {
+		display: flex;
+	}
+}
+
+/* The active item's 2px underline (theme.json, core/navigation-link "-current")
+   sits tight against the text; the prototype offsets it slightly. */
+.wp-block-navigation-item.current-menu-item > .wp-block-navigation-item__content {
+	padding-bottom: 2px;
+}
