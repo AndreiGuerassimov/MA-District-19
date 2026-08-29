@@ -1,0 +1,91 @@
+/**
+ * Site footer.
+ *
+ * Colour comes from the `forest-deep` section style in styles/sections/, which
+ * also recolours headings and links inside the band. This file holds only what
+ * theme.json cannot express: the fixed-size brand roundel, the unbulleted link
+ * lists, and the column reflow.
+ */
+
+/* --- Brand lockup ------------------------------------------------------ */
+
+/* Inverted counterpart of .ma-logo__mark in header.css: cream fill, forest
+   letters, and smaller. Fixed dimensions are not a block support. */
+.ma-footer__mark {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 36px;
+	height: 36px;
+	margin: 0;
+	border-radius: var(--wp--custom--radius--round);
+	background-color: var(--wp--preset--color--base);
+	color: var(--wp--preset--color--primary);
+	font-family: var(--wp--preset--font-family--body);
+	font-weight: 700;
+	line-height: 1;
+}
+
+.ma-footer__name {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--wp--preset--color--base);
+}
+
+.ma-footer__blurb {
+	/* The prototype caps this blurb at 38ch so it stays a short paragraph. */
+	max-width: 38ch;
+	line-height: var(--wp--custom--line-height--body);
+}
+
+/* --- Link columns ------------------------------------------------------ */
+
+.ma-footer__label {
+	margin: 0 0 var(--wp--preset--spacing--10);
+}
+
+.ma-footer__links {
+	margin: 0;
+	padding-left: 0;
+	list-style: none;
+	line-height: var(--wp--custom--line-height--list);
+}
+
+.ma-footer__links a {
+	display: inline-block;
+	/* Long addresses should break at a sensible point rather than mid-word. */
+	overflow-wrap: break-word;
+}
+
+/* --- Bottom bar -------------------------------------------------------- */
+
+.ma-footer__rule {
+	margin: var(--wp--preset--spacing--50) 0 var(--wp--preset--spacing--40);
+	border: 0;
+	border-top: 1px solid var(--wp--custom--hairline--on-dark);
+	opacity: 1;
+}
+
+.ma-footer__legal {
+	margin: 0;
+	line-height: var(--wp--custom--line-height--body);
+}
+
+/* --- Reflow ------------------------------------------------------------
+ * The prototype has no responsive rules; 4 -> 2 -> 1 is our decision.
+ * Core's columns block collapses to one column below 782px on its own, so
+ * the two-up band below only needs the tablet range.
+ */
+@media (min-width: 600px) and (max-width: 781.98px) {
+	.ma-footer__cols.wp-block-columns:not(.is-not-stacked-on-mobile) {
+		flex-wrap: wrap;
+	}
+
+	.ma-footer__cols.wp-block-columns > .wp-block-column {
+		flex-basis: calc(50% - var(--wp--preset--spacing--70) / 2) !important;
+		flex-grow: 0;
+	}
+}
