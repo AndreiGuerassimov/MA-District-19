@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"slug": "stat",
+	"title": "Stat Figure",
+	"blockTypes": [ "core/heading", "core/paragraph" ],
+	"styles": {
+		"typography": {
+			"fontFamily": "var:preset|font-family|display",
+			"fontSize": "var:preset|font-size|display",
+			"fontWeight": "600",
+			"lineHeight": "1.1"
+		}
+	}
+}

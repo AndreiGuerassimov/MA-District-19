@@ -1,0 +1,35 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"slug": "forest-deep",
+	"title": "Forest Deep Band",
+	"blockTypes": [ "core/group", "core/columns", "core/column" ],
+	"styles": {
+		"color": {
+			"background": "var:preset|color|primary-dark",
+			"text": "var:preset|color|on-dark"
+		},
+		"elements": {
+			"heading": { "color": { "text": "var:preset|color|base" } },
+			"link": {
+				"color": { "text": "var:preset|color|on-dark" },
+				"typography": { "textDecoration": "none" },
+				":hover": {
+					"color": { "text": "var:preset|color|surface" },
+					"typography": { "textDecoration": "underline" }
+				},
+				":focus-visible": {
+					"outline": {
+						"color": "var:preset|color|on-dark",
+						"style": "solid",
+						"width": "var:custom|focus|width",
+						"offset": "var:custom|focus|offset"
+					}
+				}
+			}
+		},
+		"blocks": {
+			"core/separator": { "color": { "text": "var:custom|hairline|on-dark" } }
+		}
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"slug": "hero-wash",
+	"title": "Hero Wash",
+	"blockTypes": [ "core/group", "core/columns" ],
+	"styles": {
+		"color": {
+			"gradient": "var:preset|gradient|hero",
+			"text": "var:preset|color|body"
+		}
+	}
+}

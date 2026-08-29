@@ -1,0 +1,32 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"slug": "forest",
+	"title": "Forest Band",
+	"blockTypes": [ "core/group", "core/columns", "core/column" ],
+	"styles": {
+		"color": {
+			"background": "var:preset|color|primary",
+			"text": "var:preset|color|on-dark"
+		},
+		"elements": {
+			"heading": { "color": { "text": "var:preset|color|surface" } },
+			"link": {
+				"color": { "text": "var:preset|color|sand" },
+				":hover": { "color": { "text": "var:preset|color|surface" } },
+				":focus-visible": {
+					"outline": {
+						"color": "var:preset|color|sand",
+						"style": "solid",
+						"width": "var:custom|focus|width",
+						"offset": "var:custom|focus|offset"
+					}
+				}
+			}
+		},
+		"blocks": {
+			"core/separator": { "color": { "text": "var:custom|hairline|on-dark" } },
+			"core/site-title": { "color": { "text": "currentColor" } }
+		}
+	}
+}

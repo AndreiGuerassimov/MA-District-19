@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"slug": "underline-link",
+	"title": "Underlined Link",
+	"blockTypes": [ "core/paragraph" ],
+	"styles": {
+		"typography": {
+			"fontFamily": "var:preset|font-family|body",
+			"fontSize": "var:preset|font-size|medium",
+			"fontWeight": "700"
+		},
+		"elements": {
+			"link": {
+				"color": { "text": "var:preset|color|primary" },
+				"typography": { "textDecoration": "none" },
+				":hover": { "color": { "text": "var:preset|color|accent" } }
+			}
+		}
+	}
+}
