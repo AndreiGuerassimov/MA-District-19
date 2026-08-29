@@ -1,16 +1,25 @@
 /*
 Theme Name: MA Toronto
-Theme URI: 
-Author: 
-Author URI: 
-Description: 
+Theme URI: https://matoronto.org
+Author: Marijuana Anonymous Toronto
+Author URI: https://matoronto.org
+Description: Custom block theme for Marijuana Anonymous Toronto — a free peer-support fellowship for anyone with a desire to stop using marijuana. Built on core blocks and theme.json, with no page builder or CSS framework.
 Requires at least: 7.0
-Tested up to: 7.0
-Requires PHP: 5.7
-Version: 
+Tested up to: 7.1
+Requires PHP: 8.1
+Version: 0.1.0
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: ma-toronto
-Tags: 
+Tags: blog, one-column, custom-colors, custom-menu, block-patterns, full-site-editing, accessibility-ready
 */
 
+/*
+ * Design tokens live in theme.json, not here. Add CSS to this file only when
+ * theme.json genuinely cannot express it. Per-block CSS belongs in
+ * assets/css/ and is registered with wp_enqueue_block_style() so it loads
+ * only when that block renders.
+ *
+ * Fonts: Lora and Karla, SIL Open Font License 1.1, self-hosted in
+ * assets/fonts/ as variable woff2 (latin + latin-ext subsets).
+ */

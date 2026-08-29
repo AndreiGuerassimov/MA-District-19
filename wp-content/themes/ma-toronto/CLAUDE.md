@@ -55,6 +55,8 @@ text it's used on, and 3.73:1 under the header CTA's white label. `#B0521F` is t
 designer's own darker terracotta (already used on Contact/Literature/Meetings) and
 measures 4.73:1 on base, 5.07:1 on surface, 4.86:1 behind `on-accent`. `#CE5F35` is
 retained as `accent-bright` for non-text use, where it passes the 3:1 bar.
+(JSON has no comments, so this file and `docs/build-plan.md` are where the original
+prototype values and the measurements are recorded.)
 
 **Collapsed near-duplicates** — do not resurrect: `#EFEBDD`→`base`, `#F0EAD9`→`surface`,
 `#24463A`→`primary-dark`, `#7A8B7E`→`muted` (also a contrast fix), `#A9BCA6`→`on-dark`
