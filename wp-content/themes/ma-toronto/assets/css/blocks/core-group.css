@@ -185,3 +185,135 @@
 	margin: 0 0 var(--wp--preset--spacing--40);
 	line-height: var(--wp--custom--line-height--body);
 }
+
+/* --- Literature grid ---------------------------------------------------
+ *
+ * Cover gradients cycle by position, so the palette repeats automatically and a
+ * seventh publication needs no new class. Gradients are theme.json presets.
+ */
+
+.ma-lit.wp-block-group {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 899.98px) {
+	.ma-lit.wp-block-group {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 599.98px) {
+	.ma-lit.wp-block-group {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.ma-lit-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--lg);
+	overflow: hidden;
+	transition: border-color 120ms ease-out;
+}
+
+.ma-lit-card:hover {
+	border-color: var(--wp--preset--color--primary);
+}
+
+.ma-lit-card:focus-within {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+/* Cover: stands in for the jacket art until real covers exist. */
+.ma-lit-card__cover {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	height: 190px;
+	padding: var(--wp--preset--spacing--50);
+	background-image: var(--wp--preset--gradient--cover-forest);
+}
+
+.ma-lit-card:nth-child(6n + 2) .ma-lit-card__cover { background-image: var(--wp--preset--gradient--cover-terracotta); }
+.ma-lit-card:nth-child(6n + 3) .ma-lit-card__cover { background-image: var(--wp--preset--gradient--cover-sage); }
+.ma-lit-card:nth-child(6n + 4) .ma-lit-card__cover { background-image: var(--wp--preset--gradient--cover-amber); }
+.ma-lit-card:nth-child(6n + 5) .ma-lit-card__cover { background-image: var(--wp--preset--gradient--cover-slate); }
+.ma-lit-card:nth-child(6n)     .ma-lit-card__cover { background-image: var(--wp--preset--gradient--cover-plum); }
+
+.ma-lit-card__kind {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--xx-small);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #fff;
+}
+
+.ma-lit-card__cover-title {
+	margin: var(--wp--preset--spacing--10) 0 0;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--x-large);
+	font-weight: 500;
+	line-height: 1.25;
+	color: var(--wp--preset--color--surface);
+}
+
+.ma-lit-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--10);
+	flex: 1;
+	padding: 22px 24px;
+}
+
+.ma-lit-card__title {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.ma-lit-card__title a {
+	color: var(--wp--preset--color--ink);
+	text-decoration: none;
+}
+
+/* Stretches the title's link over the whole card. */
+.ma-lit-card__title a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.ma-lit-card__title a:focus-visible {
+	outline: none;
+}
+
+.ma-lit-card__desc {
+	margin: 0;
+	flex: 1;
+	line-height: 1.6;
+}
+
+.ma-lit-card .ma-lit-card__cta {
+	margin-block-start: auto;
+	margin-block-end: 0;
+}
+
+.ma-lit__note {
+	max-width: 70ch;
+	margin: var(--wp--preset--spacing--60) 0 0;
+	line-height: var(--wp--custom--line-height--body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-lit-card {
+		transition: none;
+	}
+}

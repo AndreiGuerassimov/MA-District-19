@@ -101,6 +101,36 @@
 					"slug": "hero",
 					"name": "Hero Wash",
 					"gradient": "linear-gradient(180deg, #F8F5EC 0%, #F3EEDF 100%)"
+				},
+				{
+					"slug": "cover-forest",
+					"name": "Cover — Forest",
+					"gradient": "linear-gradient(150deg, var(--wp--preset--color--primary) 0%, var(--wp--preset--color--primary-dark) 100%)"
+				},
+				{
+					"slug": "cover-terracotta",
+					"name": "Cover — Terracotta",
+					"gradient": "linear-gradient(150deg, #C0572F 0%, var(--wp--preset--color--accent) 100%)"
+				},
+				{
+					"slug": "cover-sage",
+					"name": "Cover — Sage",
+					"gradient": "linear-gradient(150deg, #3C845B 0%, var(--wp--preset--color--primary) 100%)"
+				},
+				{
+					"slug": "cover-amber",
+					"name": "Cover — Amber",
+					"gradient": "linear-gradient(150deg, #A66913 0%, #83520F 100%)"
+				},
+				{
+					"slug": "cover-slate",
+					"name": "Cover — Slate",
+					"gradient": "linear-gradient(150deg, #4A6B8A 0%, #2F4A63 100%)"
+				},
+				{
+					"slug": "cover-plum",
+					"name": "Cover — Plum",
+					"gradient": "linear-gradient(150deg, #7A5C8A 0%, #513A63 100%)"
 				}
 			]
 		},
