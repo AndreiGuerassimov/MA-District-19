@@ -147,3 +147,79 @@ function ma_toronto_enqueue_quote_slider( string $block_content, array $block ):
 	return $block_content;
 }
 add_filter( 'render_block', 'ma_toronto_enqueue_quote_slider', 10, 2 );
+
+/**
+ * Marks the hero image as the LCP candidate.
+ *
+ * fetchpriority belongs at render time, not in saved block markup: core/image's
+ * save() never emits it, so writing it into a pattern makes the block fail
+ * validation in the editor. WordPress's own heuristic does not catch this image
+ * because it is a theme file rather than an attachment, so it is set here.
+ *
+ * @param string $block_content Rendered block HTML.
+ * @param array  $block         Parsed block.
+ * @return string Block HTML, with the hero image prioritised.
+ */
+function ma_toronto_prioritise_hero_image( string $block_content, array $block ): string {
+	if ( 'core/image' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+
+	$class = $block['attrs']['className'] ?? '';
+
+	if ( ! is_string( $class ) || ! str_contains( $class, 'ma-hero__media' ) ) {
+		return $block_content;
+	}
+
+	$tags = new WP_HTML_Tag_Processor( $block_content );
+
+	if ( $tags->next_tag( array( 'tag_name' => 'IMG' ) ) ) {
+		$tags->set_attribute( 'fetchpriority', 'high' );
+		// Above the fold by definition; lazy-loading it would defeat the point.
+		$tags->remove_attribute( 'loading' );
+	}
+
+	return $tags->get_updated_html();
+}
+add_filter( 'render_block', 'ma_toronto_prioritise_hero_image', 10, 2 );
+
+/**
+ * Hides the decorative "MA" roundels from assistive technology.
+ *
+ * The roundel repeats the wordmark beside it, so announcing it would produce
+ * "MA, Marijuana Anonymous Toronto". aria-hidden cannot live in the saved
+ * markup: core/paragraph's save() emits only its own class attribute, so any
+ * extra attribute on the wrapper makes the block fail validation in the editor.
+ *
+ * @param string $block_content Rendered block HTML.
+ * @param array  $block         Parsed block.
+ * @return string Block HTML, with decorative marks hidden.
+ */
+function ma_toronto_hide_decorative_marks( string $block_content, array $block ): string {
+	if ( 'core/paragraph' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+
+	$class = $block['attrs']['className'] ?? '';
+
+	if ( ! is_string( $class ) ) {
+		return $block_content;
+	}
+
+	foreach ( array( 'ma-logo__mark', 'ma-footer__mark' ) as $decorative ) {
+		if ( ! str_contains( $class, $decorative ) ) {
+			continue;
+		}
+
+		$tags = new WP_HTML_Tag_Processor( $block_content );
+
+		if ( $tags->next_tag( array( 'tag_name' => 'P' ) ) ) {
+			$tags->set_attribute( 'aria-hidden', 'true' );
+		}
+
+		return $tags->get_updated_html();
+	}
+
+	return $block_content;
+}
+add_filter( 'render_block', 'ma_toronto_hide_decorative_marks', 10, 2 );

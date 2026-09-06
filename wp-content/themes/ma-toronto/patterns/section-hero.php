@@ -58,7 +58,7 @@
 		<!-- wp:column {"verticalAlignment":"center","width":"47.5%"} -->
 		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:47.5%">
 			<!-- wp:image {"className":"ma-hero__media","style":{"border":{"radius":"var:custom|radius|lg"},"shadow":"var:preset|shadow|lg"}} -->
-			<figure class="wp-block-image ma-hero__media"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/hero-placeholder.svg' ) ); ?>" alt="" width="536" height="340" fetchpriority="high" decoding="async" style="border-radius:var(--wp--custom--radius--lg);box-shadow:var(--wp--preset--shadow--lg)"/></figure>
+			<figure class="wp-block-image has-custom-border ma-hero__media"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/hero-placeholder.svg' ) ); ?>" alt="" style="border-radius:var(--wp--custom--radius--lg);box-shadow:var(--wp--preset--shadow--lg)"/></figure>
 			<!-- /wp:image -->
 		</div>
 		<!-- /wp:column -->

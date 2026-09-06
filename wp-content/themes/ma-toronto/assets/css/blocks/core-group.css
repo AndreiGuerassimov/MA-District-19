@@ -153,3 +153,23 @@
 		display: none;
 	}
 }
+
+/* --- Hero image --------------------------------------------------------
+ *
+ * The intrinsic ratio is declared here rather than as width/height attributes
+ * on the <img>. core/image's save() does not emit those attributes unless the
+ * block sets them, so hand-writing them into pattern markup makes the block
+ * fail validation in the editor ("Block contains unexpected or invalid
+ * content"). aspect-ratio reserves the same space and prevents the same layout
+ * shift, without touching the block's saved output.
+ */
+.ma-hero__media img {
+	display: block;
+	width: 100%;
+	/* The prototype fixes this at 340px tall and lets it fill the column width,
+	   so it does not grow on wide screens. aspect-ratio governs below that,
+	   keeping the reserved space correct on narrow columns. */
+	aspect-ratio: 536 / 340;
+	max-height: 340px;
+	object-fit: cover;
+}
