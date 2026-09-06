@@ -184,6 +184,29 @@ Never hand-roll any of it.
 - **Quotes slider** (`design/Home.dc.html` §5) — static pull-quote placeholder for now.
 - **Hero "Next meeting" card** — needs the Meetings data model; belongs to that phase.
 
+## Block markup gotchas (both cost real time — do not relearn)
+
+**Never hand-write render-time attributes into pattern markup.** Block validation
+compares saved HTML against what the block's `save()` would regenerate, so any
+extra attribute makes the editor show *"Block contains unexpected or invalid
+content"*. `fetchpriority`, `decoding`, `loading` and `aria-*` on a block's
+wrapper element all fall into this trap — `core/image`'s `save()` never emits
+`fetchpriority` at all. Add them at render with a `render_block` filter and
+`WP_HTML_Tag_Processor` instead; `functions.php` has three examples.
+
+Attributes *inside* rich text (a `<span aria-hidden>` within a paragraph) are
+content and round-trip fine. It is only the wrapper element that must match.
+
+When a block does need matching classes, read the real `save()` rather than
+guessing — it is in `wp-includes/js/dist/block-library.min.js`. That is how the
+hero image's missing `has-custom-border` class was found: `core/image` adds it
+whenever a border style exists.
+
+**Full-width sections need `blockGap: 0` on their container.** Flow layout
+inserts a 24px gap between children, which shows as a stripe of page background
+between bands. `templates/front-page.html` sets it on both the `main` group and
+`post-content`; `footer.css` zeroes the margin above the footer template part.
+
 ## Verification
 
 `npm run visual` (from the repo root) screenshots the rendered homepage and the prototype
@@ -195,5 +218,22 @@ at three widths and diffs them.
 | 1440 | Expected to differ — the prototype has no max-width and keeps stretching; we cap at 1184px. |
 | 390 | Self-regression only — the prototypes have no responsive CSS, so there is nothing faithful to compare against. |
 
-Baseline on the empty theme was 44.7% at 1280px. Output in `tools/visual/output/`.
-Browser lives in `.playwright/`; `npm run visual:install` fetches it. Both gitignored.
+Baseline on the empty theme was 44.7% at 1280px; the built homepage is 17.3%.
+Output in `tools/visual/output/`. Browser lives in `.playwright/`;
+`npm run visual:install` fetches it. Both gitignored.
+
+**A single whole-page number is misleading** — it conflates "does this section
+look right" with "is it at the same vertical position". Use `npm run
+visual:sections`, which crops each band from both pages and compares them
+independently. Every section currently sits within 1-8%.
+
+| command | what it checks |
+|---|---|
+| `npm run visual` | whole-page diff at 1280 / 1440 / 390 |
+| `npm run visual:sections` | per-section fidelity, drift removed |
+| `npm run breakpoints` | where the nav overlay takes over (expect 1100px) |
+| `npm run a11y:nav` | overlay focus trap, Escape, ARIA (14 checks) |
+| `npm run a11y:quote` | slider semantics, keyboard, no-JS fallback (18 checks) |
+| `npm run audit:responsive` | overflow, clipping, target sizes at 11 widths |
+
+Run all six before calling anything done.

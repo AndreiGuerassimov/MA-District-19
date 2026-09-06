@@ -89,3 +89,10 @@
 		flex-grow: 0;
 	}
 }
+
+/* The template's root flow layout inserts a block gap between <main> and the
+   footer template part, showing a stripe of page background above the footer
+   band. The design has the bands meet. */
+footer.wp-block-template-part {
+	margin-block-start: 0;
+}

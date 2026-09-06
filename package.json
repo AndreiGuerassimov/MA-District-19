@@ -10,7 +10,9 @@
     "visual:install": "PLAYWRIGHT_BROWSERS_PATH=./.playwright playwright install chromium",
     "breakpoints": "node tools/visual/breakpoints.mjs",
     "a11y:nav": "node tools/visual/nav-a11y.mjs",
-    "a11y:quote": "node tools/visual/quote-a11y.mjs"
+    "a11y:quote": "node tools/visual/quote-a11y.mjs",
+    "visual:sections": "node tools/visual/sections.mjs",
+    "audit:responsive": "node tools/visual/responsive.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0",

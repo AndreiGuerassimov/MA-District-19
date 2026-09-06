@@ -531,6 +531,9 @@
 				}
 			},
 			"core/navigation-link": {
+				"typography": {
+					"lineHeight": "1.75"
+				},
 				"color": {
 					"text": "var(--wp--preset--color--ink)"
 				},
