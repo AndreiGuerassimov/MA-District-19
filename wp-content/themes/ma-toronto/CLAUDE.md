@@ -4,12 +4,17 @@ Custom block theme rebuilding matoronto.org from static prototypes.
 Full plan: `docs/build-plan.md` at the repo root. Read it before non-trivial work.
 
 **Stack:** WordPress 7.1 · PHP 8.3 (server; CLI is 8.5) · http://localhost:8888/matoronto
-**Phase 1 = homepage only.** Other pages in `design/` come later.
+**Phase 1 (homepage) is complete.** Other pages in `design/` are the next phase.
 
 ## Hard rules
 
-1. **No database writes.** No `wp option update`, no post/term creation, no Site Editor
-   saves committed. Content migration happens separately via WP-CLI/WXR.
+1. **Homepage content lives in the database, not the theme.** The Home page (ID 49)
+   holds the assembled sections; `templates/front-page.html` just renders
+   `post-content`. `patterns/section-*.php` are the source for *inserting* a
+   section, not the live copy — changing a section's structure means updating
+   page 49 as well as the pattern. Everything else still avoids DB writes:
+   no `wp option update`, no post/term creation. Content migration for the
+   remaining pages happens separately via WP-CLI/WXR.
 2. **Read prototypes from disk, a section at a time** — `sed -n`, `grep`, or `Read` with
    offset/limit. Never load a whole prototype into context. `design/Home-standalone.html`
    is 3MB. Even the small `.dc.html` files have very long lines.
@@ -100,8 +105,13 @@ Shadows — all ink-based, no pure black:
 `lg 0 12px 32px rgba(33,55,44,.12)`. Hairline border: `rgba(33,55,44,.1)`.
 
 Layout: `contentSize 820px` · `wideSize 1184px` · root padding `48px`.
-1184 = the prototype's true content width (1280 − 2×48), so the drawn composition is
-reproduced exactly and simply stops stretching past it.
+
+**Sections stretch to the window; they are not capped.** By decision, full-width
+sections use flow layout with explicit 48px side padding — matching the prototype,
+which has no max-width either. `wideSize` therefore applies only inside
+*constrained* layouts (the about band's 820px copy column, the quote slider's
+900px); it does not cap the page. Do not "fix" this by switching sections to
+constrained layout.
 
 Breakpoints via theme.json `settings.viewport` (WP 7.1): `mobile 600px`, `tablet 1100px`.
 1100 because 8 nav items + wordmark + CTA stop fitting around 1150px.

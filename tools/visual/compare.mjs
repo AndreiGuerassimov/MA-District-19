@@ -43,9 +43,9 @@ const WIDTHS = [
   // like-for-like diff is meaningful: our content box (wideSize 1184px) equals
   // the prototype's there (1280 - 2x48px gutter).
   { name: '1280', width: 1280, height: 900, role: 'FIDELITY CHECK - the meaningful one' },
-  // The prototype has no max-width, so above 1280 it keeps stretching while we
-  // cap at 1184px. A large diff here is expected and correct.
-  { name: '1440', width: 1440, height: 900, role: 'expected to differ - prototype has no max-width' },
+  // Content stretches to the window in both the prototype and our build, so
+  // this is a second valid fidelity check rather than an expected mismatch.
+  { name: '1440', width: 1440, height: 900, role: 'FIDELITY CHECK - wide' },
   // The prototype has no responsive CSS at all; at 390px it renders a squashed
   // desktop layout we are deliberately not reproducing.
   { name: '390', width: 390, height: 844, role: 'self-regression baseline only' },
@@ -174,7 +174,7 @@ async function diff(aPath, bPath, vp) {
   console.log(
     '\nRead the diffs like this:\n' +
     '  1280px  the real fidelity check - drive this number down.\n' +
-    '  1440px  expected to differ; the prototype stretches, we cap at 1184px.\n' +
+    '  1440px  also a fidelity check; both stretch to the window.\n' +
     '   390px  self-regression only; the prototype has no mobile layout.\n'
   );
 })().catch((err) => {

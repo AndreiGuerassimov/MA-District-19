@@ -52,6 +52,7 @@ function ma_toronto_enqueue_block_styles(): void {
 		'core/columns',
 		'core/paragraph',
 		'core/quote',
+		'core/list',
 	);
 
 	foreach ( $blocks as $block ) {

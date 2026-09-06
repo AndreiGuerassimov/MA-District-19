@@ -571,11 +571,26 @@ Specific calls:
 | Top menu, footer links | Fully editable — normal menu management, no layout risk |
 | All spacing, colour, alignment, block order | Locked |
 
-### 8.2 Page container — ✅ **ANSWERED**
+### 8.2 Page container — ✅ **ANSWERED (revised)**
+
+**Final decision: sections stretch to the window. No cap.**
+
+The original answer below said cap at 1184px. That was never actually in effect --
+full-width sections use flow layout with explicit padding, and `wideSize` only
+applies to *constrained* layouts. When this came to light the call was to keep the
+stretching behaviour, which also matches the prototype (it has no max-width). At
+1920px, content spans 1824px.
+
+Consequence: **1440px is now a valid fidelity check**, not an expected mismatch,
+because the prototype and the build behave identically above 1280. The visual
+harness treats it as one.
+
+<details><summary>Superseded answer</summary>
 
 **`wideSize: 1184px`, root padding 48px.** The prototype is drawn at 1280px with 48px gutters, so its true content width is exactly **1280 − 96 = 1184px**. Setting `wideSize` to that reproduces the drawn composition precisely and stops it stretching beyond; full-bleed bands (green about band, footer) stay edge-to-edge as designed. **Correction from actually running the harness:** I first wrote that this would make the 1440px diff near-exact. It won't. The prototype has *no* max-width, so at 1440px its content stretches to 1344px while ours caps at 1184px — they can't line up. The meaningful comparison is at **1280px**, the prototype's native design width, where our 1184px content box matches it exactly. The harness now captures 1280px as the fidelity check, with 1440px and 390px kept as our own responsive-regression baselines.
 
 `contentSize: 820px` matches the About band's constrained column. Prose blocks additionally get a `ch`-based measure, as the prototypes already do (52ch / 60ch / 70ch).
+</details>
 
 <details><summary>Original question</summary>
 

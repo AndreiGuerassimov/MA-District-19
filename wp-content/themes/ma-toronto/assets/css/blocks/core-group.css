@@ -173,3 +173,15 @@
 	max-height: 340px;
 	object-fit: cover;
 }
+
+/* --- Interior page CTA card -------------------------------------------- */
+
+.ma-cta-card__title {
+	margin: 0;
+	line-height: 1.4;
+}
+
+.ma-cta-card__text {
+	margin: 0 0 var(--wp--preset--spacing--40);
+	line-height: var(--wp--custom--line-height--body);
+}
