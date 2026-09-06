@@ -110,3 +110,46 @@
 		transition: none;
 	}
 }
+
+/* --- About band counters ----------------------------------------------
+ *
+ * The prototype separates the two figures with a 1px vertical rule and a very
+ * wide 120px gap. That gap is a deliberate one-off (see docs/build-plan.md 2.3)
+ * and is set as blockGap in the pattern rather than added to the spacing scale.
+ */
+
+.ma-stat > * {
+	margin: 0;
+}
+
+.ma-stat__figure {
+	color: var(--wp--preset--color--surface);
+}
+
+.ma-stat__label {
+	color: var(--wp--preset--color--on-dark);
+}
+
+/* core/separator renders an <hr>; here it stands in for the vertical rule
+   between the two figures. */
+.ma-stats__rule {
+	align-self: stretch;
+	width: 1px;
+	height: auto;
+	margin: 0;
+	border: 0;
+	background-color: var(--wp--custom--hairline--on-dark);
+	opacity: 1;
+}
+
+/* Stacked, the vertical rule reads as a stray line, and 120px of separation is
+   far too much vertically. */
+@media (max-width: 699.98px) {
+	.ma-stats {
+		gap: var(--wp--preset--spacing--70) !important;
+	}
+
+	.ma-stats__rule {
+		display: none;
+	}
+}
