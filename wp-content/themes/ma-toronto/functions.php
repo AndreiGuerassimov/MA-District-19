@@ -77,6 +77,37 @@ function ma_toronto_enqueue_block_styles(): void {
 add_action( 'after_setup_theme', 'ma_toronto_enqueue_block_styles' );
 
 /**
+ * Mirrors the theme's stylesheets into the block editor.
+ *
+ * theme.json tokens reach the editor on their own, but hand-written CSS does
+ * not: `add_editor_style()` is ignored unless the theme declares `editor-styles`
+ * support (see the gate in wp-includes/block-editor.php). Without this, sections
+ * that rely on CSS -- the contact split, the card grids, the accordion -- render
+ * unstyled while editing, which makes the editor a poor guide to the result.
+ *
+ * Every stylesheet is registered rather than a fixed list, so a new file is
+ * picked up without touching this function.
+ */
+function ma_toronto_editor_styles(): void {
+	add_theme_support( 'editor-styles' );
+
+	$sheets = array_merge(
+		(array) glob( get_theme_file_path( 'assets/css/*.css' ) ),
+		(array) glob( get_theme_file_path( 'assets/css/blocks/*.css' ) )
+	);
+
+	$root = trailingslashit( get_stylesheet_directory() );
+
+	foreach ( $sheets as $sheet ) {
+		if ( is_string( $sheet ) ) {
+			// add_editor_style() expects a path relative to the theme directory.
+			add_editor_style( str_replace( $root, '', $sheet ) );
+		}
+	}
+}
+add_action( 'after_setup_theme', 'ma_toronto_editor_styles' );
+
+/**
  * Enqueues stylesheets for site chrome that appears on every page.
  *
  * The header and footer are not tied to a single block, so they cannot be

@@ -14,6 +14,7 @@
  */
 
 .ma-page__body > .wp-block-post-content > ol,
+.editor-styles-wrapper .is-root-container > ol,
 .ma-page__body > .wp-block-post-content > .wp-block-list:not(ul) {
 	list-style: none;
 	margin: var(--wp--preset--spacing--60) 0;
@@ -21,7 +22,8 @@
 	counter-reset: ma-step;
 }
 
-.ma-page__body > .wp-block-post-content > ol > li {
+.ma-page__body > .wp-block-post-content > ol > li,
+.editor-styles-wrapper .is-root-container > ol > li {
 	display: grid;
 	grid-template-columns: 70px 1fr;
 	gap: var(--wp--preset--spacing--50);
@@ -35,7 +37,8 @@
 	color: var(--wp--preset--color--ink);
 }
 
-.ma-page__body > .wp-block-post-content > ol > li::before {
+.ma-page__body > .wp-block-post-content > ol > li::before,
+.editor-styles-wrapper .is-root-container > ol > li::before {
 	counter-increment: ma-step;
 	content: counter(ma-step);
 	font-family: var(--wp--preset--font-family--display);
@@ -48,13 +51,15 @@
 
 /* Stacked, a 70px numeral column wastes most of a narrow screen. */
 @media (max-width: 599.98px) {
-	.ma-page__body > .wp-block-post-content > ol > li {
+	.ma-page__body > .wp-block-post-content > ol > li,
+.editor-styles-wrapper .is-root-container > ol > li {
 		grid-template-columns: 44px 1fr;
 		gap: var(--wp--preset--spacing--30);
 		font-size: var(--wp--preset--font-size--large);
 	}
 
-	.ma-page__body > .wp-block-post-content > ol > li::before {
+	.ma-page__body > .wp-block-post-content > ol > li::before,
+.editor-styles-wrapper .is-root-container > ol > li::before {
 		font-size: 28px;
 	}
 }
