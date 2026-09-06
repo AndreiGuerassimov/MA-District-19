@@ -1,0 +1,112 @@
+/**
+ * Group block styles.
+ *
+ * Card appearance (fill, border, radius, padding) comes from the `card` style
+ * variation in styles/blocks/03-card.json. This file adds only what theme.json
+ * has no expression for: the stretched link, equal-height flex behaviour, and
+ * the hover border.
+ */
+
+/* --- Pathway card grid -------------------------------------------------
+ *
+ * Fixed column counts rather than core's `minimumColumnWidth`, which uses
+ * grid-template-columns: repeat(auto-fill, ...) and therefore leaves EMPTY
+ * TRACKS when the container is wider than the cards need -- the cards then stop
+ * short of the right edge. Fixed counts with 1fr tracks always fill the row.
+ *
+ * Steps: 6 -> 3 -> 2 -> 1. The thresholds come from how narrow a card can get
+ * before its title wraps awkwardly, not from the global viewport tokens.
+ *
+ * Scoped through .ma-pathways to outspecify core's generated
+ * .wp-container-* layout rule, which has the same specificity and loads later.
+ */
+.ma-pathways .ma-pathways__grid {
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+@media (max-width: 1099.98px) {
+	.ma-pathways .ma-pathways__grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 699.98px) {
+	.ma-pathways .ma-pathways__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 499.98px) {
+	.ma-pathways .ma-pathways__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* --- Pathway cards ----------------------------------------------------- */
+
+.ma-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--10);
+	/* Fill the grid track so every card in a row is the same height. */
+	height: 100%;
+	transition: border-color 120ms ease-out;
+}
+
+.ma-card__title {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.ma-card__title a {
+	color: var(--wp--preset--color--primary);
+	text-decoration: none;
+}
+
+/* Stretch the title's link across the whole card, so the entire card is
+   clickable without wrapping several blocks in one anchor. The accessible name
+   stays the card title instead of title + description + call to action. */
+.ma-card__title a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.ma-card__desc {
+	margin: 0;
+	line-height: 1.5;
+}
+
+/* The call to action sits on the card's baseline regardless of description
+   length, matching the prototype's `margin-top: auto`.
+   Scoped through .ma-card to outspecify core's flow-layout rule
+   (`:root :where(.is-layout-flow) > *`), which otherwise sets margin-block-start
+   on every child and wins on source order. */
+.ma-card .ma-card__cta {
+	margin-block-start: auto;
+	margin-block-end: 0;
+}
+
+.ma-card:hover {
+	border-color: var(--wp--preset--color--primary);
+}
+
+/* The stretched link makes the card the click target, so the focus ring has to
+   be drawn on the card rather than on the (text-sized) anchor. */
+.ma-card:focus-within {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+.ma-card__title a:focus-visible {
+	outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-card {
+		transition: none;
+	}
+}
