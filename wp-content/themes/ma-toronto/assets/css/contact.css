@@ -1,0 +1,281 @@
+/**
+ * Contact page — layout, contact cards, and the Contact Form 7 form.
+ *
+ * CF7 supplies the markup, validation, spam handling and mail. None of its
+ * default appearance is used; everything below restyles it to the theme's
+ * tokens. Loaded only on pages that contain the form.
+ */
+
+/* --- Split layout ------------------------------------------------------ */
+
+.ma-contact {
+	display: grid;
+	grid-template-columns: 0.85fr 1.15fr;
+	gap: var(--wp--preset--spacing--90);
+	align-items: start;
+}
+
+@media (max-width: 899.98px) {
+	.ma-contact {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.ma-contact__intro {
+	max-width: 44ch;
+	margin: 0 0 var(--wp--preset--spacing--60);
+	line-height: 1.7;
+}
+
+/* --- Contact cards ----------------------------------------------------- */
+
+.ma-contact__links {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--30);
+}
+
+.ma-contact__card {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 18px 22px;
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--md);
+	transition: border-color 120ms ease-out;
+}
+
+.ma-contact__card:hover {
+	border-color: var(--wp--preset--color--primary);
+}
+
+.ma-contact__card:focus-within {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+.ma-contact__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 40px;
+	height: 40px;
+	margin: 0;
+	border-radius: var(--wp--custom--radius--round);
+	font-size: 18px;
+	line-height: 1;
+}
+
+.ma-contact__icon--mail {
+	background-color: #E1EEDF;
+	color: var(--wp--preset--color--primary);
+}
+
+.ma-contact__icon--clock {
+	background-color: #F7E4D6;
+	color: var(--wp--preset--color--accent);
+}
+
+/* Scoped through .ma-contact to outspecify core's flow-layout rule
+   (`:root :where(.is-layout-flow) > *`), which adds a 24px block margin to
+   every child and loads after this file. */
+.ma-contact .ma-contact__card-text > *,
+.ma-contact .ma-form__field > *,
+.ma-contact .ma-form__row > * {
+	margin-block: 0;
+}
+
+.ma-contact__card-label {
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-contact__card-value {
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 600;
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-contact__card-value a {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* Stretch each card's link across the card. */
+.ma-contact__card-value a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.ma-contact__card-value a:focus-visible {
+	outline: none;
+}
+
+.ma-contact__crisis {
+	max-width: 44ch;
+	margin: var(--wp--preset--spacing--50) 0 0;
+	line-height: var(--wp--custom--line-height--body);
+}
+
+/* --- The form card ----------------------------------------------------- */
+
+.ma-contact__form {
+	padding: 36px 38px;
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--lg);
+	box-shadow: var(--wp--preset--shadow--md);
+}
+
+.ma-contact__note {
+	margin: var(--wp--preset--spacing--30) 0 0;
+}
+
+/* --- Contact Form 7 overrides ------------------------------------------ */
+
+.ma-contact__form .wpcf7 form > p,
+.ma-contact__form .wpcf7-form > p {
+	margin: 0;
+}
+
+.ma-form__row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--wp--preset--spacing--40);
+}
+
+@media (max-width: 479.98px) {
+	.ma-form__row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.ma-form__field {
+	display: block;
+	margin-bottom: var(--wp--preset--spacing--40);
+}
+
+.ma-form__label {
+	display: block;
+	margin-bottom: 7px;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	color: var(--wp--preset--color--body);
+}
+
+/* CF7 wraps every control in a span; it must not break the block layout. */
+.ma-contact__form .wpcf7-form-control-wrap {
+	display: block;
+}
+
+.ma-contact__form input[type="text"],
+.ma-contact__form input[type="email"],
+.ma-contact__form textarea {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 13px 15px;
+	border: 1px solid var(--wp--custom--hairline--strong);
+	border-radius: var(--wp--custom--radius--sm);
+	background-color: var(--wp--preset--color--base);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--medium);
+	color: var(--wp--preset--color--ink);
+	transition: border-color 120ms ease-out;
+}
+
+.ma-contact__form textarea {
+	resize: vertical;
+}
+
+.ma-contact__form input::placeholder,
+.ma-contact__form textarea::placeholder {
+	color: var(--wp--preset--color--muted);
+	opacity: 1;
+}
+
+.ma-contact__form input:focus-visible,
+.ma-contact__form textarea:focus-visible {
+	border-color: var(--wp--preset--color--primary);
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+.ma-contact__form .ma-form__submit,
+.ma-contact__form input[type="submit"] {
+	padding: 15px 30px;
+	border: none;
+	border-radius: var(--wp--custom--radius--pill);
+	background-color: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--base);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 700;
+	cursor: pointer;
+	transition: background-color 120ms ease-out;
+}
+
+.ma-contact__form .ma-form__submit:hover,
+.ma-contact__form input[type="submit"]:hover {
+	background-color: var(--wp--preset--color--primary-dark);
+}
+
+.ma-contact__form .ma-form__submit:focus-visible,
+.ma-contact__form input[type="submit"]:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--ink);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+/* CF7 feedback. Its defaults are a bordered box in browser colours; these are
+   restyled so validation errors read as part of the design rather than an
+   alert from another site. */
+.ma-contact__form .wpcf7-not-valid-tip {
+	margin-top: 6px;
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	color: var(--wp--preset--color--accent);
+}
+
+.ma-contact__form .wpcf7-response-output {
+	margin: var(--wp--preset--spacing--30) 0 0;
+	padding: 14px 18px;
+	border: 1px solid var(--wp--custom--hairline--strong);
+	border-radius: var(--wp--custom--radius--sm);
+	font-size: var(--wp--preset--font-size--small);
+	line-height: var(--wp--custom--line-height--body);
+}
+
+.ma-contact__form .wpcf7 form.sent .wpcf7-response-output {
+	border-color: var(--wp--preset--color--primary);
+	background-color: color-mix(in srgb, var(--wp--preset--color--primary) 8%, transparent);
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-contact__form .wpcf7 form.invalid .wpcf7-response-output,
+.ma-contact__form .wpcf7 form.failed .wpcf7-response-output {
+	border-color: var(--wp--preset--color--accent);
+	background-color: color-mix(in srgb, var(--wp--preset--color--accent) 8%, transparent);
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-contact__form .wpcf7-spinner {
+	margin-left: var(--wp--preset--spacing--20);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-contact__card,
+	.ma-contact__form input,
+	.ma-contact__form textarea,
+	.ma-contact__form .ma-form__submit {
+		transition: none;
+	}
+}

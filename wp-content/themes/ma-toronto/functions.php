@@ -102,6 +102,46 @@ function ma_toronto_enqueue_chrome_styles(): void {
 add_action( 'wp_enqueue_scripts', 'ma_toronto_enqueue_chrome_styles' );
 
 /**
+ * Loads the contact page styles only where the contact form appears.
+ *
+ * Keyed off the wrapper class rather than the shortcode, so it works whether
+ * the section came from the pattern file or from saved page content.
+ *
+ * @param string $block_content Rendered block HTML.
+ * @param array  $block         Parsed block.
+ * @return string Unmodified block HTML.
+ */
+function ma_toronto_enqueue_contact_styles( string $block_content, array $block ): string {
+	if ( 'core/group' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+
+	$class = $block['attrs']['className'] ?? '';
+	$path  = 'assets/css/contact.css';
+
+	if ( is_string( $class ) && str_contains( $class, 'ma-contact' ) && file_exists( get_theme_file_path( $path ) ) ) {
+		wp_enqueue_style(
+			'ma-toronto-contact',
+			get_theme_file_uri( $path ),
+			array(),
+			(string) filemtime( get_theme_file_path( $path ) )
+		);
+	}
+
+	return $block_content;
+}
+add_filter( 'render_block', 'ma_toronto_enqueue_contact_styles', 10, 2 );
+
+/**
+ * Stops Contact Form 7 inserting its own paragraphs and line breaks.
+ *
+ * CF7 runs a wpautop pass over the form template, which wraps the theme's
+ * markup in <p> tags and breaks the two-column name/email row. The form
+ * template supplies its own structure, so the pass is not wanted.
+ */
+add_filter( 'wpcf7_autop_or_not', '__return_false' );
+
+/**
  * Registers the quote slider's view module.
  *
  * A script module rather than a classic script: it is an ES module, deferred by
