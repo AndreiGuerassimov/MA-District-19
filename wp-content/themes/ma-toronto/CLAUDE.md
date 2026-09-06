@@ -176,14 +176,14 @@ blocks:
     .disable-default-overlay.is-menu-open .…-container-content
       > :not(.wp-block-navigation__overlay-container) { display: none }
 
-So the parent nav's items are rendered but hidden, and the overlay must carry
-its **own** navigation block. That is why `parts/navigation-overlay.html`
-duplicates the six links from `parts/header.html`.
+So the overlay must carry its own navigation block.
 
-**This duplication is temporary and must be kept in step.** At content
-migration, both navigation blocks switch to the same menu via
-`{"ref":<wp_navigation ID>}`, which collapses them to one source of truth.
-Until then, editing the menu means editing both files.
+**Both navigations reference the same menu.** `parts/header.html` and
+`parts/navigation-overlay.html` both use `{"ref":68}` — the `wp_navigation`
+post "Primary". Edit the menu once, in Appearance -> Editor -> Navigation, and
+both update. Do not inline `navigation-link` blocks into either part: that was
+the earlier arrangement and it drifted, and root-relative URLs like `/contact/`
+break on a subdirectory install.
 
 **Core also owns the overlay's behaviour** — focus trap, Escape, `aria-modal`,
 `role="dialog"`, focus restore. Verified by `npm run a11y:nav` (14 checks).

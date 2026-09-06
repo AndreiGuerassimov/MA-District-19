@@ -3,24 +3,7 @@
 
 	<!-- wp:navigation-overlay-close {"displayMode":"icon"} /-->
 
-	<!--
-		These links duplicate parts/header.html. That is forced by core: when a
-		custom overlay template part is used, core hides everything in the panel
-		except this part's blocks, so the overlay must carry its own menu.
-
-		TEMPORARY. At content migration both this navigation and the header's
-		must switch to the same menu via {"ref":<wp_navigation ID>}, which
-		collapses the duplication to one source of truth. Until then, edits here
-		and in parts/header.html must be kept in step.
-	-->
-	<!-- wp:navigation {"overlayMenu":"never","ariaLabel":"Main","className":"ma-overlay__nav","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-		<!-- wp:navigation-link {"label":"Home","url":"/","kind":"custom","isTopLevelLink":true} /-->
-		<!-- wp:navigation-link {"label":"Meetings","url":"/meetings/","kind":"custom","isTopLevelLink":true} /-->
-		<!-- wp:navigation-link {"label":"The Steps","url":"/the-twelve-steps/","kind":"custom","isTopLevelLink":true} /-->
-		<!-- wp:navigation-link {"label":"FAQ","url":"/faq/","kind":"custom","isTopLevelLink":true} /-->
-		<!-- wp:navigation-link {"label":"Literature","url":"/literature/","kind":"custom","isTopLevelLink":true} /-->
-		<!-- wp:navigation-link {"label":"Contact","url":"/contact/","kind":"custom","isTopLevelLink":true} /-->
-	<!-- /wp:navigation -->
+	<!-- wp:navigation {"ref":68,"overlayMenu":"never","ariaLabel":"Main","className":"ma-overlay__nav","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} /-->
 
 	<!-- wp:buttons {"className":"ma-overlay__cta","layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 	<div class="wp-block-buttons ma-overlay__cta">

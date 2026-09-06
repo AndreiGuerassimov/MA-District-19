@@ -133,3 +133,74 @@
 .ma-overlay__contact {
 	margin: 0;
 }
+
+/* --- Submenus ----------------------------------------------------------
+ *
+ * Core's default dropdown is a white box with a black hairline and square
+ * corners. These rules bring it into the theme; behaviour, keyboard handling
+ * and aria-expanded are core's.
+ */
+
+/* Matching core's own selectors, which are more specific than a plain
+   descendant rule: it sets the white background via
+   `.wp-block-navigation:not(.has-background) …` and the 200px min-width via
+   the hover/focus-within/aria-expanded rules. */
+.wp-block-navigation:not(.has-background) .wp-block-navigation__submenu-container {
+	padding: var(--wp--preset--spacing--20) 0;
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--md);
+	box-shadow: var(--wp--preset--shadow--md);
+}
+
+.wp-block-navigation .has-child:not(.open-on-click):hover > .wp-block-navigation__submenu-container,
+.wp-block-navigation .has-child .wp-block-navigation-submenu__toggle[aria-expanded="true"] ~ .wp-block-navigation__submenu-container,
+.wp-block-navigation .has-child:not(.open-on-click):not(.open-on-hover-click):focus-within > .wp-block-navigation__submenu-container {
+	min-width: 240px;
+}
+
+.wp-block-navigation .wp-block-navigation__submenu-container .wp-block-navigation-item__content {
+	padding: 10px 18px;
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	color: var(--wp--preset--color--body);
+}
+
+.wp-block-navigation .wp-block-navigation__submenu-container .wp-block-navigation-item__content:hover {
+	color: var(--wp--preset--color--accent);
+}
+
+/* The parent keeps the top-level weight even while its dropdown is open. */
+.wp-block-navigation .wp-block-navigation-submenu__toggle {
+	font-weight: 600;
+}
+
+/* --- Submenus inside the offcanvas overlay -----------------------------
+ *
+ * Here the dropdown is not a dropdown: core renders the children inline, so
+ * they read as an indented sub-list rather than a floating panel.
+ */
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__submenu-container,
+.wp-block-navigation__responsive-container.is-menu-open .has-child .wp-block-navigation__submenu-container {
+	min-width: 0;
+	padding: 0 0 var(--wp--preset--spacing--20);
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open
+	.wp-block-navigation__submenu-container .wp-block-navigation-item {
+	border-bottom: 0;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open
+	.wp-block-navigation__submenu-container .wp-block-navigation-item__content {
+	padding: 10px 0 10px var(--wp--preset--spacing--40);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 500;
+	color: var(--wp--preset--color--body);
+}

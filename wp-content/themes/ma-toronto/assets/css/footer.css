@@ -47,17 +47,45 @@
 	margin: 0 0 var(--wp--preset--spacing--10);
 }
 
-.ma-footer__links {
+/* The link columns are core/navigation blocks (menus 69-71), so they inherit
+   the header's navigation tokens from theme.json -- 600 weight, ink colour.
+   The footer needs the opposite: light, regular weight, generous leading. Core
+   applies the block's class to both the <nav> and its inner <ul>, so these
+   rules cover either. */
+.ma-footer__links,
+.ma-footer .wp-block-navigation__container {
+	gap: 0;
 	margin: 0;
 	padding-left: 0;
 	list-style: none;
-	line-height: var(--wp--custom--line-height--list);
 }
 
-.ma-footer__links a {
+.ma-footer .ma-footer__links .wp-block-navigation-item {
+	display: block;
+	width: 100%;
+}
+
+.ma-footer .ma-footer__links .wp-block-navigation-item__content {
 	display: inline-block;
-	/* Long addresses should break at a sensible point rather than mid-word. */
+	padding: 0;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 400;
+	line-height: var(--wp--custom--line-height--list);
+	color: var(--wp--preset--color--on-dark);
+	text-decoration: none;
+	/* Long addresses should break sensibly rather than mid-word. */
 	overflow-wrap: break-word;
+}
+
+.ma-footer .ma-footer__links .wp-block-navigation-item__content:hover {
+	color: var(--wp--preset--color--surface);
+	text-decoration: underline;
+}
+
+.ma-footer .ma-footer__links .wp-block-navigation-item__content:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--on-dark);
+	outline-offset: var(--wp--custom--focus--offset);
 }
 
 /* --- Bottom bar -------------------------------------------------------- */
