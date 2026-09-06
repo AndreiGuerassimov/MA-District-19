@@ -1,0 +1,160 @@
+/**
+ * Quote block and the homepage quote slider.
+ *
+ * The slider is a scroll-snap track. That gives native swipe on touch and
+ * native keyboard scrolling before any JavaScript runs; assets/js/quote-slider.js
+ * adds the buttons, dots and carousel semantics on top.
+ *
+ * Rules below are split into two groups: those that apply with or without
+ * JavaScript, and those that only make sense once .is-enhanced is set.
+ */
+
+/* --- Quote typography (JS or no JS) ------------------------------------ */
+
+.ma-quote__slide {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.ma-quote__slide p {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--display);
+	font-style: italic;
+	font-weight: 500;
+	line-height: 1.4;
+	color: var(--wp--preset--color--ink);
+}
+
+/* Quotation marks are presentation, not content: an editor types the slogan
+   alone, and the <blockquote> already conveys that this is a quotation. */
+.ma-quote__slide p::before {
+	content: "\201C";
+}
+
+.ma-quote__slide p::after {
+	content: "\201D";
+}
+
+/* --- Scroll-snap track ------------------------------------------------- */
+
+.ma-quote__track {
+	display: flex;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	/* The dots report position, so the scrollbar is redundant chrome. */
+	scrollbar-width: none;
+	-webkit-overflow-scrolling: touch;
+}
+
+.ma-quote__track::-webkit-scrollbar {
+	display: none;
+}
+
+.ma-quote__track > .ma-quote__slide {
+	flex: 0 0 100%;
+	scroll-snap-align: center;
+	/* The prototype's min-height, so the row does not jump between a short
+	   slogan and one that wraps. */
+	min-height: 2.8em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Core's flow layout adds vertical margins between children; inside a
+   horizontal track they push the slides out of alignment. */
+.ma-quote__track > * {
+	margin-block: 0 !important;
+}
+
+/* --- Controls (only once JavaScript has built them) -------------------- */
+
+.ma-quote__viewport {
+	display: flex;
+	align-items: center;
+	gap: var(--wp--preset--spacing--50);
+}
+
+.ma-quote__viewport .ma-quote__track {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.ma-quote__nav {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	/* 44px: comfortably above the minimum target size. */
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 1.5px solid color-mix(in srgb, var(--wp--preset--color--primary) 40%, transparent);
+	border-radius: var(--wp--custom--radius--round);
+	background: transparent;
+	color: var(--wp--preset--color--primary);
+	cursor: pointer;
+	transition: border-color 120ms ease-out, background-color 120ms ease-out;
+}
+
+.ma-quote__nav:hover {
+	border-color: var(--wp--preset--color--primary);
+	background-color: color-mix(in srgb, var(--wp--preset--color--primary) 8%, transparent);
+}
+
+.ma-quote__nav:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+.ma-quote__dots {
+	display: flex;
+	justify-content: center;
+	gap: 4px;
+	margin-top: 18px;
+}
+
+.ma-quote__dot {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* The visible dot is 8px, but the hit area is 24x24 with 4px between,
+	   giving a 28px pitch -- clear of WCAG 2.5.8's minimum target size. */
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ma-quote__dot::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: var(--wp--custom--radius--round);
+	background-color: color-mix(in srgb, var(--wp--preset--color--primary) 25%, transparent);
+	transition: background-color 120ms ease-out;
+}
+
+.ma-quote__dot.is-active::before {
+	background-color: var(--wp--preset--color--primary);
+}
+
+.ma-quote__dot:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: 0;
+	border-radius: var(--wp--custom--radius--sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-quote__nav,
+	.ma-quote__dot::before {
+		transition: none;
+	}
+
+	.ma-quote__track {
+		scroll-behavior: auto;
+	}
+}
