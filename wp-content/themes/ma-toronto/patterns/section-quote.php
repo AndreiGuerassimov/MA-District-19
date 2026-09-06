@@ -34,7 +34,7 @@ $ma_slogans = array(
 );
 
 ?>
-<!-- wp:group {"align":"full","className":"ma-quote","style":{"spacing":{"padding":{"top":"var:preset|spacing|100","bottom":"var:preset|spacing|100","left":"var:preset|spacing|80","right":"var:preset|spacing|80"},"blockGap":"var:preset|spacing|50"}},"layout":{"type":"constrained","contentSize":"900px"}} -->
+<!-- wp:group {"templateLock":"contentOnly","lock":{"move":true,"remove":true},"align":"full","className":"ma-quote","style":{"spacing":{"padding":{"top":"var:preset|spacing|100","bottom":"var:preset|spacing|100","left":"var:preset|spacing|80","right":"var:preset|spacing|80"},"blockGap":"var:preset|spacing|50"}},"layout":{"type":"constrained","contentSize":"900px"}} -->
 <div class="wp-block-group alignfull ma-quote" style="padding-top:var(--wp--preset--spacing--100);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--100);padding-left:var(--wp--preset--spacing--80)">
 
 	<!-- wp:heading {"textAlign":"center","level":2,"className":"is-style-eyebrow ma-quote__label","textColor":"accent","fontSize":"xx-small"} -->
