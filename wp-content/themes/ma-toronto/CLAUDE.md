@@ -212,6 +212,14 @@ guessing — it is in `wp-includes/js/dist/block-library.min.js`. That is how th
 hero image's missing `has-custom-border` class was found: `core/image` adds it
 whenever a border style exists.
 
+**Read the save() for *every* block in a nest, and identify each one by something
+unique to it.** The accordion took three attempts because a neighbourhood search
+returned `core/accordion`'s save and it was misread as `core/accordion-item`'s.
+They differ: the wrapper has `role="group"`, the item has none but carries
+`is-open` when `openByDefault` is set, and the panel has `role="region"`. Anchor
+the search on an attribute only that block uses (`openByDefault`), not on
+proximity in the bundle.
+
 **Full-width sections need `blockGap: 0` on their container.** Flow layout
 inserts a 24px gap between children, which shows as a stripe of page background
 between bands. `templates/front-page.html` sets it on both the `main` group and

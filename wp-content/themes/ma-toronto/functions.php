@@ -53,6 +53,7 @@ function ma_toronto_enqueue_block_styles(): void {
 		'core/paragraph',
 		'core/quote',
 		'core/list',
+		'core/accordion',
 	);
 
 	foreach ( $blocks as $block ) {
@@ -224,3 +225,30 @@ function ma_toronto_hide_decorative_marks( string $block_content, array $block )
 	return $block_content;
 }
 add_filter( 'render_block', 'ma_toronto_hide_decorative_marks', 10, 2 );
+
+/**
+ * Drops the page hero's intro when the page has no manual excerpt.
+ *
+ * core/post-excerpt falls back to auto-generating from the content, which in a
+ * hero would dump the opening sentences of the page under its own title. The
+ * intro should appear only where an editor has deliberately written one, in the
+ * Excerpt panel.
+ *
+ * @param string $block_content Rendered block HTML.
+ * @param array  $block         Parsed block.
+ * @return string Block HTML, or an empty string.
+ */
+function ma_toronto_hide_empty_page_intro( string $block_content, array $block ): string {
+	if ( 'core/post-excerpt' !== ( $block['blockName'] ?? '' ) ) {
+		return $block_content;
+	}
+
+	$class = $block['attrs']['className'] ?? '';
+
+	if ( is_string( $class ) && str_contains( $class, 'ma-page__intro' ) && ! has_excerpt() ) {
+		return '';
+	}
+
+	return $block_content;
+}
+add_filter( 'render_block', 'ma_toronto_hide_empty_page_intro', 10, 2 );

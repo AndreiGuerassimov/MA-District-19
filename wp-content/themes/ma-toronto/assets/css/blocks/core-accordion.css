@@ -1,0 +1,117 @@
+/**
+ * Accordion block — FAQ styling.
+ *
+ * core/accordion (WordPress 7.1) supplies the behaviour, the ARIA, and the
+ * 45-degree icon rotation on open. It deliberately leaves the icon glyph and
+ * all appearance to the theme, which is what this file provides.
+ */
+
+.ma-faq .wp-block-accordion-item {
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--md);
+	overflow: hidden;
+	transition: border-color 200ms ease-out;
+}
+
+.ma-faq .wp-block-accordion-item.is-open,
+.ma-faq .wp-block-accordion-item:hover {
+	border-color: var(--wp--preset--color--primary);
+}
+
+.ma-faq .wp-block-accordion-heading {
+	margin: 0;
+}
+
+.ma-faq .wp-block-accordion-heading__toggle {
+	gap: var(--wp--preset--spacing--40);
+	padding: 22px 26px;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	line-height: 1.35;
+	color: var(--wp--preset--color--ink);
+	text-align: left;
+}
+
+/* The design signals hover on the item's border instead. */
+.ma-faq .wp-block-accordion-heading__toggle:hover .wp-block-accordion-heading__toggle-title {
+	text-decoration: none;
+}
+
+/* Inset, because the item clips its rounded corners. */
+.ma-faq .wp-block-accordion-heading__toggle:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: calc(var(--wp--custom--focus--width) * -1);
+}
+
+/* The icon.
+ *
+ * Core's markup carries a literal "+" character (aria-hidden), and rotates the
+ * span 45 degrees when the item opens, turning it into a cross. A text glyph
+ * sits on a baseline rather than in the centre of its box, so it never looks
+ * centred inside a circle. The character stays in the markup -- removing it
+ * would break block validation -- but is hidden with font-size:0 and the icon
+ * is drawn as two bars, which centre exactly and stay crisp at any size.
+ */
+.ma-faq .wp-block-accordion-heading__toggle-icon {
+	position: relative;
+	flex: none;
+	width: 30px;
+	height: 30px;
+	border-radius: var(--wp--custom--radius--round);
+	background-color: color-mix(in srgb, var(--wp--preset--color--primary) 12%, transparent);
+	color: var(--wp--preset--color--primary);
+	font-size: 0;
+	transition: background-color 200ms ease-out, color 200ms ease-out;
+}
+
+.ma-faq .wp-block-accordion-heading__toggle-icon::before,
+.ma-faq .wp-block-accordion-heading__toggle-icon::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	background-color: currentColor;
+	border-radius: 1px;
+}
+
+.ma-faq .wp-block-accordion-heading__toggle-icon::before {
+	width: 11px;
+	height: 2px;
+	transform: translate(-50%, -50%);
+}
+
+.ma-faq .wp-block-accordion-heading__toggle-icon::after {
+	width: 2px;
+	height: 11px;
+	transform: translate(-50%, -50%);
+}
+
+.ma-faq .is-open .wp-block-accordion-heading__toggle-icon {
+	background-color: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--base);
+}
+
+.ma-faq .wp-block-accordion-panel {
+	padding: 0 26px 22px;
+}
+
+/* A closed panel is hidden with hidden="until-found", which uses
+   content-visibility -- the element still generates a box, so its padding keeps
+   occupying 22px inside every collapsed item. */
+.ma-faq .wp-block-accordion-panel[hidden] {
+	padding: 0;
+}
+
+.ma-faq__answer {
+	margin: 0;
+	line-height: 1.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-faq .wp-block-accordion-item,
+	.ma-faq .wp-block-accordion-heading__toggle-icon {
+		transition: none;
+	}
+}
