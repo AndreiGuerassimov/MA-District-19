@@ -94,6 +94,21 @@
 					"slug": "on-accent",
 					"color": "#FFF7EE",
 					"name": "Text on Terracotta"
+				},
+				{
+					"slug": "primary-tint",
+					"color": "#E1EEDF",
+					"name": "Forest Tint"
+				},
+				{
+					"slug": "accent-tint",
+					"color": "#FAEEE5",
+					"name": "Terracotta Tint"
+				},
+				{
+					"slug": "amber",
+					"color": "#E9A13B",
+					"name": "Amber"
 				}
 			],
 			"gradients": [
@@ -591,6 +606,11 @@
 							"style": "solid"
 						}
 					}
+				}
+			},
+			"core/navigation-submenu": {
+				"typography": {
+					"lineHeight": "1.75"
 				}
 			}
 		}

@@ -52,8 +52,9 @@ contrast-corrected. Don't reintroduce raw prototype values.
 | `sand` | `#F0D9A8` | highlight copy on green |
 | `success` | `#3F8A5F` | status dot |
 | `on-accent` | `#FFF7EE` | label on accent |
-
-Reserved for later pages: `amber #E9A13B`, `primary-tint #E1EEDF`, `accent-tint #F7E4D6`.
+| `primary-tint` | `#E1EEDF` | online badge fill, contact icon |
+| `accent-tint` | `#FAEEE5` | in-person badge fill (lightened from drawn `#F7E4D6`, which gave accent text 4.18:1) |
+| `amber` | `#E9A13B` | meetings help-card button, with `primary-dark` text (5.37:1) |
 
 **Why `accent` is not `#CE5F35`:** measured 3.63:1 on `base` — fails AA for the 12–13px
 text it's used on, and 3.73:1 under the header CTA's white label. `#B0521F` is the
@@ -189,6 +190,34 @@ break on a subdirectory install.
 `role="dialog"`, focus restore. Verified by `npm run a11y:nav` (14 checks).
 Never hand-roll any of it.
 
+## Meetings (12 Step Meeting List plugin)
+
+Meetings are **structured records, not block content** — a deliberate exception
+to "everything in blocks". Decided in `docs/meetings-scope.md`.
+
+- **The plugin owns the data** (`tsml_meeting`, `tsml_location`, `tsml_group`) and
+  the admin form. WordPress is the source of truth; spreadsheets are for bulk
+  import only. Program is set to Marijuana Anonymous (`tsml_program = ma`).
+- **The theme owns the display** via `archive-meetings.php` — the plugin's
+  supported override, honoured only while its finder is `legacy_ui` (the
+  default). Do not switch the plugin to "TSML UI": it ignores theme templates.
+- Because our template never calls `tsml_assets()`, **none of the plugin's
+  front-end assets load** — no jQuery, no Leaflet from unpkg.com. Keep it so.
+- Filters are URL parameters (`?type=online|in-person`), rendered server-side.
+- **Meeting and location pages are not designed yet.** `functions.php` 302s them
+  to `/meetings/` and excludes them from the Yoast sitemap. Both are marked
+  TEMPORARY. When the meeting page design lands, drop `tsml_meeting` from the
+  redirect and add `single-meetings.php`.
+- **`tsml_get_meetings()` does not work under `wp eval`.** The plugin sets
+  globals like `$tsml_contact_fields` at file scope; WP-CLI loads WordPress inside
+  a function, so they arrive `null` and imports fatal. Run plugin code through a
+  real web request instead.
+- The public JSON feed is restricted (`tsml_sharing = restricted`), returning 401.
+  Leave it closed unless MA Toronto wants to publish a feed.
+- **Test meetings are named `TEST — …` and must be deleted before launch.** Use
+  wp-admin → Meetings, search "TEST", bulk Delete Permanently. Not WP-CLI: the
+  plugin's orphaned-location cleanup is hooked only in wp-admin.
+
 ## Deferred — do not build without scoping first
 
 - **Quotes slider** (`design/Home.dc.html` §5) — static pull-quote placeholder for now.
@@ -252,6 +281,7 @@ independently. Every section currently sits within 1-8%.
 | `npm run breakpoints` | where the nav overlay takes over (expect 1100px) |
 | `npm run a11y:nav` | overlay focus trap, Escape, ARIA (14 checks) |
 | `npm run a11y:quote` | slider semantics, keyboard, no-JS fallback (18 checks) |
+| `npm run a11y:meetings` | filters, headings, action names, redirects, no-JS (22 checks) |
 | `npm run audit:responsive` | overflow, clipping, target sizes at 11 widths |
 
-Run all six before calling anything done.
+Run all seven before calling anything done.

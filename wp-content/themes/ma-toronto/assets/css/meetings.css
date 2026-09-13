@@ -1,0 +1,306 @@
+/**
+ * Meetings list — /meetings/ (archive-meetings.php).
+ *
+ * Loaded on the meetings archive only. Every colour, size and space is a
+ * theme.json token; new colour pairs were contrast-measured before use
+ * (see CLAUDE.md, palette).
+ */
+
+.ma-meetings > * {
+	margin-block: 0;
+}
+
+.ma-meetings .ma-page__intro {
+	max-width: 60ch;
+	color: var(--wp--preset--color--body);
+}
+
+/* --- Controls bar ------------------------------------------------------ */
+
+.ma-meetings__controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wp--preset--spacing--40);
+	padding: var(--wp--preset--spacing--50) var(--wp--preset--spacing--80);
+	background-color: var(--wp--preset--color--surface);
+	border-block: 1px solid var(--wp--custom--hairline--color);
+}
+
+.ma-meetings__filters ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ma-chip {
+	display: inline-block;
+	padding: 10px 20px;
+	border: 1px solid var(--wp--custom--hairline--strong);
+	border-radius: var(--wp--custom--radius--pill);
+	background-color: transparent;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--wp--preset--color--primary);
+	text-decoration: none;
+	transition: border-color 120ms ease-out, background-color 120ms ease-out;
+}
+
+.ma-chip:hover {
+	border-color: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--primary);
+}
+
+.ma-chip[aria-current="true"] {
+	border-color: var(--wp--preset--color--primary);
+	background-color: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--base);
+}
+
+.ma-chip:focus-visible,
+.ma-meeting__cta:focus-visible,
+.ma-meetings__help-button:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+.ma-meetings__count {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	color: var(--wp--preset--color--muted);
+}
+
+/* --- Schedule ---------------------------------------------------------- */
+
+.ma-meetings__schedule {
+	padding: var(--wp--preset--spacing--70) var(--wp--preset--spacing--80) var(--wp--preset--spacing--90);
+}
+
+.ma-day + .ma-day {
+	margin-top: 34px;
+}
+
+.ma-day__name {
+	margin: 0 0 14px;
+	padding-bottom: var(--wp--preset--spacing--10);
+	border-bottom: 1px solid var(--wp--custom--hairline--strong);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.15em;
+	line-height: 1.3;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--accent);
+}
+
+.ma-day__list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--20);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.ma-meeting {
+	display: grid;
+	grid-template-columns: 130px 1fr auto;
+	gap: var(--wp--preset--spacing--50);
+	align-items: center;
+	padding: 18px var(--wp--preset--spacing--50);
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--md);
+}
+
+.ma-meeting__time {
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	color: var(--wp--preset--color--primary);
+	white-space: nowrap;
+}
+
+.ma-meeting__name {
+	margin: 0 0 3px;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	line-height: 1.3;
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-meeting__place {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.45;
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-meeting__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 14px;
+}
+
+.ma-badge {
+	display: inline-block;
+	padding: 5px 11px;
+	border-radius: var(--wp--custom--radius--pill);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--tiny);
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	line-height: 1.2;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.ma-badge--online {
+	background-color: var(--wp--preset--color--primary-tint);
+	color: var(--wp--preset--color--primary);
+}
+
+.ma-badge--in-person {
+	background-color: var(--wp--preset--color--accent-tint);
+	color: var(--wp--preset--color--accent);
+}
+
+.ma-badge--hybrid {
+	background-color: var(--wp--preset--color--base);
+	border: 1px solid var(--wp--custom--hairline--strong);
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-meeting__cta {
+	/* Inline-block so the vertical padding counts: at 14px the line box alone
+	   is 23px, a pixel under the 24px minimum target size. */
+	display: inline-block;
+	padding-block: 3px;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	color: var(--wp--preset--color--accent);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.ma-meeting__cta:hover {
+	color: var(--wp--preset--color--accent);
+	text-decoration: underline;
+}
+
+.ma-meetings__empty {
+	padding: var(--wp--preset--spacing--60);
+	background-color: var(--wp--preset--color--surface);
+	border: 1px dashed var(--wp--custom--hairline--strong);
+	border-radius: var(--wp--custom--radius--md);
+	text-align: center;
+}
+
+.ma-meetings__empty p {
+	margin: 0;
+}
+
+.ma-meetings__empty p + p {
+	margin-top: var(--wp--preset--spacing--20);
+}
+
+/* --- Help card ---------------------------------------------------------
+ * The prototype pairs this with a monthly-calendar card in two columns. The
+ * calendar was dropped (weekly meetings only), so the card spans the width and
+ * lays its text and button out side by side instead.
+ */
+
+.ma-meetings__help {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wp--preset--spacing--50) var(--wp--preset--spacing--70);
+	margin: 0 var(--wp--preset--spacing--80) var(--wp--preset--spacing--100);
+	padding: 28px 30px;
+	background-color: var(--wp--preset--color--primary);
+	border-radius: var(--wp--custom--radius--lg);
+}
+
+.ma-meetings__help-text {
+	flex: 1 1 420px;
+}
+
+.ma-meetings__help h2 {
+	margin: 0 0 var(--wp--preset--spacing--10);
+	font-size: var(--wp--preset--font-size--x-large);
+	line-height: 1.3;
+	color: var(--wp--preset--color--surface);
+}
+
+.ma-meetings__help p {
+	max-width: 62ch;
+	margin: 0;
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: var(--wp--custom--line-height--body);
+	color: var(--wp--preset--color--on-dark);
+}
+
+.ma-meetings__help-button {
+	flex: none;
+	padding: 12px 22px;
+	border-radius: var(--wp--custom--radius--pill);
+	background-color: var(--wp--preset--color--amber);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 700;
+	color: var(--wp--preset--color--primary-dark);
+	text-decoration: none;
+}
+
+.ma-meetings__help-button:hover {
+	color: var(--wp--preset--color--primary-dark);
+	text-decoration: underline;
+}
+
+.ma-meetings__help-button:focus-visible {
+	outline-color: var(--wp--preset--color--sand);
+}
+
+/* --- Narrow screens ---------------------------------------------------- */
+
+@media (max-width: 699.98px) {
+	.ma-meeting {
+		grid-template-columns: 1fr;
+		gap: var(--wp--preset--spacing--10);
+	}
+
+	.ma-meeting__actions {
+		justify-content: flex-start;
+		margin-top: var(--wp--preset--spacing--10);
+	}
+}
+
+@media (max-width: 599.98px) {
+	.ma-meetings__controls,
+	.ma-meetings__schedule {
+		padding-inline: var(--wp--preset--spacing--50);
+	}
+
+	.ma-meetings__help {
+		margin-inline: var(--wp--preset--spacing--50);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-chip {
+		transition: none;
+	}
+}

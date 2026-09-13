@@ -66,7 +66,9 @@
 }
 
 .ma-footer .ma-footer__links .wp-block-navigation-item__content {
-	display: inline-block;
+	/* Block, so each link's target spans its column. Inline, a short label
+	   like "FAQ" is narrower than the 24px minimum target size. */
+	display: block;
 	padding: 0;
 	font-family: var(--wp--preset--font-family--body);
 	font-size: var(--wp--preset--font-size--small);
@@ -76,6 +78,18 @@
 	text-decoration: none;
 	/* Long addresses should break sensibly rather than mid-word. */
 	overflow-wrap: break-word;
+}
+
+/* theme.json's "-current" state (core/navigation-link) underlines the active
+   page for every navigation link, which is right in the header and noise in
+   the footer link lists. */
+.ma-footer .ma-footer__links .current-menu-item {
+	border-bottom: 0;
+}
+
+.ma-footer .ma-footer__links .current-menu-item > .wp-block-navigation-item__content {
+	padding-bottom: 0;
+	color: var(--wp--preset--color--on-dark);
 }
 
 .ma-footer .ma-footer__links .wp-block-navigation-item__content:hover {

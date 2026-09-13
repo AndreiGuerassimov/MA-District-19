@@ -170,6 +170,25 @@
 	color: var(--wp--preset--color--accent);
 }
 
+/* When a submenu's parent is itself a link, core adds a separate chevron
+   button to open the dropdown. It renders at 8x8px -- far under the 24px
+   minimum target size (WCAG 2.5.8). The hit area grows; the chevron does not. */
+.wp-block-navigation .wp-block-navigation__submenu-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	min-height: 24px;
+	margin-left: -4px;
+	padding: 0;
+}
+
+.wp-block-navigation .wp-block-navigation__submenu-icon:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: 0;
+	border-radius: var(--wp--custom--radius--sm);
+}
+
 /* The parent keeps the top-level weight even while its dropdown is open. */
 .wp-block-navigation .wp-block-navigation-submenu__toggle {
 	font-weight: 600;

@@ -323,3 +323,68 @@ function ma_toronto_hide_empty_page_intro( string $block_content, array $block )
 	return $block_content;
 }
 add_filter( 'render_block', 'ma_toronto_hide_empty_page_intro', 10, 2 );
+
+/*
+ * ---------------------------------------------------------------------------
+ * Meetings (12 Step Meeting List plugin)
+ * ---------------------------------------------------------------------------
+ *
+ * The plugin stores and manages meetings. The theme renders them, using the
+ * plugin's supported extension point: in its default "legacy_ui" mode it hands
+ * the /meetings/ archive to a theme file named archive-meetings.php. See
+ * docs/meetings-scope.md.
+ */
+
+/**
+ * Sends individual meeting and location URLs back to the meetings list.
+ *
+ * TEMPORARY. The plugin publishes a page for every meeting and location, but
+ * those pages have not been designed yet, and nothing on the site links to
+ * them. Until the meeting page design lands, visitors who reach one by URL are
+ * taken to the list instead of an unstyled plugin page. 302, not 301, because
+ * this is expected to change.
+ *
+ * When the meeting page design lands: remove `tsml_meeting` from the check
+ * below and add single-meetings.php to the theme.
+ */
+function ma_toronto_redirect_undesigned_meeting_pages(): void {
+	if ( ! function_exists( 'tsml_get_meetings' ) ) {
+		return;
+	}
+
+	if ( is_singular( array( 'tsml_meeting', 'tsml_location' ) ) || is_post_type_archive( 'tsml_location' ) ) {
+		wp_safe_redirect( get_post_type_archive_link( 'tsml_meeting' ), 302 );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'ma_toronto_redirect_undesigned_meeting_pages' );
+
+/**
+ * Keeps the plugin's meeting and location pages out of the Yoast sitemap
+ * while they redirect. TEMPORARY, alongside the redirect above.
+ *
+ * @param bool   $excluded  Whether the post type is excluded.
+ * @param string $post_type Post type name.
+ * @return bool
+ */
+function ma_toronto_exclude_meeting_pages_from_sitemap( bool $excluded, string $post_type ): bool {
+	return in_array( $post_type, array( 'tsml_meeting', 'tsml_location' ), true ) ? true : $excluded;
+}
+add_filter( 'wpseo_sitemap_exclude_post_type', 'ma_toronto_exclude_meeting_pages_from_sitemap', 10, 2 );
+
+/**
+ * Loads the meetings stylesheet on the meetings list only.
+ */
+function ma_toronto_enqueue_meetings_styles(): void {
+	$path = 'assets/css/meetings.css';
+
+	if ( is_post_type_archive( 'tsml_meeting' ) && file_exists( get_theme_file_path( $path ) ) ) {
+		wp_enqueue_style(
+			'ma-toronto-meetings',
+			get_theme_file_uri( $path ),
+			array(),
+			(string) filemtime( get_theme_file_path( $path ) )
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ma_toronto_enqueue_meetings_styles' );

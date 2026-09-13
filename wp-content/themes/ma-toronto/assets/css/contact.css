@@ -70,12 +70,12 @@
 }
 
 .ma-contact__icon--mail {
-	background-color: #E1EEDF;
+	background-color: var(--wp--preset--color--primary-tint);
 	color: var(--wp--preset--color--primary);
 }
 
 .ma-contact__icon--clock {
-	background-color: #F7E4D6;
+	background-color: var(--wp--preset--color--accent-tint);
 	color: var(--wp--preset--color--accent);
 }
 
