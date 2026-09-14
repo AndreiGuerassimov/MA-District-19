@@ -50,12 +50,6 @@ $ma_cards = array(
 		'cta'   => _x( 'Browse', 'Pathway card link', 'ma-toronto' ),
 		'href'  => home_url( '/literature/' ),
 	),
-	array(
-		'title' => _x( 'Contact Us', 'Pathway card title', 'ma-toronto' ),
-		'text'  => _x( 'Reach the Toronto fellowship directly. We are glad to hear from you.', 'Pathway card description', 'ma-toronto' ),
-		'cta'   => _x( 'Get in touch', 'Pathway card link', 'ma-toronto' ),
-		'href'  => home_url( '/contact/' ),
-	),
 );
 
 ?>
@@ -66,7 +60,7 @@ $ma_cards = array(
 	<h2 class="wp-block-heading screen-reader-text"><?php echo esc_html_x( 'Explore MA Toronto', 'Hidden heading for the pathway card grid', 'ma-toronto' ); ?></h2>
 	<!-- /wp:heading -->
 
-	<!-- wp:group {"className":"ma-pathways__grid","style":{"spacing":{"blockGap":"18px"}},"layout":{"type":"grid","columnCount":6}} -->
+	<!-- wp:group {"className":"ma-pathways__grid","style":{"spacing":{"blockGap":"18px"}},"layout":{"type":"grid","columnCount":5}} -->
 	<div class="wp-block-group ma-pathways__grid">
 <?php foreach ( $ma_cards as $ma_card ) : ?>
 		<!-- wp:group {"className":"ma-card is-style-card","layout":{"type":"default"}} -->

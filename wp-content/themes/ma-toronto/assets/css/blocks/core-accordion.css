@@ -14,8 +14,11 @@
 	transition: border-color 200ms ease-out;
 }
 
+/* Green border: always on an open item (state), and on hover only while the
+   pointer is over the clickable question — not the answer text, which is
+   static content. */
 .ma-faq .wp-block-accordion-item.is-open,
-.ma-faq .wp-block-accordion-item:hover {
+.ma-faq .wp-block-accordion-item:has(.wp-block-accordion-heading__toggle:hover) {
 	border-color: var(--wp--preset--color--primary);
 }
 

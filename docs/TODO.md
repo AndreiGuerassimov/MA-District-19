@@ -67,6 +67,15 @@ Items parked for later, with enough context to pick up cold.
   title link. Check what MA World Services allows to be hosted locally versus
   linked from marijuana-anonymous.org.
 
+- [ ] **Replace the placeholder logo with the official MA Toronto logo.** The
+  header and footer currently draw a green "MA" circle in CSS
+  (`.ma-logo__mark` in `assets/css/header.css`, `.ma-footer__mark` in
+  `footer.css`). A PNG of the real logo exists, but it needs a vector (SVG)
+  version first — either sourced from MA Toronto / MAWS or redrawn. Once there
+  is an SVG, swap the roundel for `core/site-logo` (or an inline SVG) in
+  `parts/header.html` and `parts/footer.html`, and keep the wordmark as the
+  link text so the accessible name stays "Marijuana Anonymous".
+
 ## Housekeeping
 
 - [ ] Remove leftover ACF `meeting-type` taxonomy definition and draft page #37

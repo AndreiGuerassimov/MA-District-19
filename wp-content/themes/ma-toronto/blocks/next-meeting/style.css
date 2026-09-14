@@ -43,10 +43,6 @@
 	color: var(--wp--preset--color--ink);
 }
 
-.ma-next-meeting__card:hover .ma-next-meeting__lead {
-	text-decoration: underline;
-}
-
 .ma-next-meeting__card:focus-visible {
 	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
 	outline-offset: var(--wp--custom--focus--offset);

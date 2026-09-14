@@ -115,7 +115,9 @@ which has no max-width either. `wideSize` therefore applies only inside
 constrained layout.
 
 Breakpoints via theme.json `settings.viewport` (WP 7.1): `mobile 600px`, `tablet 1100px`.
-1100 because 8 nav items + wordmark + CTA stop fitting around 1150px.
+1100 because 8 nav items + wordmark + CTA stopped fitting around 1150px. Since
+14 Sep 2026 the menu has 4 top-level items (Home and Meetings removed), so the
+header would now fit narrower — lowering `tablet` is possible but not done.
 
 ## Structure and naming
 
@@ -148,6 +150,15 @@ hex value; no template contains layout logic. Violations are bugs.
 **Class names are global.** `.ma-card` belongs to the pathway/topic/story cards
 (`core-group.css`, loaded on every page). Meeting pages use `.ma-panel`. Check
 `grep -rn "\.ma-<name>" assets/css` before introducing a class.
+
+**Hover states belong to links only.** A box gets a border/background hover
+only if the whole box is a link (stretched-link cards, contact cards). Static
+boxes — meeting panels, notes, FAQ answers — never do; the FAQ item highlights
+only while its question button is hovered. `npm run audit:hover` enforces it.
+
+**Five-card rows centre when they wrap.** `.ma-pathways__grid` (homepage and
+How It Works) is flex, not grid, so a short last row is centred: 5 → 3+2 →
+2+2+1 → 1. The per-row count is `--ma-per-row`.
 
 **Button width is not markup in WP 7.1.** `core/button` width is
 `style.dimensions.width`, applied at render; the old `has-custom-width
@@ -327,8 +338,9 @@ independently. Every section currently sits within 1-8%.
 | `npm run a11y:meetings` | list: filters, headings, action names, links, redirects, no-JS (25 checks) |
 | `npm run a11y:meeting` | meeting page: in person vs online, map, .ics, Share, no-JS, 320px (25 checks) |
 | `npm run validate:blocks -- <ids> patterns` | the editor's "invalid content" check, headless, no login — **run after any pattern or page markup change** |
+| `npm run audit:hover` | no hover state on boxes that aren't links (decided 14 Sep 2026) |
 | `npm run check:next-meeting` | hero card: upcoming / happening now / moves on / Tomorrow, stale cache, no-JS (11 checks) |
 | `npm run audit:responsive` | overflow, clipping, target sizes at 11 widths |
 
-Run all ten before calling anything done. `audit:responsive` takes
+Run all eleven before calling anything done. `audit:responsive` takes
 `MA_SITE_URL` — run it on a meeting page too.

@@ -8,9 +8,8 @@
  * Viewport Width: 1280
  *
  * Same card as the homepage pathways (.ma-card, stretched title link, hidden
- * h2 above h3 titles), plus a round mark. The mark is decorative: it sits in a
- * span with aria-hidden inside the paragraph, because aria-hidden on the
- * paragraph element itself would fail block validation.
+ * h2 above h3 titles). Text only: the prototype's round marks were removed by
+ * decision (14 Sep 2026).
  *
  * Links resolve to the child pages of How It Works when inserted.
  *
@@ -24,35 +23,30 @@ $ma_link = static function ( string $path ): string {
 
 $ma_topics = array(
 	array(
-		'mark'  => '12',
 		'title' => _x( 'The 12 Steps of MA', 'Topic card title', 'ma-toronto' ),
 		'text'  => _x( 'The path of recovery members work at their own pace, usually with a sponsor.', 'Topic card description', 'ma-toronto' ),
 		'cta'   => _x( 'Read the Steps', 'Topic card link', 'ma-toronto' ),
 		'href'  => $ma_link( 'how-it-works/the-twelve-steps' ),
 	),
 	array(
-		'mark'  => '12',
 		'title' => _x( 'The 12 Traditions of MA', 'Topic card title', 'ma-toronto' ),
 		'text'  => _x( 'The principles that keep our groups and the fellowship as a whole healthy.', 'Topic card description', 'ma-toronto' ),
 		'cta'   => _x( 'Read the Traditions', 'Topic card link', 'ma-toronto' ),
 		'href'  => $ma_link( 'how-it-works/the-twelve-traditions' ),
 	),
 	array(
-		'mark'  => '?',
 		'title' => _x( 'The 12 Questions of MA', 'Topic card title', 'ma-toronto' ),
 		'text'  => _x( 'Twelve honest questions to help you decide for yourself whether MA is for you.', 'Topic card description', 'ma-toronto' ),
 		'cta'   => _x( 'Ask yourself', 'Topic card link', 'ma-toronto' ),
 		'href'  => $ma_link( 'how-it-works/the-twelve-questions' ),
 	),
 	array(
-		'mark'  => '✕',
 		'title' => _x( 'Dangers of Cross Addiction', 'Topic card title', 'ma-toronto' ),
 		'text'  => _x( 'Why trading one substance for another so often undoes hard-won recovery.', 'Topic card description', 'ma-toronto' ),
 		'cta'   => _x( 'Learn more', 'Topic card link', 'ma-toronto' ),
 		'href'  => $ma_link( 'how-it-works/dangers-of-cross-addiction' ),
 	),
 	array(
-		'mark'  => '◷',
 		'title' => _x( 'Yesterday, Today and Tomorrow', 'Topic card title', 'ma-toronto' ),
 		'text'  => _x( 'A short reading on living one day at a time — the heart of how this works.', 'Topic card description', 'ma-toronto' ),
 		'cta'   => _x( 'Read it', 'Topic card link', 'ma-toronto' ),
@@ -73,10 +67,6 @@ $ma_topics = array(
 <?php foreach ( $ma_topics as $ma_topic ) : ?>
 		<!-- wp:group {"className":"ma-card ma-card--topic is-style-card","layout":{"type":"default"}} -->
 		<div class="wp-block-group ma-card ma-card--topic is-style-card">
-			<!-- wp:paragraph {"className":"ma-card__mark"} -->
-			<p class="ma-card__mark"><span aria-hidden="true"><?php echo esc_html( $ma_topic['mark'] ); ?></span></p>
-			<!-- /wp:paragraph -->
-
 			<!-- wp:heading {"level":3,"className":"ma-card__title","fontSize":"large"} -->
 			<h3 class="wp-block-heading ma-card__title has-large-font-size"><a href="<?php echo esc_url( $ma_topic['href'] ); ?>"><?php echo esc_html( $ma_topic['title'] ); ?></a></h3>
 			<!-- /wp:heading -->
