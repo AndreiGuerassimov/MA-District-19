@@ -196,13 +196,37 @@
 
 /* --- Submenus inside the offcanvas overlay -----------------------------
  *
- * Here the dropdown is not a dropdown: core renders the children inline, so
- * they read as an indented sub-list rather than a floating panel.
+ * In the overlay a submenu is not a dropdown: its pages are listed inline,
+ * always open, indented under their parent — as core's default overlay does.
+ *
+ * Core applies that treatment only :where(:not(.disable-default-overlay)), and
+ * a custom overlay template part sets disable-default-overlay. Without these
+ * rules the submenu keeps its desktop behaviour: absolutely positioned, so it
+ * floats over the items below, and opened by focus — which the overlay moves
+ * to the first item on open, so a submenu listed first opens by itself.
+ *
+ * The chevron toggle is hidden for the same reason core hides it: with the
+ * pages always shown it has nothing to do.
  */
 
-.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__submenu-container,
-.wp-block-navigation__responsive-container.is-menu-open .has-child .wp-block-navigation__submenu-container {
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__submenu-icon {
+	display: none;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-item.has-child {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-item.has-child > .wp-block-navigation__submenu-container.wp-block-navigation__submenu-container {
+	position: static;
+	width: auto;
 	min-width: 0;
+	height: auto;
+	overflow: visible;
+	visibility: visible;
+	opacity: 1;
 	padding: 0 0 var(--wp--preset--spacing--20);
 	background: transparent;
 	border: 0;

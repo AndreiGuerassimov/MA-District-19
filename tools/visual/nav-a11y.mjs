@@ -65,6 +65,20 @@ check('focus moved into the overlay',
     return !!o && o.contains(document.activeElement);
   }));
 
+// Submenu pages are listed inline in the overlay. With a custom overlay part,
+// core drops that styling and the submenu floats over the items below it.
+const layout = await page.evaluate(() => {
+  const o = document.querySelector('.wp-block-navigation__responsive-container.is-menu-open');
+  const links = [...o.querySelectorAll('.wp-block-navigation__overlay-container .wp-block-navigation-item__content')]
+    .filter(a => a.offsetParent).map(a => a.getBoundingClientRect());
+  let overlaps = 0;
+  for (let i = 1; i < links.length; i++) if (links[i].top < links[i - 1].bottom - 1) overlaps++;
+  const sub = o.querySelector('.wp-block-navigation__submenu-container');
+  return { count: links.length, overlaps, subPosition: sub ? getComputedStyle(sub).position : 'none' };
+});
+check('overlay items (incl. submenu pages) do not overlap', layout.overlaps === 0 && layout.count > 0,
+  `${layout.count} links, ${layout.overlaps} overlapping, submenu ${layout.subPosition}`);
+
 // Tab well past the number of focusable items; focus must never escape.
 let escaped = null;
 for (let i = 0; i < 20; i++) {

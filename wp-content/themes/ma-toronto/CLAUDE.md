@@ -218,8 +218,15 @@ HTML; `ma_toronto_resolve_template_part_links()` prefixes them with
 `home_url()`, since the local install lives at `/matoronto/`. Keep writing
 part links root-relative — never hard-code `localhost`.
 
+**The custom overlay switches off core's overlay CSS — including submenus.**
+`disable-default-overlay` drops core's inline, always-open submenu styling, so
+without `core-navigation.css`'s overlay-submenu rules the submenu floats over
+the items below and opens on focus (core focuses the first item when the
+overlay opens). Found when How It Works became the first item. Verified by
+`npm run a11y:nav` ("overlay items do not overlap").
+
 **Core also owns the overlay's behaviour** — focus trap, Escape, `aria-modal`,
-`role="dialog"`, focus restore. Verified by `npm run a11y:nav` (14 checks).
+`role="dialog"`, focus restore. Verified by `npm run a11y:nav` (15 checks).
 Never hand-roll any of it.
 
 ## Meetings (12 Step Meeting List plugin)
@@ -337,7 +344,7 @@ independently. Every section currently sits within 1-8%.
 | `npm run visual` | whole-page diff at 1280 / 1440 / 390 |
 | `npm run visual:sections` | per-section fidelity, drift removed |
 | `npm run breakpoints` | where the nav overlay takes over (expect 1100px) |
-| `npm run a11y:nav` | overlay focus trap, Escape, ARIA (14 checks) |
+| `npm run a11y:nav` | overlay focus trap, Escape, ARIA, no overlapping items (15 checks) |
 | `npm run a11y:quote` | slider semantics, keyboard, no-JS fallback (18 checks) |
 | `npm run a11y:meetings` | list: filters, headings, action names, links, redirects, no-JS (25 checks) |
 | `npm run a11y:meeting` | meeting page: in person vs online, map, .ics, Share, no-JS, 320px (25 checks) |
