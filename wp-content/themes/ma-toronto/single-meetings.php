@@ -226,8 +226,8 @@ $ma_hero = do_blocks(
 				</a>
 			<?php endif; ?>
 
-			<section class="ma-card" aria-labelledby="ma-info-title">
-				<h2 class="ma-card__label" id="ma-info-title"><?php esc_html_e( 'Meeting information', 'ma-toronto' ); ?></h2>
+			<section class="ma-panel" aria-labelledby="ma-info-title">
+				<h2 class="ma-panel__label" id="ma-info-title"><?php esc_html_e( 'Meeting information', 'ma-toronto' ); ?></h2>
 				<dl class="ma-info">
 					<?php foreach ( $ma_info as [ $ma_label, $ma_value_html ] ) : ?>
 						<div class="ma-info__row">
@@ -252,9 +252,9 @@ $ma_hero = do_blocks(
 			</section>
 
 			<?php if ( $ma_is_online ) : ?>
-				<section class="ma-card" aria-labelledby="ma-join-title">
-					<h2 class="ma-card__label" id="ma-join-title"><?php esc_html_e( 'How to join', 'ma-toronto' ); ?></h2>
-					<p class="ma-card__lead"><?php echo esc_html( ma_toronto_conference_provider( $ma_conference ) ); ?></p>
+				<section class="ma-panel" aria-labelledby="ma-join-title">
+					<h2 class="ma-panel__label" id="ma-join-title"><?php esc_html_e( 'How to join', 'ma-toronto' ); ?></h2>
+					<p class="ma-panel__lead"><?php echo esc_html( ma_toronto_conference_provider( $ma_conference ) ); ?></p>
 					<?php if ( $ma_join_details ) : ?>
 						<ul class="ma-bullets ma-bullets--plain">
 							<?php foreach ( $ma_join_details as $ma_detail ) : ?>
@@ -274,10 +274,10 @@ $ma_hero = do_blocks(
 					<?php endif; ?>
 				</section>
 			<?php elseif ( $ma_in_person ) : ?>
-				<section class="ma-card" aria-labelledby="ma-location-title">
-					<h2 class="ma-card__label" id="ma-location-title"><?php esc_html_e( 'Location', 'ma-toronto' ); ?></h2>
-					<p class="ma-card__lead"><?php echo esc_html( $ma_location ); ?></p>
-					<p class="ma-card__address">
+				<section class="ma-panel" aria-labelledby="ma-location-title">
+					<h2 class="ma-panel__label" id="ma-location-title"><?php esc_html_e( 'Location', 'ma-toronto' ); ?></h2>
+					<p class="ma-panel__lead"><?php echo esc_html( $ma_location ); ?></p>
+					<p class="ma-panel__address">
 						<?php echo esc_html( $ma_address ); ?>
 						<?php if ( $ma_room ) : ?>
 							<br><?php echo esc_html( $ma_room ); ?>
@@ -313,7 +313,7 @@ $ma_hero = do_blocks(
 		<div class="ma-meeting-page__main">
 
 			<?php if ( $ma_osm ) : ?>
-				<figure class="ma-card ma-map">
+				<figure class="ma-panel ma-map">
 					<iframe
 						class="ma-map__frame"
 						title="<?php echo esc_attr( sprintf( /* translators: %s: place and address. */ __( 'Map showing %s', 'ma-toronto' ), trim( $ma_location . ', ' . $ma_address, ', ' ) ) ); ?>"
@@ -327,10 +327,10 @@ $ma_hero = do_blocks(
 				</figure>
 			<?php endif; ?>
 
-			<section class="ma-card ma-card--roomy" aria-labelledby="ma-about-title">
-				<h2 class="ma-card__title" id="ma-about-title"><?php esc_html_e( 'About this meeting', 'ma-toronto' ); ?></h2>
+			<section class="ma-panel ma-panel--roomy" aria-labelledby="ma-about-title">
+				<h2 class="ma-panel__title" id="ma-about-title"><?php esc_html_e( 'About this meeting', 'ma-toronto' ); ?></h2>
 				<?php foreach ( $ma_paragraphs as $ma_paragraph ) : ?>
-					<p class="ma-card__prose"><?php echo esc_html( $ma_paragraph ); ?></p>
+					<p class="ma-panel__prose"><?php echo esc_html( $ma_paragraph ); ?></p>
 				<?php endforeach; ?>
 				<?php if ( $ma_tiles ) : ?>
 					<dl class="ma-tiles">
@@ -345,9 +345,9 @@ $ma_hero = do_blocks(
 			</section>
 
 			<?php if ( $ma_also_here ) : ?>
-				<section class="ma-card ma-card--roomy" aria-labelledby="ma-also-title">
-					<h2 class="ma-card__title ma-card__title--sm" id="ma-also-title"><?php esc_html_e( 'Other meetings at this location', 'ma-toronto' ); ?></h2>
-					<p class="ma-card__subtitle"><?php echo esc_html( $ma_location ); ?></p>
+				<section class="ma-panel ma-panel--roomy" aria-labelledby="ma-also-title">
+					<h2 class="ma-panel__title ma-panel__title--sm" id="ma-also-title"><?php esc_html_e( 'Other meetings at this location', 'ma-toronto' ); ?></h2>
+					<p class="ma-panel__subtitle"><?php echo esc_html( $ma_location ); ?></p>
 					<ul class="ma-also">
 						<?php foreach ( $ma_also_here as $ma_other ) : ?>
 							<li>

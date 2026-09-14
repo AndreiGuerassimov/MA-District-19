@@ -15,7 +15,8 @@
     "audit:responsive": "node tools/visual/responsive.mjs",
     "a11y:meetings": "node tools/visual/meetings-a11y.mjs",
     "a11y:meeting": "node tools/visual/meeting-page-a11y.mjs",
-    "check:next-meeting": "node tools/visual/next-meeting.mjs"
+    "check:next-meeting": "node tools/visual/next-meeting.mjs",
+    "validate:blocks": "node tools/visual/validate-blocks.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0",

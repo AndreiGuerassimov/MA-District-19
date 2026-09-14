@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"slug": "pill-amber",
+	"title": "Amber Pill",
+	"blockTypes": [ "core/button" ],
+	"styles": {
+		"elements": {
+			"button": {
+				"color": {
+					"background": "var:preset|color|amber",
+					"text": "var:preset|color|primary-dark"
+				},
+				":hover": {
+					"color": {
+						"background": "var:preset|color|sand",
+						"text": "var:preset|color|primary-dark"
+					}
+				},
+				":focus-visible": {
+					"outline": {
+						"color": "var:preset|color|sand",
+						"style": "solid",
+						"width": "var:custom|focus|width",
+						"offset": "var:custom|focus|offset"
+					}
+				}
+			}
+		}
+	}
+}

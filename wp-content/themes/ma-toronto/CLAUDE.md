@@ -126,7 +126,9 @@ styles/sections/    named section styles   01-green-band.json
 patterns/           one file per section   section-hero.php
 blocks/             theme's own dynamic blocks (block.json, no build step)
 parts/              header, footer, navigation-overlay
-templates/          front-page.html (thin assembly, ~10 lines)
+templates/          front-page.html (thin assembly, ~10 lines); page.html (title +
+                    excerpt hero, 820px body); page-sections.html ("Full-width
+                    sections": content only, edge to edge — How It Works)
 assets/css/         per-block CSS, enqueued via wp_enqueue_block_style()
 assets/fonts/       self-hosted Lora + Karla woff2
 functions.php       registrations only — no markup, no styling
@@ -142,6 +144,14 @@ hex value; no template contains layout logic. Violations are bugs.
 | block style | `is-style-*` |
 | CSS class | `ma-` prefix, BEM-ish — `.ma-card__cta` |
 | theme.json slug | semantic, never literal — `accent`, not `terracotta` |
+
+**Class names are global.** `.ma-card` belongs to the pathway/topic/story cards
+(`core-group.css`, loaded on every page). Meeting pages use `.ma-panel`. Check
+`grep -rn "\.ma-<name>" assets/css` before introducing a class.
+
+**Button width is not markup in WP 7.1.** `core/button` width is
+`style.dimensions.width`, applied at render; the old `has-custom-width
+wp-block-button__width-*` classes now fail validation.
 
 ## Editor safety
 
@@ -310,8 +320,9 @@ independently. Every section currently sits within 1-8%.
 | `npm run a11y:quote` | slider semantics, keyboard, no-JS fallback (18 checks) |
 | `npm run a11y:meetings` | list: filters, headings, action names, links, redirects, no-JS (25 checks) |
 | `npm run a11y:meeting` | meeting page: in person vs online, map, .ics, Share, no-JS, 320px (25 checks) |
+| `npm run validate:blocks -- <ids> patterns` | the editor's "invalid content" check, headless, no login — **run after any pattern or page markup change** |
 | `npm run check:next-meeting` | hero card: upcoming / happening now / moves on / Tomorrow, stale cache, no-JS (11 checks) |
 | `npm run audit:responsive` | overflow, clipping, target sizes at 11 widths |
 
-Run all nine before calling anything done. `audit:responsive` takes
+Run all ten before calling anything done. `audit:responsive` takes
 `MA_SITE_URL` — run it on a meeting page too.

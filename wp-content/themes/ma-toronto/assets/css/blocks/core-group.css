@@ -317,3 +317,185 @@
 		transition: none;
 	}
 }
+
+/* --- Centred page hero (section-page-hero) ------------------------------
+ * Pages on the "Full-width sections" template. Prototype: HowItWorks.dc.html.
+ */
+
+.ma-page-hero .ma-page-hero__eyebrow {
+	margin-block: 0 var(--wp--preset--spacing--20);
+}
+
+.ma-page-hero .ma-page-hero__title {
+	max-width: 22ch;
+	margin-block: 0 var(--wp--preset--spacing--30);
+	margin-inline: auto;
+	line-height: var(--wp--custom--line-height--tight);
+}
+
+.ma-page-hero .ma-page-hero__intro {
+	max-width: 66ch;
+	margin-block: 0;
+	margin-inline: auto;
+	line-height: 1.7;
+}
+
+/* --- Topic cards (section-topics) ---------------------------------------
+ * The pathway card and grid, five across on wide screens; the pathway grid's
+ * own 3 -> 2 -> 1 steps apply below 1100px.
+ */
+
+/* Flow layout adds a 24px margin above every child; the card spaces its
+   children with `gap` instead. */
+.ma-pathways .ma-card--topic > *,
+.ma-stories .ma-card--story > * {
+	margin-block: 0;
+}
+
+@media (min-width: 1100px) {
+	.ma-topics.ma-pathways .ma-pathways__grid {
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+	}
+}
+
+.ma-card--topic.is-style-card {
+	gap: var(--wp--preset--spacing--20);
+	padding: 26px 22px;
+}
+
+.ma-card--topic .ma-card__desc {
+	flex: 1;
+}
+
+.ma-card--topic .ma-card__mark {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	height: 46px;
+	margin: 0;
+	border-radius: var(--wp--custom--radius--round);
+	background-color: var(--wp--preset--color--primary-tint);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	line-height: 1;
+	color: var(--wp--preset--color--primary);
+}
+
+/* --- Forest band with a call to action (section-addict-band) ------------ */
+
+.ma-band .ma-band__title {
+	margin-block: 0 var(--wp--preset--spacing--40);
+	line-height: 1.25;
+}
+
+.ma-band .ma-band__body {
+	margin-block: 0;
+	line-height: 1.75;
+}
+
+.ma-band .ma-band__actions {
+	margin-block: 28px 0;
+}
+
+/* --- Stories (section-stories) ------------------------------------------ */
+
+.ma-stories .ma-stories__title {
+	margin-block: 0 18px;
+	line-height: 1.25;
+}
+
+.ma-stories .ma-stories__intro {
+	margin-block: 0;
+	line-height: 1.75;
+}
+
+.ma-stories .ma-stories__grid {
+	margin-block: 36px 0;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 699.98px) {
+	.ma-stories .ma-stories__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.ma-card--story.is-style-card {
+	gap: 10px;
+	padding: var(--wp--preset--spacing--50) 26px;
+}
+
+.ma-card--story .ma-card__title {
+	font-weight: 500;
+	line-height: 1.3;
+}
+
+.ma-card--story .ma-card__title a {
+	color: var(--wp--preset--color--ink);
+}
+
+/* Callout: base-alt fill with a terracotta rule. Label in `ink` — `accent`
+   on `base-alt` measures 4.45:1. */
+.ma-stories .ma-note {
+	margin-block: 36px 0;
+}
+
+.ma-note {
+	padding: var(--wp--preset--spacing--50) 28px;
+	border-left: 3px solid var(--wp--preset--color--accent-bright);
+	border-radius: var(--wp--custom--radius--sm);
+}
+
+.ma-note .ma-note__label {
+	margin: 0 0 10px;
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	line-height: 1.3;
+	text-transform: uppercase;
+}
+
+.ma-note .ma-note__text {
+	margin: 0;
+	line-height: 1.7;
+}
+
+/* --- Learn more (section-learn-more) ------------------------------------ */
+
+.ma-learn .ma-learn__title {
+	margin-block: 0 14px;
+	line-height: 1.3;
+}
+
+.ma-learn .ma-learn__text {
+	margin-block: 0;
+	line-height: 1.7;
+}
+
+.ma-learn .ma-learn__actions {
+	margin-block: 22px 0;
+}
+
+.ma-learn .ma-learn__actions p {
+	margin: 0;
+}
+
+.ma-app-card .ma-app-card__title {
+	margin-block: 0 6px;
+	font-weight: 600;
+}
+
+.ma-app-card .ma-app-card__text {
+	margin-block: 0;
+	line-height: 1.6;
+}
+
+.ma-app-card .ma-app-card__stores {
+	margin-block: 18px 0;
+}
+
+.ma-app-card .wp-block-button__link {
+	width: 100%;
+}

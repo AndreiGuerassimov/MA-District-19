@@ -48,9 +48,13 @@ Items parked for later, with enough context to pick up cold.
 - [ ] **Homepage "A Solution" card → "How It Works"**, per the updated
   `design/Home.dc.html`. Content edit on page 49.
 
-- [ ] **Create the How It Works page** — design is ready in
-  `design/HowItWorks.dc.html`. Page #14 exists but is empty. It is also the
-  parent of the header's "How It Works" dropdown (12 Steps, Traditions, …).
+- [x] ~~Create the How It Works page~~ — built 13 Sep 2026 (page 14, "Full-width sections" template).
+
+- [ ] **Redirect old URLs before launch.** The old site's How It Works section
+  lived under `/a-solution/…` (e.g. `/a-solution/the-twelve-steps/`); the new
+  pages are under `/how-it-works/…`. Add 301s in the Redirection plugin so
+  links and search results keep working. `/our-stories/` and `/7th-tradition/`
+  also exist on the old site with no new equivalent yet.
 
 ## Housekeeping
 

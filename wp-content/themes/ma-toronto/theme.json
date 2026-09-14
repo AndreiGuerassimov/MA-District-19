@@ -631,5 +631,14 @@
 			"name": "navigation-overlay",
 			"title": "Navigation Overlay"
 		}
+	],
+	"customTemplates": [
+		{
+			"name": "page-sections",
+			"title": "Full-width sections",
+			"postTypes": [
+				"page"
+			]
+		}
 	]
 }

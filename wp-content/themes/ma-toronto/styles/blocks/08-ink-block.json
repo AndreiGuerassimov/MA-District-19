@@ -1,0 +1,38 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"slug": "ink-block",
+	"title": "Ink Block",
+	"blockTypes": [ "core/button" ],
+	"styles": {
+		"elements": {
+			"button": {
+				"color": {
+					"background": "var:preset|color|ink",
+					"text": "var:preset|color|base"
+				},
+				"typography": {
+					"fontSize": "var:preset|font-size|small",
+					"fontWeight": "600"
+				},
+				"border": {
+					"radius": "var:custom|radius|sm"
+				},
+				"spacing": {
+					"padding": {
+						"top": "12px",
+						"bottom": "12px",
+						"left": "18px",
+						"right": "18px"
+					}
+				},
+				":hover": {
+					"color": {
+						"background": "var:preset|color|primary-dark",
+						"text": "var:preset|color|base"
+					}
+				}
+			}
+		}
+	}
+}
