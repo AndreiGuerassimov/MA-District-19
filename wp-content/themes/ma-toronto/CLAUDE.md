@@ -198,30 +198,47 @@ to "everything in blocks". Decided in `docs/meetings-scope.md`.
 - **The plugin owns the data** (`tsml_meeting`, `tsml_location`, `tsml_group`) and
   the admin form. WordPress is the source of truth; spreadsheets are for bulk
   import only. Program is set to Marijuana Anonymous (`tsml_program = ma`).
-- **The theme owns the display** via `archive-meetings.php` — the plugin's
-  supported override, honoured only while its finder is `legacy_ui` (the
-  default). Do not switch the plugin to "TSML UI": it ignores theme templates.
+- **The theme owns the display** via `archive-meetings.php` (the list) and
+  `single-meetings.php` (a meeting's page) — the plugin's supported overrides,
+  honoured only while its finder is `legacy_ui` (the default). Do not switch the
+  plugin to "TSML UI": it ignores theme templates. Shared formatting helpers are
+  in `inc/meetings.php`; `meetings.css` loads on both, `meeting.css` on meeting
+  pages only.
 - Because our template never calls `tsml_assets()`, **none of the plugin's
   front-end assets load** — no jQuery, no Leaflet from unpkg.com. Keep it so.
 - Filters are URL parameters (`?type=online|in-person`), rendered server-side.
-- **Meeting and location pages are not designed yet.** `functions.php` 302s them
-  to `/meetings/` and excludes them from the Yoast sitemap. Both are marked
-  TEMPORARY. When the meeting page design lands, drop `tsml_meeting` from the
-  redirect and add `single-meetings.php`.
+- **Meeting pages are live; location pages are not designed.** `functions.php`
+  302s location URLs to `/meetings/` and keeps them out of the Yoast sitemap.
+  Meeting pages are in the sitemap.
+- **Plugin strings arrive HTML-entity-encoded** from `tsml_get_meeting()`
+  (`East End United &mdash; Jackman Room`). Decode with
+  `ma_toronto_meeting_text()`, then escape on output — or text double-escapes.
+- **MA's type list has no "Closed" code**, only `O` (open to non-addicts), so
+  pages never label a meeting "closed" from missing data. Week-by-week open/closed
+  rules live in each meeting's notes.
+- **Group phone and email are public by decision** (`tsml_contact_display =
+  public`), as on the old site. The plugin's public JSON feed stays restricted.
+- **PHP templates must print `<title>` themselves.** Core only adds it when it
+  renders a block template. Yoast supplies the text.
+- "Add to calendar" is `?calendar=ics` on any meeting page (weekly RRULE,
+  America/Toronto). Share is a script module (`assets/js/meeting-share.js`);
+  the button ships `hidden`.
+- Maps and directions are OpenStreetMap (no API key). No Google Maps anywhere.
 - **`tsml_get_meetings()` does not work under `wp eval`.** The plugin sets
   globals like `$tsml_contact_fields` at file scope; WP-CLI loads WordPress inside
   a function, so they arrive `null` and imports fatal. Run plugin code through a
   real web request instead.
 - The public JSON feed is restricted (`tsml_sharing = restricted`), returning 401.
   Leave it closed unless MA Toronto wants to publish a feed.
-- **Test meetings are named `TEST — …` and must be deleted before launch.** Use
-  wp-admin → Meetings, search "TEST", bulk Delete Permanently. Not WP-CLI: the
-  plugin's orphaned-location cleanup is hooked only in wp-admin.
+- **Importing meetings.** Real meetings were imported 13 Sep 2026 from the old
+  site (see `docs/meeting-pages-scope.md`). The import CSV is kept out of the
+  repo: it holds phone numbers and Zoom passcodes, and the repo is public. Any
+  database dump committed after the import carries the same data.
 
 ## Deferred — do not build without scoping first
 
 - **Quotes slider** (`design/Home.dc.html` §5) — static pull-quote placeholder for now.
-- **Hero "Next meeting" card** — needs the Meetings data model; belongs to that phase.
+- **Hero "Next meeting" card** — the meetings data now exists; still needs scoping.
 
 ## Block markup gotchas (both cost real time — do not relearn)
 
@@ -281,7 +298,9 @@ independently. Every section currently sits within 1-8%.
 | `npm run breakpoints` | where the nav overlay takes over (expect 1100px) |
 | `npm run a11y:nav` | overlay focus trap, Escape, ARIA (14 checks) |
 | `npm run a11y:quote` | slider semantics, keyboard, no-JS fallback (18 checks) |
-| `npm run a11y:meetings` | filters, headings, action names, redirects, no-JS (22 checks) |
+| `npm run a11y:meetings` | list: filters, headings, action names, links, redirects, no-JS (25 checks) |
+| `npm run a11y:meeting` | meeting page: in person vs online, map, .ics, Share, no-JS, 320px (25 checks) |
 | `npm run audit:responsive` | overflow, clipping, target sizes at 11 widths |
 
-Run all seven before calling anything done.
+Run all eight before calling anything done. `audit:responsive` takes
+`MA_SITE_URL` — run it on a meeting page too.

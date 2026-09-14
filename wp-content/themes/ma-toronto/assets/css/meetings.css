@@ -64,6 +64,8 @@
 }
 
 .ma-chip:focus-visible,
+.ma-meeting__name a:focus-visible,
+.ma-meeting__join:focus-visible,
 .ma-meeting__cta:focus-visible,
 .ma-meetings__help-button:focus-visible {
 	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
@@ -138,6 +140,20 @@
 	color: var(--wp--preset--color--ink);
 }
 
+.ma-meeting__name a {
+	/* Inline-block with 1px padding: the 22px line box alone is under the
+	   24px minimum target size. */
+	display: inline-block;
+	padding-block: 1px;
+	color: inherit;
+	text-decoration: none;
+}
+
+.ma-meeting__name a:hover {
+	color: var(--wp--preset--color--primary);
+	text-decoration: underline;
+}
+
 .ma-meeting__place {
 	margin: 0;
 	font-size: var(--wp--preset--font-size--small);
@@ -180,6 +196,37 @@
 	background-color: var(--wp--preset--color--base);
 	border: 1px solid var(--wp--custom--hairline--strong);
 	color: var(--wp--preset--color--ink);
+}
+
+.ma-meeting__join {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 14px;
+	background-color: var(--wp--preset--color--primary);
+	border-radius: var(--wp--custom--radius--pill);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--wp--preset--color--base);
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background-color 120ms ease-out;
+}
+
+.ma-meeting__join:hover {
+	background-color: var(--wp--preset--color--primary-dark);
+	color: var(--wp--preset--color--base);
+}
+
+/* Zoom wordmark, on the list's Join button and the meeting page's. The
+   viewBox is cropped to the letters: 24 x 5.6. */
+.ma-zoom-logo {
+	display: inline-block;
+	flex: none;
+	width: 4.3em;
+	height: 1em;
 }
 
 .ma-meeting__cta {
@@ -300,7 +347,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.ma-chip {
+	.ma-chip,
+	.ma-meeting__join {
 		transition: none;
 	}
 }

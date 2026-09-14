@@ -13,7 +13,8 @@
     "a11y:quote": "node tools/visual/quote-a11y.mjs",
     "visual:sections": "node tools/visual/sections.mjs",
     "audit:responsive": "node tools/visual/responsive.mjs",
-    "a11y:meetings": "node tools/visual/meetings-a11y.mjs"
+    "a11y:meetings": "node tools/visual/meetings-a11y.mjs",
+    "a11y:meeting": "node tools/visual/meeting-page-a11y.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0",

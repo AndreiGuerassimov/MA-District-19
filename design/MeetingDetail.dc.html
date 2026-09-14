@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F8F5EC;font-family:Karla,system-ui,sans-serif}
+a{color:#2F5D47}a:hover{color:#CE5F35}
+</style>
+</helmet>
+<div style="background:#F8F5EC;color:#21372C">
+
+  <dc-import name="SiteHeader" current="Meetings" hint-size="100%,82px"></dc-import>
+
+  <!-- breadcrumb + title -->
+  <div style="padding:36px 48px 28px;background:linear-gradient(180deg,#F8F5EC 0%,#F3EEDF 100%)">
+    <div style="font:600 13.5px Karla,sans-serif;color:#5B6E61;margin-bottom:16px">
+      <a href="Meetings.dc.html" style="text-decoration:none;color:#2F5D47">← Back to all meetings</a>
+    </div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap">
+      <div>
+        <h1 style="font:500 44px/1.1 Lora,serif;margin:0 0 12px;color:#21372C">Never Alone</h1>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font:700 11px Karla,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:#B0521F;background:#F7E4D6;padding:6px 12px;border-radius:999px">In person</span>
+          <span style="font:700 11px Karla,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:#2F5D47;background:#E1EEDF;padding:6px 12px;border-radius:999px">Open meeting</span>
+          <span style="font:700 11px Karla,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:#2F5D47;background:#E1EEDF;padding:6px 12px;border-radius:999px">Wheelchair accessible</span>
+          <span style="font:700 11px Karla,sans-serif;letter-spacing:.5px;text-transform:uppercase;color:#2F5D47;background:#E1EEDF;padding:6px 12px;border-radius:999px">Newcomer friendly</span>
+        </div>
+      </div>
+      <div style="font:500 20px Lora,serif;color:#2F5D47;background:#FFFDF6;border:1px solid rgba(33,55,44,.12);border-radius:10px;padding:14px 22px">Mondays · 7:30 – 8:30 PM ET</div>
+    </div>
+  </div>
+
+  <!-- main two-column -->
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:28px;padding:32px 48px 56px;align-items:start">
+
+    <!-- left rail -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <a href="{{ directionsUrl }}" target="_blank" rel="noopener" style="text-decoration:none;background:#2F5D47;color:#F8F5EC;border-radius:12px;padding:16px 22px;font:700 16px Karla,sans-serif;display:flex;align-items:center;justify-content:center;gap:10px">◎ Get directions</a>
+
+      <div style="background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:14px;padding:26px 28px">
+        <h2 style="font:600 13px Karla,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#CE5F35;margin:0 0 18px">Meeting information</h2>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ info }}" as="row" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:104px 1fr;gap:16px;align-items:baseline">
+              <div style="font:600 13px Karla,sans-serif;color:#7A8B7E;text-transform:uppercase;letter-spacing:.8px">{{ row.label }}</div>
+              <div style="font:400 15.5px/1.55 Karla,sans-serif;color:#21372C">{{ row.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:24px">
+          <a href="#" style="flex:1;text-decoration:none;text-align:center;border:1px solid rgba(33,55,44,.2);color:#2F5D47;border-radius:9px;padding:12px;font:600 14px Karla,sans-serif">Add to calendar</a>
+          <a href="#" style="flex:1;text-decoration:none;text-align:center;border:1px solid rgba(33,55,44,.2);color:#2F5D47;border-radius:9px;padding:12px;font:600 14px Karla,sans-serif">Share</a>
+        </div>
+      </div>
+
+      <div style="background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:14px;padding:26px 28px">
+        <h2 style="font:600 13px Karla,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#CE5F35;margin:0 0 14px">Location</h2>
+        <div style="font:600 19px Lora,serif;color:#21372C;margin-bottom:6px">CAMH — Bell Gateway Building</div>
+        <div style="font:400 15px/1.6 Karla,sans-serif;color:#5B6E61;margin-bottom:16px">100 Stokes St., Toronto, ON M6J 1H4<br>Room 1150, ground floor</div>
+        <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid rgba(33,55,44,.1);padding-top:16px">
+          <div style="display:flex;gap:12px;font:400 14.5px/1.5 Karla,sans-serif;color:#5B6E61"><span style="color:#2F5D47">▸</span><span>Enter from Stokes St.; the room is on your right past reception.</span></div>
+          <div style="display:flex;gap:12px;font:400 14.5px/1.5 Karla,sans-serif;color:#5B6E61"><span style="color:#2F5D47">▸</span><span>TTC: 504 King or 501 Queen streetcar, then a 6-minute walk.</span></div>
+          <div style="display:flex;gap:12px;font:400 14.5px/1.5 Karla,sans-serif;color:#5B6E61"><span style="color:#2F5D47">▸</span><span>Paid underground parking on site; street parking on Shaw St.</span></div>
+        </div>
+      </div>
+
+      <div style="background:#2F5D47;color:#EFEBDD;border-radius:14px;padding:26px 28px">
+        <div style="font:500 21px/1.3 Lora,serif;color:#FFFDF6;margin-bottom:10px">First time here?</div>
+        <p style="font:400 15px/1.65 Karla,sans-serif;color:#C8D4C4;margin:0 0 18px">Come a few minutes early and tell someone it's your first meeting. You can just listen — there's nothing to sign, and no cost, ever.</p>
+        <a href="Contact.dc.html" style="text-decoration:none;display:inline-block;background:#E9A13B;color:#24463A;padding:12px 22px;border-radius:999px;font:700 15px Karla,sans-serif">Ask us a question</a>
+      </div>
+    </div>
+
+    <!-- right: map + detail -->
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div style="background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:14px;overflow:hidden">
+        <iframe title="Map showing CAMH Bell Gateway Building, 100 Stokes St, Toronto" src="{{ mapSrc }}" style="width:100%;height:420px;border:0;display:block" loading="lazy"></iframe>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 22px;border-top:1px solid rgba(33,55,44,.1);flex-wrap:wrap">
+          <div style="font:400 14px Karla,sans-serif;color:#5B6E61">100 Stokes St., Toronto, ON M6J 1H4</div>
+          <a href="{{ directionsUrl }}" target="_blank" rel="noopener" style="font:700 14px Karla,sans-serif;color:#CE5F35;text-decoration:none">Open in OpenStreetMap →</a>
+        </div>
+      </div>
+
+      <div style="background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:14px;padding:30px 32px">
+        <h2 style="font:500 26px Lora,serif;color:#21372C;margin:0 0 14px">About this meeting</h2>
+        <p style="font:400 16px/1.75 Karla,sans-serif;color:#44584C;margin:0 0 14px">Never Alone is our longest-running Toronto meeting and a good first meeting for anyone new. The hour opens with a reading from <em>Life with Hope</em>, followed by open sharing on a topic chosen by the group. No one is ever required to speak.</p>
+        <p style="font:400 16px/1.75 Karla,sans-serif;color:#44584C;margin:0">This is an <strong>open meeting</strong> — family, friends, and anyone curious about the program are welcome to attend alongside members. We finish by 8:30 PM, and a few of us usually stay for coffee nearby afterwards.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px">
+          <div style="background:#F8F5EC;border-radius:10px;padding:16px 18px">
+            <div style="font:600 12px Karla,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#7A8B7E;margin-bottom:5px">Format</div>
+            <div style="font:600 15px Karla,sans-serif;color:#21372C">Reading &amp; open sharing</div>
+          </div>
+          <div style="background:#F8F5EC;border-radius:10px;padding:16px 18px">
+            <div style="font:600 12px Karla,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#7A8B7E;margin-bottom:5px">Typical size</div>
+            <div style="font:600 15px Karla,sans-serif;color:#21372C">12–20 people</div>
+          </div>
+          <div style="background:#F8F5EC;border-radius:10px;padding:16px 18px">
+            <div style="font:600 12px Karla,sans-serif;text-transform:uppercase;letter-spacing:1px;color:#7A8B7E;margin-bottom:5px">Language</div>
+            <div style="font:600 15px Karla,sans-serif;color:#21372C">English</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:14px;padding:30px 32px">
+        <h2 style="font:500 24px Lora,serif;color:#21372C;margin:0 0 6px">Other meetings at this location</h2>
+        <p style="font:400 14.5px Karla,sans-serif;color:#7A8B7E;margin:0 0 18px">CAMH — Bell Gateway Building</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ alsoHere }}" as="m" hint-placeholder-count="2">
+            <a href="MeetingDetail.dc.html" style="display:grid;grid-template-columns:150px 1fr auto;gap:20px;align-items:center;text-decoration:none;background:#F8F5EC;border:1px solid rgba(33,55,44,.1);border-radius:10px;padding:15px 20px" style-hover="border-color:#2F5D47">
+              <div style="font:600 15px Karla,sans-serif;color:#2F5D47">{{ m.when }}</div>
+              <div style="font:600 16px Karla,sans-serif;color:#21372C">{{ m.name }}</div>
+              <div style="font:700 13.5px Karla,sans-serif;color:#CE5F35">View →</div>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#F3EEDF;border-left:3px solid #CE5F35;border-radius:8px;padding:22px 26px">
+        <div style="font:700 12px Karla,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#B0521F;margin-bottom:8px">Meeting details change</div>
+        <p style="font:400 14.5px/1.7 Karla,sans-serif;color:#5B6E61;margin:0">Times and rooms occasionally shift. If something here is out of date, please <a href="Contact.dc.html">let us know</a> so we can fix it. Last updated 21 August 2026.</p>
+      </div>
+    </div>
+  </div>
+
+  <dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280}}">
+class Component extends DCLogic {
+  renderVals() {
+    const addr = "CAMH Bell Gateway Building, 100 Stokes St, Toronto, ON M6J 1H4";
+    return { addr,
+      mapSrc: "https://www.openstreetmap.org/export/embed.html?bbox=-79.4245%2C43.6385%2C-79.4045%2C43.6485&layer=mapnik&marker=43.6435%2C-79.4145",
+      directionsUrl: "https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=%3B43.6435%2C-79.4145",
+      info: [
+        { label: "Day & time", value: "Mondays, 7:30 – 8:30 PM ET" },
+        { label: "Type", value: "In person · Open meeting" },
+        { label: "Format", value: "Reading from Life with Hope, then open sharing" },
+        { label: "Access", value: "Step-free entrance, accessible washroom, elevator" },
+        { label: "Who can come", value: "Anyone with a desire to stop using marijuana — plus family and friends" },
+        { label: "Cost", value: "Free. A basket is passed for the 7th Tradition; giving is optional." },
+      ],
+      alsoHere: [
+        { when: "Wednesdays · 7:30 PM", name: "Joint Recovery" },
+        { when: "Sundays · 6:00 PM", name: "Sunday Sharing" },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

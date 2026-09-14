@@ -1,0 +1,553 @@
+/**
+ * A meeting's page — /meetings/{slug}/ (single-meetings.php).
+ *
+ * Loaded on meeting pages only, after meetings.css, whose badges (.ma-badge)
+ * and amber button (.ma-meetings__help-button) it reuses.
+ *
+ * Every colour, size and space is a theme.json token. Departures from
+ * design/MeetingDetail.dc.html, all for contrast:
+ * - micro-labels drawn in #CE5F35 use `accent` (#CE5F35 is non-text only);
+ * - the "Meeting details change" label uses `ink`: `accent` on `base-alt`
+ *   measures 4.45:1, under AA. Its left rule keeps the terracotta.
+ */
+
+.ma-meeting-page > * {
+	margin-block: 0;
+}
+
+.ma-meeting-page :where(h1, h2, p, ul, dl, dd, figure) {
+	margin: 0;
+}
+
+.ma-meeting-page a:focus-visible,
+.ma-meeting-page button:focus-visible,
+.ma-meeting-page iframe:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+/* --- Hero -------------------------------------------------------------- */
+
+.ma-meeting-page__hero {
+	padding: 36px var(--wp--preset--spacing--80) 28px;
+}
+
+.ma-meeting-page__back {
+	margin-bottom: var(--wp--preset--spacing--30);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+}
+
+.ma-meeting-page__back a {
+	display: inline-block;
+	padding-block: 3px;
+	color: var(--wp--preset--color--primary);
+	text-decoration: none;
+}
+
+.ma-meeting-page__back a:hover {
+	text-decoration: underline;
+}
+
+.ma-meeting-page__title-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--wp--preset--spacing--50) 30px;
+}
+
+.ma-meeting-page__title {
+	margin-bottom: var(--wp--preset--spacing--20);
+	font-size: var(--wp--preset--font-size--display);
+	font-weight: 500;
+	line-height: var(--wp--custom--line-height--tight);
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-meeting-page__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	padding: 0;
+	list-style: none;
+}
+
+.ma-meeting-page__badges .ma-badge {
+	padding: 6px 12px;
+}
+
+.ma-meeting-page__schedule {
+	padding: 14px 22px;
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--md);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--x-large);
+	font-weight: 500;
+	line-height: 1.3;
+	color: var(--wp--preset--color--primary);
+}
+
+/* --- Layout ------------------------------------------------------------ */
+
+.ma-meeting-page__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+	gap: 28px;
+	align-items: start;
+	padding: var(--wp--preset--spacing--60) var(--wp--preset--spacing--80) var(--wp--preset--spacing--90);
+}
+
+.ma-meeting-page__rail {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.ma-meeting-page__main {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--50);
+}
+
+/* --- Primary action (Get directions / Join on Zoom) --------------------- */
+
+.ma-meeting-page__primary-action {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: var(--wp--preset--spacing--30) 22px;
+	background-color: var(--wp--preset--color--primary);
+	border-radius: var(--wp--custom--radius--md);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 700;
+	line-height: 1.3;
+	color: var(--wp--preset--color--base);
+	text-decoration: none;
+	transition: background-color 120ms ease-out;
+}
+
+.ma-meeting-page__primary-action:hover {
+	background-color: var(--wp--preset--color--primary-dark);
+	color: var(--wp--preset--color--base);
+}
+
+/* --- Cards ------------------------------------------------------------- */
+
+.ma-card {
+	padding: 26px 28px;
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--lg);
+}
+
+.ma-card--roomy {
+	padding: 30px var(--wp--preset--spacing--60);
+}
+
+.ma-card__label {
+	margin-bottom: 18px;
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.15em;
+	line-height: 1.3;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--accent);
+}
+
+.ma-card__lead {
+	margin-bottom: 6px;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 600;
+	line-height: 1.35;
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-card__address {
+	margin-bottom: var(--wp--preset--spacing--30);
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: 1.6;
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-card__title {
+	margin-bottom: 14px;
+	font-size: var(--wp--preset--font-size--xx-large);
+	font-weight: 500;
+	line-height: 1.25;
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-card__title--sm {
+	margin-bottom: 6px;
+	font-size: var(--wp--preset--font-size--x-large);
+}
+
+.ma-card__subtitle {
+	margin-bottom: 18px;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-card__prose {
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: 1.75;
+	color: var(--wp--preset--color--body);
+}
+
+.ma-card__prose + .ma-card__prose {
+	margin-top: 14px;
+}
+
+/* Meeting information */
+
+.ma-info {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.ma-info__row {
+	display: grid;
+	grid-template-columns: 104px 1fr;
+	gap: var(--wp--preset--spacing--30);
+	align-items: baseline;
+}
+
+.ma-info dt {
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-info dd {
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: 1.55;
+	color: var(--wp--preset--color--ink);
+	overflow-wrap: anywhere;
+}
+
+/* Vertical padding on inline links enlarges the tap target to 24px without
+   changing the line box, so text does not move. */
+.ma-info dd a,
+.ma-bullets a,
+.ma-notice a {
+	padding-block: 4px;
+}
+
+.ma-info dd a {
+	color: var(--wp--preset--color--primary);
+}
+
+.ma-info__note {
+	display: block;
+	margin-top: 2px;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-meeting-page__tools {
+	display: flex;
+	gap: 10px;
+	margin-top: var(--wp--preset--spacing--50);
+}
+
+.ma-tool {
+	flex: 1;
+	padding: var(--wp--preset--spacing--20);
+	background: none;
+	border: 1px solid var(--wp--custom--hairline--strong);
+	border-radius: var(--wp--custom--radius--sm);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	line-height: 1.3;
+	color: var(--wp--preset--color--primary);
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition: border-color 120ms ease-out;
+}
+
+.ma-tool:hover {
+	border-color: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--primary);
+}
+
+.ma-tool[hidden] {
+	display: none;
+}
+
+/* Location and How to join bullets */
+
+.ma-bullets {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: var(--wp--preset--spacing--30) 0 0;
+	border-top: 1px solid var(--wp--custom--hairline--color);
+	list-style: none;
+}
+
+.ma-bullets li {
+	display: flex;
+	gap: var(--wp--preset--spacing--20);
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.5;
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-bullets__mark {
+	flex: none;
+	color: var(--wp--preset--color--primary);
+}
+
+.ma-bullets a {
+	color: var(--wp--preset--color--primary);
+	font-weight: 600;
+}
+
+.ma-bullets--plain {
+	margin-bottom: var(--wp--preset--spacing--30);
+	padding-top: 0;
+	border-top: 0;
+	gap: 4px;
+}
+
+.ma-bullets--plain li {
+	font-size: var(--wp--preset--font-size--medium);
+	color: var(--wp--preset--color--ink);
+}
+
+/* First time here? */
+
+.ma-first-time {
+	padding: 26px 28px;
+	background-color: var(--wp--preset--color--primary);
+	border-radius: var(--wp--custom--radius--lg);
+}
+
+.ma-first-time h2 {
+	margin-bottom: 10px;
+	font-size: var(--wp--preset--font-size--x-large);
+	font-weight: 500;
+	line-height: 1.3;
+	color: var(--wp--preset--color--surface);
+}
+
+.ma-first-time p {
+	margin-bottom: 18px;
+	font-size: var(--wp--preset--font-size--medium);
+	line-height: var(--wp--custom--line-height--body);
+	color: var(--wp--preset--color--on-dark);
+}
+
+.ma-first-time .ma-meetings__help-button {
+	display: inline-block;
+}
+
+/* --- Map --------------------------------------------------------------- */
+
+.ma-map {
+	padding: 0;
+	overflow: hidden;
+}
+
+.ma-map__frame {
+	display: block;
+	width: 100%;
+	height: 420px;
+	border: 0;
+}
+
+.ma-map__caption {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--wp--preset--spacing--30);
+	padding: var(--wp--preset--spacing--30) 22px;
+	border-top: 1px solid var(--wp--custom--hairline--color);
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-map__caption a {
+	display: inline-block;
+	padding-block: 3px;
+	font-weight: 700;
+	color: var(--wp--preset--color--accent);
+	text-decoration: none;
+}
+
+.ma-map__caption a:hover {
+	color: var(--wp--preset--color--accent);
+	text-decoration: underline;
+}
+
+/* --- About tiles ------------------------------------------------------- */
+
+.ma-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 14px;
+	margin-top: var(--wp--preset--spacing--50);
+}
+
+.ma-tile {
+	padding: var(--wp--preset--spacing--30) 18px;
+	background-color: var(--wp--preset--color--base);
+	border-radius: var(--wp--custom--radius--md);
+}
+
+.ma-tile dt {
+	margin-bottom: 5px;
+	font-size: var(--wp--preset--font-size--xx-small);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-tile dd {
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--wp--preset--color--ink);
+}
+
+/* --- Other meetings at this location ----------------------------------- */
+
+.ma-also {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 0;
+	list-style: none;
+}
+
+.ma-also__link {
+	display: grid;
+	grid-template-columns: 170px 1fr auto;
+	gap: var(--wp--preset--spacing--40);
+	align-items: center;
+	padding: 15px var(--wp--preset--spacing--40);
+	background-color: var(--wp--preset--color--base);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--md);
+	text-decoration: none;
+	transition: border-color 120ms ease-out;
+}
+
+.ma-also__link:hover {
+	border-color: var(--wp--preset--color--primary);
+}
+
+.ma-also__when {
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	color: var(--wp--preset--color--primary);
+}
+
+.ma-also__name {
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 600;
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-also__view {
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 700;
+	color: var(--wp--preset--color--accent);
+}
+
+/* --- Meeting details change -------------------------------------------- */
+
+.ma-notice {
+	padding: 22px 26px;
+	background-color: var(--wp--preset--color--base-alt);
+	border-left: 3px solid var(--wp--preset--color--accent-bright);
+	border-radius: var(--wp--custom--radius--sm);
+}
+
+.ma-notice__label {
+	margin-bottom: var(--wp--preset--spacing--10);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--xx-small);
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	line-height: 1.3;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-notice p {
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.7;
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-notice a {
+	color: var(--wp--preset--color--primary);
+}
+
+/* --- Narrow screens ---------------------------------------------------- */
+
+@media (max-width: 899.98px) {
+	.ma-meeting-page__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 599.98px) {
+	.ma-meeting-page__hero,
+	.ma-meeting-page__grid {
+		padding-inline: var(--wp--preset--spacing--50);
+	}
+
+	.ma-meeting-page__title {
+		font-size: var(--wp--preset--font-size--xx-large);
+	}
+
+	.ma-card,
+	.ma-card--roomy,
+	.ma-first-time {
+		padding: var(--wp--preset--spacing--50) 22px;
+	}
+
+	.ma-map {
+		padding: 0;
+	}
+
+	.ma-map__frame {
+		height: 300px;
+	}
+
+	.ma-info__row {
+		grid-template-columns: 1fr;
+		gap: 2px;
+	}
+
+	.ma-also__link {
+		grid-template-columns: 1fr auto;
+		gap: 2px var(--wp--preset--spacing--30);
+	}
+
+	.ma-also__when {
+		grid-column: 1 / -1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-meeting-page__primary-action,
+	.ma-tool,
+	.ma-also__link {
+		transition: none;
+	}
+}

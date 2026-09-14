@@ -17,9 +17,10 @@
  * - the count reflects the active filter;
  * - days with no meetings are omitted.
  *
- * Meeting cards deliberately do not link to individual meeting pages yet — those
- * pages are designed in a later round, and currently redirect back here
- * (see functions.php). The "Join" and "Get directions" actions do work.
+ * Each card links to the meeting's page (single-meetings.php) by its name and a
+ * "Meeting details" action. Online cards also keep a direct "Join on Zoom"
+ * button, so joining takes one click (docs/meeting-pages-scope.md, decision B).
+ * Formatting helpers are shared with the meeting page in inc/meetings.php.
  *
  * @package MA_Toronto
  */
@@ -88,25 +89,8 @@ foreach ( $ma_day_names as $ma_index => $ma_name ) {
 }
 
 /* --------------------------------------------------------------------------
- * Formatting helpers
+ * Formatting helpers (shared ones are in inc/meetings.php)
  * ------------------------------------------------------------------------ */
-
-/** "19:30" -> "7:30 PM". */
-$ma_time = static function ( string $time ): string {
-	$dt = DateTime::createFromFormat( 'H:i', $time );
-	return $dt ? $dt->format( 'g:i A' ) : $time;
-};
-
-/** Name of the conferencing service from its URL, e.g. "Zoom". */
-$ma_provider = static function ( string $url ): string {
-	if ( function_exists( 'tsml_conference_provider' ) ) {
-		$provider = tsml_conference_provider( $url );
-		if ( is_string( $provider ) && '' !== $provider ) {
-			return $provider;
-		}
-	}
-	return __( 'online', 'ma-toronto' );
-};
 
 /**
  * The "place" line under a meeting's name.
@@ -114,32 +98,16 @@ $ma_provider = static function ( string $url ): string {
  * country dropped; city kept, because meetings span the GTA).
  * Online: "Zoom · ID 842 1179 4420" when a Zoom meeting ID is in the link.
  */
-$ma_place = static function ( array $m ) use ( $ma_provider ): string {
-	$attendance = $m['attendance_option'] ?? '';
-
-	if ( 'online' === $attendance && ! empty( $m['conference_url'] ) ) {
-		$provider = $ma_provider( $m['conference_url'] );
-		if ( preg_match( '#/j/(\d{9,11})#', $m['conference_url'], $id ) ) {
-			$digits = $id[1];
-			$split  = 11 === strlen( $digits ) ? array( 3, 4, 4 ) : array( 3, 3, 4 );
-			$parts  = array();
-			$offset = 0;
-			foreach ( $split as $len ) {
-				$parts[] = substr( $digits, $offset, $len );
-				$offset += $len;
-			}
-			/* translators: 1: service, e.g. Zoom. 2: formatted meeting ID. */
-			return sprintf( __( '%1$s · ID %2$s', 'ma-toronto' ), $provider, trim( implode( ' ', array_filter( $parts ) ) ) );
-		}
-		return ucfirst( $provider );
+$ma_place = static function ( array $m ): string {
+	if ( 'online' === ( $m['attendance_option'] ?? '' ) && ! empty( $m['conference_url'] ) ) {
+		$provider = ma_toronto_conference_provider( $m['conference_url'] );
+		$id       = ma_toronto_zoom_id( $m['conference_url'] );
+		/* translators: 1: service, e.g. Zoom. 2: formatted meeting ID. */
+		return '' !== $id ? sprintf( __( '%1$s · ID %2$s', 'ma-toronto' ), $provider, $id ) : $provider;
 	}
 
-	$segments = array_map( 'trim', explode( ',', (string) ( $m['formatted_address'] ?? '' ) ) );
-	if ( count( $segments ) >= 3 ) {
-		$segments = array_slice( $segments, 0, -2 );
-	}
-	$address  = implode( ', ', array_filter( $segments ) );
-	$location = trim( (string) ( $m['location'] ?? '' ) );
+	$location = ma_toronto_meeting_text( $m['location'] ?? '' );
+	$address  = ma_toronto_short_address( ma_toronto_meeting_text( $m['formatted_address'] ?? '' ), $location );
 
 	if ( '' === $location || 0 === stripos( $address, $location ) ) {
 		return $address;
@@ -173,6 +141,11 @@ $ma_hero = do_blocks(
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<?php
+	// Core prints <title> only when it renders a block template itself
+	// (_block_template_render_title_tag); this PHP template must do the same.
+	?>
+	<title><?php echo wp_get_document_title(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by core. ?></title>
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
@@ -235,52 +208,37 @@ $ma_hero = do_blocks(
 				<ul class="ma-day__list">
 					<?php
 					foreach ( $ma_meetings as $ma_m ) :
-						$ma_attendance = $ma_m['attendance_option'] ?? 'in_person';
-						$ma_is_online  = in_array( $ma_attendance, array( 'online', 'hybrid' ), true ) && ! empty( $ma_m['conference_url'] );
-						$ma_is_inperson = in_array( $ma_attendance, array( 'in_person', 'hybrid' ), true ) && ! empty( $ma_m['formatted_address'] );
-						$ma_badge = array(
-							'online'    => array( 'online', __( 'Online', 'ma-toronto' ) ),
-							'hybrid'    => array( 'hybrid', __( 'Hybrid', 'ma-toronto' ) ),
-							'in_person' => array( 'in-person', __( 'In person', 'ma-toronto' ) ),
-						)[ $ma_attendance ] ?? array( 'in-person', __( 'In person', 'ma-toronto' ) );
+						$ma_badge    = ma_toronto_attendance_badge( (string) ( $ma_m['attendance_option'] ?? '' ) );
+						$ma_name     = ma_toronto_meeting_text( $ma_m['name'] ?? '' );
+						$ma_url      = get_permalink( (int) ( $ma_m['id'] ?? 0 ) );
 						?>
 						<li class="ma-meeting">
-							<time class="ma-meeting__time" datetime="<?php echo esc_attr( $ma_m['time'] ?? '' ); ?>"><?php echo esc_html( $ma_time( (string) ( $ma_m['time'] ?? '' ) ) ); ?></time>
+							<time class="ma-meeting__time" datetime="<?php echo esc_attr( $ma_m['time'] ?? '' ); ?>"><?php echo esc_html( ma_toronto_meeting_time( (string) ( $ma_m['time'] ?? '' ) ) ); ?></time>
 
 							<div class="ma-meeting__body">
-								<h3 class="ma-meeting__name"><?php echo esc_html( $ma_m['name'] ?? '' ); ?></h3>
+								<h3 class="ma-meeting__name"><a href="<?php echo esc_url( $ma_url ); ?>"><?php echo esc_html( $ma_name ); ?></a></h3>
 								<p class="ma-meeting__place"><?php echo esc_html( $ma_place( $ma_m ) ); ?></p>
 							</div>
 
 							<div class="ma-meeting__actions">
 								<span class="ma-badge ma-badge--<?php echo esc_attr( $ma_badge[0] ); ?>"><?php echo esc_html( $ma_badge[1] ); ?></span>
 
-								<?php if ( $ma_is_online ) : ?>
-									<a class="ma-meeting__cta" href="<?php echo esc_url( $ma_m['conference_url'] ); ?>">
-										<?php
-										printf(
-											/* translators: 1: hidden meeting name, 2: service, e.g. Zoom. */
-											esc_html__( 'Join%1$s on %2$s', 'ma-toronto' ),
-											'<span class="screen-reader-text"> ' . esc_html( $ma_m['name'] ?? '' ) . '</span>',
-											esc_html( ucfirst( $ma_provider( $ma_m['conference_url'] ) ) )
-										);
-										?>
-										<span aria-hidden="true">&rarr;</span>
+								<?php if ( ma_toronto_meeting_is_online( $ma_m ) ) : ?>
+									<a class="ma-meeting__join" href="<?php echo esc_url( $ma_m['conference_url'] ); ?>">
+										<?php echo ma_toronto_join_label( (string) $ma_m['conference_url'], $ma_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper. ?>
 									</a>
 								<?php endif; ?>
 
-								<?php if ( $ma_is_inperson ) : ?>
-									<a class="ma-meeting__cta" href="<?php echo esc_url( 'https://www.google.com/maps/dir/?api=1&destination=' . rawurlencode( $ma_m['formatted_address'] ) ); ?>">
-										<?php
-										printf(
-											/* translators: %s: hidden meeting name. */
-											esc_html__( 'Get directions%s', 'ma-toronto' ),
-											'<span class="screen-reader-text"> ' . esc_html__( 'to', 'ma-toronto' ) . ' ' . esc_html( $ma_m['name'] ?? '' ) . '</span>'
-										);
-										?>
-										<span aria-hidden="true">&rarr;</span>
-									</a>
-								<?php endif; ?>
+								<a class="ma-meeting__cta" href="<?php echo esc_url( $ma_url ); ?>">
+									<?php
+									printf(
+										/* translators: %s: hidden meeting name. */
+										esc_html__( 'Meeting details%s', 'ma-toronto' ),
+										'<span class="screen-reader-text"> ' . esc_html__( 'for', 'ma-toronto' ) . ' ' . esc_html( $ma_name ) . '</span>'
+									);
+									?>
+									<span aria-hidden="true">&rarr;</span>
+								</a>
 							</div>
 						</li>
 					<?php endforeach; ?>

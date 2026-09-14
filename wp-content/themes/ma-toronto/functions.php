@@ -331,60 +331,190 @@ add_filter( 'render_block', 'ma_toronto_hide_empty_page_intro', 10, 2 );
  *
  * The plugin stores and manages meetings. The theme renders them, using the
  * plugin's supported extension point: in its default "legacy_ui" mode it hands
- * the /meetings/ archive to a theme file named archive-meetings.php. See
- * docs/meetings-scope.md.
+ * the /meetings/ archive to archive-meetings.php and each meeting to
+ * single-meetings.php. Formatting helpers shared by both are in
+ * inc/meetings.php. See docs/meetings-scope.md and docs/meeting-pages-scope.md.
  */
 
+require_once get_theme_file_path( 'inc/meetings.php' );
+
 /**
- * Sends individual meeting and location URLs back to the meetings list.
+ * Sends location URLs back to the meetings list.
  *
- * TEMPORARY. The plugin publishes a page for every meeting and location, but
- * those pages have not been designed yet, and nothing on the site links to
- * them. Until the meeting page design lands, visitors who reach one by URL are
- * taken to the list instead of an unstyled plugin page. 302, not 301, because
- * this is expected to change.
- *
- * When the meeting page design lands: remove `tsml_meeting` from the check
- * below and add single-meetings.php to the theme.
+ * The plugin publishes a page for every location, but there is no design for
+ * one: a meeting's own page already shows its location, map, and the other
+ * meetings held there. Nothing on the site links to location pages, so
+ * visitors who reach one by URL are taken to the list instead of an unstyled
+ * plugin page. 302, not 301, in case a location page is designed later.
  */
-function ma_toronto_redirect_undesigned_meeting_pages(): void {
+function ma_toronto_redirect_location_pages(): void {
 	if ( ! function_exists( 'tsml_get_meetings' ) ) {
 		return;
 	}
 
-	if ( is_singular( array( 'tsml_meeting', 'tsml_location' ) ) || is_post_type_archive( 'tsml_location' ) ) {
+	if ( is_singular( 'tsml_location' ) || is_post_type_archive( 'tsml_location' ) ) {
 		wp_safe_redirect( get_post_type_archive_link( 'tsml_meeting' ), 302 );
 		exit;
 	}
 }
-add_action( 'template_redirect', 'ma_toronto_redirect_undesigned_meeting_pages' );
+add_action( 'template_redirect', 'ma_toronto_redirect_location_pages' );
 
 /**
- * Keeps the plugin's meeting and location pages out of the Yoast sitemap
- * while they redirect. TEMPORARY, alongside the redirect above.
+ * Keeps the plugin's location pages out of the Yoast sitemap while they
+ * redirect. Meeting pages are real pages and stay in.
  *
  * @param bool   $excluded  Whether the post type is excluded.
  * @param string $post_type Post type name.
  * @return bool
  */
-function ma_toronto_exclude_meeting_pages_from_sitemap( bool $excluded, string $post_type ): bool {
-	return in_array( $post_type, array( 'tsml_meeting', 'tsml_location' ), true ) ? true : $excluded;
+function ma_toronto_exclude_location_pages_from_sitemap( bool $excluded, string $post_type ): bool {
+	return 'tsml_location' === $post_type ? true : $excluded;
 }
-add_filter( 'wpseo_sitemap_exclude_post_type', 'ma_toronto_exclude_meeting_pages_from_sitemap', 10, 2 );
+add_filter( 'wpseo_sitemap_exclude_post_type', 'ma_toronto_exclude_location_pages_from_sitemap', 10, 2 );
 
 /**
- * Loads the meetings stylesheet on the meetings list only.
+ * Loads the meetings stylesheets: meetings.css on the list and on meeting
+ * pages (they share badges and the help button), meeting.css on meeting pages.
  */
 function ma_toronto_enqueue_meetings_styles(): void {
-	$path = 'assets/css/meetings.css';
+	$sheets = array();
 
-	if ( is_post_type_archive( 'tsml_meeting' ) && file_exists( get_theme_file_path( $path ) ) ) {
-		wp_enqueue_style(
-			'ma-toronto-meetings',
+	if ( is_post_type_archive( 'tsml_meeting' ) || is_singular( 'tsml_meeting' ) ) {
+		$sheets['ma-toronto-meetings'] = 'assets/css/meetings.css';
+	}
+	if ( is_singular( 'tsml_meeting' ) ) {
+		$sheets['ma-toronto-meeting'] = 'assets/css/meeting.css';
+	}
+
+	foreach ( $sheets as $handle => $path ) {
+		if ( file_exists( get_theme_file_path( $path ) ) ) {
+			wp_enqueue_style(
+				$handle,
+				get_theme_file_uri( $path ),
+				array(),
+				(string) filemtime( get_theme_file_path( $path ) )
+			);
+		}
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ma_toronto_enqueue_meetings_styles' );
+
+/**
+ * Registers the meeting page's Share button module. Enqueued by
+ * single-meetings.php. Progressive enhancement: the button ships `hidden` and
+ * the module reveals it, so there is no dead button without JavaScript.
+ */
+function ma_toronto_register_meeting_share_module(): void {
+	$path = 'assets/js/meeting-share.js';
+
+	if ( file_exists( get_theme_file_path( $path ) ) ) {
+		wp_register_script_module(
+			'ma-toronto/meeting-share',
 			get_theme_file_uri( $path ),
 			array(),
 			(string) filemtime( get_theme_file_path( $path ) )
 		);
 	}
 }
-add_action( 'wp_enqueue_scripts', 'ma_toronto_enqueue_meetings_styles' );
+add_action( 'init', 'ma_toronto_register_meeting_share_module' );
+
+/**
+ * "Add to calendar": serves a meeting as a weekly recurring .ics event at
+ * /meetings/{slug}/?calendar=ics. Works in Apple Calendar, Google Calendar
+ * (import) and Outlook. No personal data involved; the file carries the same
+ * details as the public page.
+ */
+function ma_toronto_meeting_calendar_download(): void {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only download.
+	if ( ! isset( $_GET['calendar'] ) || 'ics' !== $_GET['calendar'] || ! is_singular( 'tsml_meeting' ) || ! function_exists( 'tsml_get_meeting' ) ) {
+		return;
+	}
+
+	$meeting = get_object_vars( tsml_get_meeting( get_queried_object_id() ) );
+	$day     = $meeting['day'] ?? '';
+	$start   = DateTime::createFromFormat( 'H:i', (string) ( $meeting['time'] ?? '' ) );
+
+	if ( ! is_numeric( $day ) || ! $start ) {
+		return; // Not a weekly meeting with a time; show the page instead.
+	}
+
+	$zone  = new DateTimeZone( 'America/Toronto' );
+	$first = new DateTimeImmutable( 'today', $zone );
+	$first = $first->modify( '+' . ( ( (int) $day - (int) $first->format( 'w' ) + 7 ) % 7 ) . ' days' )
+		->setTime( (int) $start->format( 'G' ), (int) $start->format( 'i' ) );
+	$end   = DateTime::createFromFormat( 'H:i', (string) ( $meeting['end_time'] ?? '' ) );
+	$last  = $end ? $first->setTime( (int) $end->format( 'G' ), (int) $end->format( 'i' ) ) : $first->modify( '+1 hour' );
+
+	$name     = ma_toronto_meeting_text( $meeting['post_title'] ?? '' );
+	$url      = get_permalink();
+	$online   = ma_toronto_meeting_is_online( $meeting );
+	$location = $online
+		? (string) $meeting['conference_url']
+		: trim( ma_toronto_meeting_text( $meeting['location'] ?? '' ) . ', ' . ma_toronto_display_address( ma_toronto_meeting_text( $meeting['formatted_address'] ?? '' ), ma_toronto_meeting_text( $meeting['location'] ?? '' ) ), ', ' );
+	$byday    = array( 'SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA' )[ (int) $day ];
+
+	$escape = static fn( string $text ): string => str_replace( array( '\\', ';', ',', "\r\n", "\n" ), array( '\\\\', '\;', '\,', '\n', '\n' ), $text );
+	$fold   = static function ( string $line ): string {
+		// RFC 5545: lines over 75 octets continue on the next line after a space.
+		$out = '';
+		while ( strlen( $line ) > 75 ) {
+			$cut = 75;
+			while ( $cut > 0 && ( ord( $line[ $cut ] ) & 0xC0 ) === 0x80 ) {
+				--$cut; // Don't split a UTF-8 character.
+			}
+			$out .= substr( $line, 0, $cut ) . "\r\n ";
+			$line = substr( $line, $cut );
+		}
+		return $out . $line;
+	};
+
+	$description = $online
+		/* translators: 1: join link, 2: meeting page URL. */
+		? sprintf( __( 'Join: %1$s — Details: %2$s', 'ma-toronto' ), $meeting['conference_url'], $url )
+		/* translators: %s: meeting page URL. */
+		: sprintf( __( 'Details: %s', 'ma-toronto' ), $url );
+
+	$lines = array(
+		'BEGIN:VCALENDAR',
+		'VERSION:2.0',
+		'PRODID:-//MA Toronto//Meetings//EN',
+		'CALSCALE:GREGORIAN',
+		'METHOD:PUBLISH',
+		'BEGIN:VTIMEZONE',
+		'TZID:America/Toronto',
+		'BEGIN:DAYLIGHT',
+		'TZOFFSETFROM:-0500',
+		'TZOFFSETTO:-0400',
+		'TZNAME:EDT',
+		'DTSTART:19700308T020000',
+		'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+		'END:DAYLIGHT',
+		'BEGIN:STANDARD',
+		'TZOFFSETFROM:-0400',
+		'TZOFFSETTO:-0500',
+		'TZNAME:EST',
+		'DTSTART:19701101T020000',
+		'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+		'END:STANDARD',
+		'END:VTIMEZONE',
+		'BEGIN:VEVENT',
+		'UID:meeting-' . get_queried_object_id() . '@' . wp_parse_url( home_url(), PHP_URL_HOST ),
+		'DTSTAMP:' . gmdate( 'Ymd\THis\Z' ),
+		'DTSTART;TZID=America/Toronto:' . $first->format( 'Ymd\THis' ),
+		'DTEND;TZID=America/Toronto:' . $last->format( 'Ymd\THis' ),
+		'RRULE:FREQ=WEEKLY;BYDAY=' . $byday,
+		'SUMMARY:' . $escape( $name . ' (MA meeting)' ),
+		'LOCATION:' . $escape( $location ),
+		'DESCRIPTION:' . $escape( $description ),
+		'URL:' . $url,
+		'END:VEVENT',
+		'END:VCALENDAR',
+	);
+
+	nocache_headers();
+	header( 'Content-Type: text/calendar; charset=utf-8' );
+	header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( get_post_field( 'post_name', get_queried_object_id() ) ) . '.ics"' );
+	echo implode( "\r\n", array_map( $fold, $lines ) ) . "\r\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/calendar, escaped per RFC 5545 above.
+	exit;
+}
+add_action( 'template_redirect', 'ma_toronto_meeting_calendar_download' );

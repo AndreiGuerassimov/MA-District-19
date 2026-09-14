@@ -46,12 +46,12 @@ a{color:#2F5D47}a:hover{color:#CE5F35}
             <div style="display:grid;grid-template-columns:130px 1fr auto;gap:24px;align-items:center;background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:12px;padding:18px 24px">
               <div style="font:600 18px Lora,serif;color:#2F5D47">{{ m.time }}</div>
               <div>
-                <div style="font:600 17px Karla,sans-serif;color:#21372C;margin-bottom:3px">{{ m.name }}</div>
+                <a href="MeetingDetail.dc.html" style="display:block;font:600 17px Karla,sans-serif;color:#21372C;margin-bottom:3px;text-decoration:none">{{ m.name }}</a>
                 <div style="font:400 14px Karla,sans-serif;color:#5B6E61">{{ m.place }}</div>
               </div>
               <div style="display:flex;align-items:center;gap:14px">
                 <span style="{{ m.badgeStyle }}">{{ m.type }}</span>
-                <a href="#" style="text-decoration:none;font:700 14px Karla,sans-serif;color:#CE5F35;white-space:nowrap">{{ m.cta }} →</a>
+                <a href="MeetingDetail.dc.html" style="text-decoration:none;font:700 14px Karla,sans-serif;color:#CE5F35;white-space:nowrap">Meeting details →</a>
               </div>
             </div>
           </sc-for>

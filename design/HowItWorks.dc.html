@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F8F5EC;font-family:Karla,system-ui,sans-serif}
+a{color:#2F5D47}a:hover{color:#CE5F35}
+</style>
+</helmet>
+<div style="background:#F8F5EC;color:#21372C">
+
+  <dc-import name="SiteHeader" current="How It Works" hint-size="100%,82px"></dc-import>
+
+  <!-- page hero -->
+  <div style="padding:60px 48px 44px;background:linear-gradient(180deg,#F8F5EC 0%,#F3EEDF 100%);text-align:center">
+    <div style="font:700 12px Karla,sans-serif;letter-spacing:3px;text-transform:uppercase;color:#CE5F35;margin-bottom:12px">A proven program</div>
+    <h1 style="font:500 46px/1.15 Lora,serif;margin:0 auto 16px;color:#21372C;max-width:22ch">How It Works</h1>
+    <p style="font:400 17.5px/1.7 Karla,sans-serif;color:#44584C;margin:0 auto;max-width:66ch">Marijuana Anonymous uses the basic 12 Steps of Recovery founded by Alcoholics Anonymous, because it has been proven that the 12 Step Recovery program works!</p>
+  </div>
+
+  <!-- five topic cards -->
+  <div style="padding:48px;background:#FFFDF6;border-top:1px solid rgba(33,55,44,.1)">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px">
+      <sc-for list="{{ topics }}" as="t" hint-placeholder-count="5">
+        <a href="{{ t.href }}" style="text-decoration:none;background:#F8F5EC;border:1px solid rgba(33,55,44,.1);border-radius:12px;padding:26px 22px;display:flex;flex-direction:column;gap:12px" style-hover="border-color:#2F5D47">
+          <div style="width:46px;height:46px;border-radius:50%;background:#E1EEDF;color:#2F5D47;display:flex;align-items:center;justify-content:center;font:600 17px Lora,serif">{{ t.mark }}</div>
+          <div style="font:600 18px/1.3 Lora,serif;color:#2F5D47">{{ t.title }}</div>
+          <div style="font:400 14px/1.55 Karla,sans-serif;color:#5B6E61;flex:1">{{ t.desc }}</div>
+          <div style="font:700 13px Karla,sans-serif;color:#CE5F35">{{ t.cta }} →</div>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- who is a marijuana addict -->
+  <div style="padding:64px 48px;background:#2F5D47;color:#EFEBDD">
+    <div style="max-width:760px;margin:0 auto;text-align:center">
+      <h2 style="font:500 34px/1.25 Lora,serif;margin:0 0 20px;color:#FFFDF6">Who is a Marijuana Addict?</h2>
+      <p style="font:400 17px/1.75 Karla,sans-serif;color:#DCE5D8;margin:0">We who are marijuana addicts know the answer to this question. Marijuana controls our lives! We lose interest in all else; our dreams go up in smoke. Ours is a progressive illness often leading us to addictions to other drugs, including alcohol. Our lives, our thinking, and our desires center around marijuana; scoring it, dealing it, and finding ways to stay high.</p>
+      <a href="#" style="display:inline-block;margin-top:28px;text-decoration:none;background:#E9A13B;color:#24463A;padding:14px 26px;border-radius:999px;font:700 15px Karla,sans-serif">Take the 12 Questions</a>
+    </div>
+  </div>
+
+  <!-- some of our stories -->
+  <div style="padding:64px 48px;background:#F8F5EC">
+    <div style="max-width:860px;margin:0 auto;text-align:center">
+      <h2 style="font:500 34px/1.25 Lora,serif;margin:0 0 18px;color:#21372C">Some Of Our Stories</h2>
+      <p style="font:400 17px/1.75 Karla,sans-serif;color:#44584C;margin:0 0 36px">Here are a few stories from real people, taken from the Marijuana Anonymous “Life with Hope” book. We hope these stories will give you an idea on how some of us overcame our Marijuana Addiction, one day at a time.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;text-align:left">
+        <sc-for list="{{ stories }}" as="s" hint-placeholder-count="3">
+          <a href="#" style="text-decoration:none;background:#FFFDF6;border:1px solid rgba(33,55,44,.1);border-radius:12px;padding:24px 26px;display:flex;flex-direction:column;gap:10px" style-hover="border-color:#2F5D47">
+            <div style="font:500 22px/1.3 Lora,serif;color:#21372C">{{ s.title }}</div>
+            <div style="font:700 13px Karla,sans-serif;color:#CE5F35">Read this story →</div>
+          </a>
+        </sc-for>
+      </div>
+      <div style="margin-top:36px;background:#F3EEDF;border-left:3px solid #CE5F35;border-radius:8px;padding:24px 28px;text-align:left">
+        <div style="font:700 13px Karla,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#B0521F;margin-bottom:10px">Regarding the personal stories</div>
+        <p style="font:400 15px/1.7 Karla,sans-serif;color:#5B6E61;margin:0">The following stories were written by recovering marijuana addicts within the fellowship of Marijuana Anonymous and represent their individual experiences and viewpoint. Marijuana Anonymous has no opinion on outside issues (see “Tradition Ten”) including the opinions expressed, language used, or experiences related by its individual members.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- learn more / literature + app -->
+  <div style="padding:64px 48px;background:#FFFDF6;border-top:1px solid rgba(33,55,44,.1)">
+    <div style="max-width:900px;margin:0 auto;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center">
+      <div>
+        <h2 style="font:500 28px/1.3 Lora,serif;margin:0 0 14px;color:#21372C">Want to learn more about the Steps, Traditions or read more of our stories?</h2>
+        <p style="font:400 16px/1.7 Karla,sans-serif;color:#44584C;margin:0 0 22px">You can obtain a copy of the Marijuana Anonymous “Life with Hope” book at A New Leaf Publications website.</p>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <a href="https://anewleafpublications.org/" style="text-decoration:none;background:#2F5D47;color:#F8F5EC;padding:14px 26px;border-radius:999px;font:700 15px Karla,sans-serif">Visit A New Leaf Publications</a>
+          <a href="Literature.dc.html" style="text-decoration:none;color:#2F5D47;font:700 15px Karla,sans-serif;border-bottom:2px solid rgba(47,93,71,.35);padding-bottom:2px">All MA literature</a>
+        </div>
+      </div>
+      <div style="background:#F8F5EC;border:1px solid rgba(33,55,44,.1);border-radius:14px;padding:26px 28px">
+        <div style="font:600 18px Lora,serif;color:#21372C;margin-bottom:6px">Also recommended</div>
+        <p style="font:400 14.5px/1.6 Karla,sans-serif;color:#5B6E61;margin:0 0 18px">The Marijuana Anonymous App — meetings, readings, and a sobriety counter in your pocket.</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="#" style="text-decoration:none;display:flex;align-items:center;gap:12px;background:#21372C;color:#F8F5EC;border-radius:9px;padding:12px 18px;font:600 14px Karla,sans-serif">Get it on Google Play</a>
+          <a href="#" style="text-decoration:none;display:flex;align-items:center;gap:12px;background:#21372C;color:#F8F5EC;border-radius:9px;padding:12px 18px;font:600 14px Karla,sans-serif">Download on the App Store</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      topics: [
+        { mark: "12", title: "The 12 Steps of MA", desc: "The path of recovery members work at their own pace, usually with a sponsor.", cta: "Read the Steps", href: "TwelveSteps.dc.html" },
+        { mark: "12", title: "The 12 Traditions of MA", desc: "The principles that keep our groups and the fellowship as a whole healthy.", cta: "Read the Traditions", href: "#" },
+        { mark: "?", title: "The 12 Questions of MA", desc: "Twelve honest questions to help you decide for yourself whether MA is for you.", cta: "Ask yourself", href: "#" },
+        { mark: "✕", title: "Dangers of Cross Addiction", desc: "Why trading one substance for another so often undoes hard-won recovery.", cta: "Learn more", href: "#" },
+        { mark: "◷", title: "Yesterday, Today and Tomorrow", desc: "A short reading on living one day at a time — the heart of how this works.", cta: "Read it", href: "#" },
+      ],
+      stories: [
+        { title: "I’m Not An Addict" },
+        { title: "A Slave To Marijuana" },
+        { title: "A Life Worth Living" },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

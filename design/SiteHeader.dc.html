@@ -19,7 +19,7 @@
       <div style="font:700 11px/1.2 Karla,sans-serif;letter-spacing:2.4px;color:#CE5F35;text-transform:uppercase">Toronto</div>
     </div>
   </a>
-  <div style="display:flex;align-items:center;gap:26px;font:600 14.5px Karla,sans-serif">
+  <div style="display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;row-gap:10px;column-gap:20px;font:600 14.5px Karla,sans-serif">
     <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
       <a href="{{ item.href }}" style="{{ item.style }}">{{ item.label }}</a>
     </sc-for>
@@ -36,7 +36,7 @@ class Component extends DCLogic {
     const items = [
       { label: "Home", href: "Home.dc.html" },
       { label: "Meetings", href: "Meetings.dc.html" },
-      { label: "The Steps", href: "TwelveSteps.dc.html" },
+      { label: "How It Works", href: "HowItWorks.dc.html" },
       { label: "Our Stories", href: "#" },
       { label: "FAQ", href: "FAQ.dc.html" },
       { label: "Literature", href: "Literature.dc.html" },
