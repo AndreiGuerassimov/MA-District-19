@@ -156,9 +156,13 @@ only if the whole box is a link (stretched-link cards, contact cards). Static
 boxes — meeting panels, notes, FAQ answers — never do; the FAQ item highlights
 only while its question button is hovered. `npm run audit:hover` enforces it.
 
-**Five-card rows centre when they wrap.** `.ma-pathways__grid` (homepage and
-How It Works) is flex, not grid, so a short last row is centred: 5 → 3+2 →
-2+2+1 → 1. The per-row count is `--ma-per-row`.
+**Card rows: equal heights, centred when they wrap.** `.ma-pathways__grid`
+(homepage and How It Works) is a grid with `grid-auto-rows: 1fr` (every card as
+tall as the tallest) and twice as many columns as cards per row, each card
+spanning two, so a short last row can start half a card in: 5 → 3+2 → 2+2+1 →
+1. Each column count has its own non-overlapping width range — overlapping
+ranges let one count's placement rules break another. Don't switch it to flex:
+flex can't equalise heights across rows.
 
 **Button width is not markup in WP 7.1.** `core/button` width is
 `style.dimensions.width`, applied at render; the old `has-custom-width

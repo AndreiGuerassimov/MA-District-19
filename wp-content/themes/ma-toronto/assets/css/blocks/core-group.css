@@ -12,47 +12,66 @@
  * Five cards, in centred rows: 5 -> 3 + 2 -> 2 + 2 + 1 -> 1. Used by the
  * homepage pathways and the How It Works topic cards.
  *
- * Flex with wrap rather than CSS grid: a grid cannot centre a short last row,
- * so the leftover card would sit at the left edge. Each card's width is set so
- * --ma-per-row cards and their gaps fill a row exactly; a short row then
- * centres via justify-content. 18px is the blockGap set on the block.
+ * Every card is the same height, across rows as well as within them:
+ * grid-auto-rows: 1fr makes each row as tall as the tallest card.
+ *
+ * To centre a short last row (which a plain grid would leave at the left),
+ * the grid has twice as many columns as cards per row and each card spans two.
+ * A leftover card can then start one column in, which is exactly half a card:
+ *   3 per row, last row of 2 -> first of them starts at column 2
+ *   3 per row, last row of 1 -> it starts at column 3
+ *   2 per row, last row of 1 -> it starts at column 2
+ * The selectors match by position from the end, so this holds for any number
+ * of cards, not just five.
  *
  * The block's layout is "grid" in markup (so the editor keeps its grid
- * controls); this overrides core's generated display:grid. Scoped through
- * .ma-pathways to outspecify that .wp-container-* rule, which has the same
- * specificity and loads later.
+ * controls). Scoped through .ma-pathways to outspecify core's generated
+ * .wp-container-* rule, which has the same specificity and loads later.
  */
+/* Each column count lives in its own, non-overlapping width range, so the
+   centring rules for one count never leak into another. */
+
+/* One per row: nothing to centre, and no reason to pad short cards out to the
+   tallest one's height. */
 .ma-pathways .ma-pathways__grid {
-	--ma-per-row: 5;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
+	grid-template-columns: minmax(0, 1fr);
 }
 
-.ma-pathways .ma-pathways__grid > * {
-	flex: 0 0 calc((100% - (var(--ma-per-row) - 1) * 18px) / var(--ma-per-row));
-	min-width: 0;
-	/* .ma-card sets height: 100% for grid tracks; in a flex row that disables
-	   stretching, so cards in a row would end up different heights. */
-	height: auto;
-}
-
-@media (max-width: 1099.98px) {
+/* Two per row. */
+@media (min-width: 500px) and (max-width: 699.98px) {
 	.ma-pathways .ma-pathways__grid {
-		--ma-per-row: 3;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-auto-rows: 1fr;
 	}
+
+	.ma-pathways .ma-pathways__grid > * { grid-column: span 2; }
+	.ma-pathways .ma-pathways__grid > :nth-child(2n+1):last-child { grid-column: 2 / span 2; }
 }
 
-@media (max-width: 699.98px) {
+/* Three per row. */
+@media (min-width: 700px) and (max-width: 1099.98px) {
 	.ma-pathways .ma-pathways__grid {
-		--ma-per-row: 2;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		grid-auto-rows: 1fr;
 	}
+
+	.ma-pathways .ma-pathways__grid > * { grid-column: span 2; }
+	.ma-pathways .ma-pathways__grid > :nth-child(3n+1):nth-last-child(2) { grid-column: 2 / span 2; }
+	.ma-pathways .ma-pathways__grid > :nth-child(3n+1):last-child { grid-column: 3 / span 2; }
 }
 
-@media (max-width: 499.98px) {
+/* Five per row. */
+@media (min-width: 1100px) {
 	.ma-pathways .ma-pathways__grid {
-		--ma-per-row: 1;
+		grid-template-columns: repeat(10, minmax(0, 1fr));
+		grid-auto-rows: 1fr;
 	}
+
+	.ma-pathways .ma-pathways__grid > * { grid-column: span 2; }
+	.ma-pathways .ma-pathways__grid > :nth-child(5n+1):nth-last-child(4) { grid-column: 2 / span 2; }
+	.ma-pathways .ma-pathways__grid > :nth-child(5n+1):nth-last-child(3) { grid-column: 3 / span 2; }
+	.ma-pathways .ma-pathways__grid > :nth-child(5n+1):nth-last-child(2) { grid-column: 4 / span 2; }
+	.ma-pathways .ma-pathways__grid > :nth-child(5n+1):last-child { grid-column: 5 / span 2; }
 }
 
 /* --- Pathway cards ----------------------------------------------------- */

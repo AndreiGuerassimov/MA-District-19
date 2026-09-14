@@ -76,6 +76,12 @@ Items parked for later, with enough context to pick up cold.
   `parts/header.html` and `parts/footer.html`, and keep the wordmark as the
   link text so the accessible name stays "Marijuana Anonymous".
 
+- [ ] **Lower the mobile menu breakpoint.** The header switches to the
+  hamburger menu below 1100px (`settings.viewport.tablet` in `theme.json`),
+  sized for the old 8-item menu. Since Home and Meetings were removed the menu
+  has 4 top-level items and would fit on narrower screens. Find the new width
+  where it stops fitting (`npm run breakpoints`) and lower the value.
+
 ## Housekeeping
 
 - [ ] Remove leftover ACF `meeting-type` taxonomy definition and draft page #37
