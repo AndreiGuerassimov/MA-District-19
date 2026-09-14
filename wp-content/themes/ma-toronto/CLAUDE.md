@@ -124,6 +124,7 @@ theme.json          tokens (the single source of truth)
 styles/blocks/      named block styles     01-eyebrow.json
 styles/sections/    named section styles   01-green-band.json
 patterns/           one file per section   section-hero.php
+blocks/             theme's own dynamic blocks (block.json, no build step)
 parts/              header, footer, navigation-overlay
 templates/          front-page.html (thin assembly, ~10 lines)
 assets/css/         per-block CSS, enqueued via wp_enqueue_block_style()
@@ -224,6 +225,16 @@ to "everything in blocks". Decided in `docs/meetings-scope.md`.
   America/Toronto). Share is a script module (`assets/js/meeting-share.js`);
   the button ships `hidden`.
 - Maps and directions are OpenStreetMap (no API key). No Google Maps anywhere.
+- **Hero "Next meeting" card** is the `ma-toronto/next-meeting` block
+  (`blocks/next-meeting/`), placed after the hero image in page 49 and the
+  pattern, locked. No attributes. Picks the soonest start in Toronto time; a
+  meeting that started under 15 minutes ago shows as "Happening now". The pick
+  runs in PHP (`ma_toronto_pick_next_meeting()`) **and** in `view.js`, which
+  re-runs it in the browser from an embedded schedule so a page-cached homepage
+  stays right — **change both together**. Editor preview is ServerSideRender.
+- **Plugin code fatals when its globals are null** (WP-CLI, or Yoast rendering
+  content during a CLI save). `ma_toronto_next_meeting_schedule()` guards this;
+  any new code calling `tsml_get_meetings()` from content rendering must too.
 - **`tsml_get_meetings()` does not work under `wp eval`.** The plugin sets
   globals like `$tsml_contact_fields` at file scope; WP-CLI loads WordPress inside
   a function, so they arrive `null` and imports fatal. Run plugin code through a
@@ -238,7 +249,6 @@ to "everything in blocks". Decided in `docs/meetings-scope.md`.
 ## Deferred — do not build without scoping first
 
 - **Quotes slider** (`design/Home.dc.html` §5) — static pull-quote placeholder for now.
-- **Hero "Next meeting" card** — the meetings data now exists; still needs scoping.
 
 ## Block markup gotchas (both cost real time — do not relearn)
 
@@ -300,7 +310,8 @@ independently. Every section currently sits within 1-8%.
 | `npm run a11y:quote` | slider semantics, keyboard, no-JS fallback (18 checks) |
 | `npm run a11y:meetings` | list: filters, headings, action names, links, redirects, no-JS (25 checks) |
 | `npm run a11y:meeting` | meeting page: in person vs online, map, .ics, Share, no-JS, 320px (25 checks) |
+| `npm run check:next-meeting` | hero card: upcoming / happening now / moves on / Tomorrow, stale cache, no-JS (11 checks) |
 | `npm run audit:responsive` | overflow, clipping, target sizes at 11 widths |
 
-Run all eight before calling anything done. `audit:responsive` takes
+Run all nine before calling anything done. `audit:responsive` takes
 `MA_SITE_URL` — run it on a meeting page too.

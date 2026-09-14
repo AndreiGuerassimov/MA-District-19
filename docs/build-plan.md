@@ -8,10 +8,10 @@
 - **Standing latitude to depart from the prototype where it improves SEO or accessibility** (§0.1). Changes made under this are logged, not silently applied.
 - **Open questions resolved using best judgment** (§8). Each is marked ✅ **ANSWERED** with the original question preserved beneath it, so any call can be reversed.
 - **Build architecture settled** (§10): layered, modular, and locked with `templateLock: "contentOnly"` so the layout cannot be rearranged by accident.
-- **Hero "Next meeting" card deferred** to the Meetings phase (§4.2) — it needs a real data model first.
+- **Hero "Next meeting" card** — ✅ built 13 Sep 2026 as the `ma-toronto/next-meeting` block (see theme CLAUDE.md, Meetings).
 - **Recommend updating to WordPress 7.1 before coding** (§0.2).
 
-**Deferred to later phases:** quotes slider (§4.5), "Next meeting" card (§4.2).
+**Deferred to later phases:** quotes slider (§4.5).
 **Still genuinely open:** real image and logo assets (§8.5). Does not block the build.
 
 ## 0. Environment as found on disk

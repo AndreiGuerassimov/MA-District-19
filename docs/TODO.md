@@ -25,6 +25,16 @@ Items parked for later, with enough context to pick up cold.
   Yoast SEO → Settings → Content types → Meetings → archive title (e.g. "Find a
   meeting %%sep%% %%sitename%%").
 
+- [ ] **Show which meetings (and which weeks) are open vs closed.** Every meeting
+  is closed by default — only for people with a desire to stop using marijuana.
+  Some weeks are open to anyone: speaker meetings and medallion (chip)
+  celebrations. Some meetings have a fixed open week, e.g. the third week of the
+  month is a speaker meeting. Needs a way to record this per meeting (and per
+  week of the month) and to show it clearly on the list and meeting pages.
+  Today the rules only appear as prose in each meeting's description, and the
+  plugin's MA meeting types have no "Closed" code — only "O" (open), with no
+  notion of week-of-month. Needs scoping.
+
 - [ ] **Confirm the old contact numbers are still current** before launch. Several
   listings on matoronto.org look years old (one still mentioned masks). Numbers
   are now public on each meeting page.
@@ -38,8 +48,9 @@ Items parked for later, with enough context to pick up cold.
 - [ ] **Homepage "A Solution" card → "How It Works"**, per the updated
   `design/Home.dc.html`. Content edit on page 49.
 
-- [ ] **How It Works page** — new prototype `design/HowItWorks.dc.html`. Page #14
-  exists but is empty.
+- [ ] **Create the How It Works page** — design is ready in
+  `design/HowItWorks.dc.html`. Page #14 exists but is empty. It is also the
+  parent of the header's "How It Works" dropdown (12 Steps, Traditions, …).
 
 ## Housekeeping
 

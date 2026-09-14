@@ -339,6 +339,17 @@ add_filter( 'render_block', 'ma_toronto_hide_empty_page_intro', 10, 2 );
 require_once get_theme_file_path( 'inc/meetings.php' );
 
 /**
+ * Registers the theme's own blocks from blocks/{name}/block.json.
+ *
+ * - ma-toronto/next-meeting: the homepage hero's "Next meeting" card. Dynamic,
+ *   no settings; generated from the meeting list.
+ */
+function ma_toronto_register_blocks(): void {
+	register_block_type( get_theme_file_path( 'blocks/next-meeting' ) );
+}
+add_action( 'init', 'ma_toronto_register_blocks' );
+
+/**
  * Sends location URLs back to the meetings list.
  *
  * The plugin publishes a page for every location, but there is no design for

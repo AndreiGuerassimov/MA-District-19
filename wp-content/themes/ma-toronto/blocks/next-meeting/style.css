@@ -1,0 +1,113 @@
+/**
+ * Next meeting — the card that overlaps the hero image.
+ *
+ * Prototype: design/Home.dc.html, hero. Positioned against the hero's image
+ * column: 18px out past its bottom-left corner on wide screens; below the
+ * image, still overlapping it, once the columns stack.
+ *
+ * Tokens only. The place line uses `muted` (the prototype's #7A8B7E was
+ * collapsed into it for contrast).
+ */
+
+.ma-hero .wp-block-column:has(> .wp-block-ma-toronto-next-meeting) {
+	position: relative;
+}
+
+.ma-hero .wp-block-column > .wp-block-ma-toronto-next-meeting {
+	position: absolute;
+	left: -18px;
+	bottom: -18px;
+	max-width: calc(100% + 18px - var(--wp--preset--spacing--50));
+	margin: 0;
+}
+
+.ma-next-meeting__card {
+	display: flex;
+	gap: var(--wp--preset--spacing--20);
+	align-items: baseline;
+	padding: 14px 18px;
+	background-color: var(--wp--preset--color--surface);
+	border: 1px solid var(--wp--custom--hairline--color);
+	border-radius: var(--wp--custom--radius--md);
+	box-shadow: var(--wp--preset--shadow--md);
+	font-family: var(--wp--preset--font-family--body);
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.45;
+	color: var(--wp--preset--color--ink);
+	text-decoration: none;
+	transition: border-color 120ms ease-out;
+}
+
+.ma-next-meeting__card:hover {
+	border-color: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--ink);
+}
+
+.ma-next-meeting__card:hover .ma-next-meeting__lead {
+	text-decoration: underline;
+}
+
+.ma-next-meeting__card:focus-visible {
+	outline: var(--wp--custom--focus--width) solid var(--wp--preset--color--primary);
+	outline-offset: var(--wp--custom--focus--offset);
+}
+
+.ma-next-meeting__dot {
+	flex: none;
+	align-self: center;
+	width: 10px;
+	height: 10px;
+	border-radius: var(--wp--custom--radius--round);
+	background-color: var(--wp--preset--color--success);
+}
+
+/* Happening now: a soft ring pulses out from the dot. Colour is not the only
+   signal — the text says "Happening now". */
+.ma-next-meeting__card.is-live .ma-next-meeting__dot {
+	animation: ma-next-meeting-pulse 2s ease-out infinite;
+}
+
+@keyframes ma-next-meeting-pulse {
+	from {
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--wp--preset--color--success) 45%, transparent);
+	}
+	to {
+		box-shadow: 0 0 0 8px color-mix(in srgb, var(--wp--preset--color--success) 0%, transparent);
+	}
+}
+
+.ma-next-meeting__lead {
+	font-weight: 600;
+}
+
+.ma-next-meeting__place {
+	color: var(--wp--preset--color--muted);
+}
+
+.ma-next-meeting__empty {
+	margin: 0;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--muted);
+}
+
+/* Columns stack below 782px (core). The card drops under the image and
+   overlaps its bottom edge instead of floating over the corner. */
+@media (max-width: 781.98px) {
+	.ma-hero .wp-block-column > .wp-block-ma-toronto-next-meeting {
+		position: relative;
+		left: auto;
+		bottom: auto;
+		max-width: none;
+		margin: -28px var(--wp--preset--spacing--30) 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ma-next-meeting__card {
+		transition: none;
+	}
+
+	.ma-next-meeting__card.is-live .ma-next-meeting__dot {
+		animation: none;
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "ma-toronto/next-meeting",
+	"title": "Next meeting",
+	"category": "widgets",
+	"icon": "calendar-alt",
+	"description": "Shows the next meeting from the meeting list, updated automatically. Nothing to edit: change meetings in wp-admin → Meetings.",
+	"keywords": [
+		"meeting",
+		"schedule",
+		"upcoming"
+	],
+	"textdomain": "ma-toronto",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"multiple": false
+	},
+	"editorScript": "file:./editor.js",
+	"viewScriptModule": "file:./view.js",
+	"style": "file:./style.css",
+	"render": "file:./render.php"
+}

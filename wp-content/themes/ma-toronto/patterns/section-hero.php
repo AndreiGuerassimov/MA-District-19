@@ -7,9 +7,9 @@
  * Keywords: hero, banner, home
  * Viewport Width: 1280
  *
- * The "Next meeting" card from the prototype is deliberately absent: it needs
- * the meetings data model and is scoped with that phase. See docs/build-plan.md
- * section 4.2.
+ * The "Next meeting" card is the ma-toronto/next-meeting block (blocks/), placed
+ * after the image and locked. It has no content to edit: it is generated from
+ * the meeting list and positioned over the image's corner by its own CSS.
  *
  * @package MA_Toronto
  */
@@ -60,6 +60,8 @@
 			<!-- wp:image {"className":"ma-hero__media","style":{"border":{"radius":"var:custom|radius|lg"},"shadow":"var:preset|shadow|lg"}} -->
 			<figure class="wp-block-image has-custom-border ma-hero__media"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/hero-placeholder.svg' ) ); ?>" alt="" style="border-radius:var(--wp--custom--radius--lg);box-shadow:var(--wp--preset--shadow--lg)"/></figure>
 			<!-- /wp:image -->
+
+			<!-- wp:ma-toronto/next-meeting {"lock":{"move":true,"remove":true}} /-->
 		</div>
 		<!-- /wp:column -->
 

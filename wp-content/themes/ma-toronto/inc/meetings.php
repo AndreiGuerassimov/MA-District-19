@@ -326,3 +326,147 @@ function ma_toronto_osm_urls( float $lat, float $lng ): array {
 		'directions' => 'https://www.openstreetmap.org/directions?route=' . rawurlencode( ';' . $lat . ',' . $lng ),
 	);
 }
+
+/* --------------------------------------------------------------------------
+ * Next meeting (homepage hero card, blocks/next-meeting)
+ *
+ * The same selection runs twice: here on the server, and again in the browser
+ * (blocks/next-meeting/view.js) so a cached homepage stays correct. Keep the
+ * two in step.
+ * ------------------------------------------------------------------------ */
+
+/** Minutes after a meeting starts during which it shows as "Happening now". */
+const MA_TORONTO_HAPPENING_NOW_MINUTES = 15;
+
+/** Meetings from this start time (minutes after midnight) are "Tonight". */
+const MA_TORONTO_EVENING_FROM = 17 * 60;
+
+/**
+ * The week's meetings, reduced to what the card needs. Public data only: no
+ * contacts or join links.
+ *
+ * @return list<array{d: int, s: int, name: string, url: string, place: string}>
+ */
+function ma_toronto_next_meeting_schedule(): array {
+	if ( ! function_exists( 'tsml_get_meetings' ) ) {
+		return array();
+	}
+
+	$minutes = static function ( string $time ): ?int {
+		return preg_match( '/^(\d{1,2}):(\d{2})$/', $time, $m ) ? (int) $m[1] * 60 + (int) $m[2] : null;
+	};
+
+	// The plugin's field lists are globals set at file scope, so they are null
+	// when WordPress is loaded inside a function — WP-CLI, and anything that
+	// renders content from it (e.g. Yoast re-indexing a saved page). The plugin
+	// then throws a TypeError. Render nothing rather than take the request down.
+	global $tsml_contact_fields;
+	if ( ! is_array( $tsml_contact_fields ) ) {
+		return array();
+	}
+	try {
+		$meetings = (array) tsml_get_meetings();
+	} catch ( Throwable $e ) {
+		return array();
+	}
+
+	$schedule = array();
+	foreach ( $meetings as $meeting ) {
+		$start = $minutes( (string) ( $meeting['time'] ?? '' ) );
+		if ( 'inactive' === ( $meeting['attendance_option'] ?? '' ) || ! is_numeric( $meeting['day'] ?? null ) || null === $start ) {
+			continue;
+		}
+
+		// Street and city, not the building: it keeps the card to one line over
+		// the image, and the city matters across the GTA. The meeting page
+		// (one click away) names the building.
+		if ( ma_toronto_meeting_is_in_person( $meeting ) ) {
+			$place = ma_toronto_short_address(
+				ma_toronto_meeting_text( $meeting['formatted_address'] ?? '' ),
+				ma_toronto_meeting_text( $meeting['location'] ?? '' )
+			);
+		} else {
+			$place = ma_toronto_conference_provider( (string) ( $meeting['conference_url'] ?? '' ) );
+		}
+
+		$schedule[] = array(
+			'd'     => (int) $meeting['day'],
+			's'     => $start,
+			'name'  => ma_toronto_meeting_text( $meeting['name'] ?? '' ),
+			'url'   => (string) get_permalink( (int) ( $meeting['id'] ?? 0 ) ),
+			'place' => $place,
+		);
+	}
+
+	// Deterministic order for meetings starting at the same moment.
+	usort( $schedule, static fn( array $a, array $b ): int => array( $a['d'], $a['s'], $a['name'] ) <=> array( $b['d'], $b['s'], $b['name'] ) );
+
+	return $schedule;
+}
+
+/**
+ * The time zone meetings are listed in: the plugin's setting, else the site's.
+ */
+function ma_toronto_meetings_timezone(): DateTimeZone {
+	$zone = (string) get_option( 'tsml_timezone', '' );
+	try {
+		return '' !== $zone ? new DateTimeZone( $zone ) : wp_timezone();
+	} catch ( Exception $e ) {
+		return wp_timezone();
+	}
+}
+
+/**
+ * Picks the meeting to show and how to describe it.
+ *
+ * A meeting that started under MA_TORONTO_HAPPENING_NOW_MINUTES ago is
+ * "happening now" (latecomers are welcome); otherwise the soonest upcoming
+ * start wins, wrapping around the week.
+ *
+ * @param list<array{d: int, s: int, name: string, url: string, place: string}> $schedule From ma_toronto_next_meeting_schedule().
+ * @param DateTimeImmutable                                                    $now      Current time, in the meetings' time zone.
+ * @return array{meeting: array{d: int, s: int, name: string, url: string, place: string}, live: bool, when: string}|null
+ */
+function ma_toronto_pick_next_meeting( array $schedule, DateTimeImmutable $now ): ?array {
+	if ( ! $schedule ) {
+		return null;
+	}
+
+	$week     = 7 * 24 * 60;
+	$today    = (int) $now->format( 'w' );
+	$now_week = $today * 1440 + (int) $now->format( 'G' ) * 60 + (int) $now->format( 'i' );
+
+	$best = null;
+	foreach ( $schedule as $meeting ) {
+		$start   = $meeting['d'] * 1440 + $meeting['s'];
+		$since   = ( $now_week - $start + $week ) % $week;
+		$live    = $since < MA_TORONTO_HAPPENING_NOW_MINUTES;
+		// Live meetings sort before everything, most recently started first.
+		$rank    = $live ? $since - $week : ( $start - $now_week + $week ) % $week;
+		if ( null === $best || $rank < $best[0] ) {
+			$best = array( $rank, $meeting, $live );
+		}
+	}
+
+	[ $rank, $meeting, $live ] = $best;
+
+	if ( $live ) {
+		$when = '';
+	} else {
+		$days_ahead = intdiv( (int) $now->format( 'G' ) * 60 + (int) $now->format( 'i' ) + $rank, 1440 );
+		if ( 0 === $days_ahead ) {
+			$day = $meeting['s'] >= MA_TORONTO_EVENING_FROM ? __( 'Tonight', 'ma-toronto' ) : __( 'Today', 'ma-toronto' );
+		} elseif ( 1 === $days_ahead ) {
+			$day = __( 'Tomorrow', 'ma-toronto' );
+		} else {
+			$day = ma_toronto_meeting_day( $meeting['d'] );
+		}
+		$when = $day . ' ' . ma_toronto_meeting_time( sprintf( '%02d:%02d', intdiv( $meeting['s'], 60 ), $meeting['s'] % 60 ) );
+	}
+
+	return array(
+		'meeting' => $meeting,
+		'live'    => $live,
+		'when'    => $when,
+	);
+}
