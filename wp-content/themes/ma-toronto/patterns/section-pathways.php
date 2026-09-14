@@ -27,10 +27,10 @@ $ma_cards = array(
 		'href'  => home_url( '/meetings/' ),
 	),
 	array(
-		'title' => _x( 'A Solution', 'Pathway card title', 'ma-toronto' ),
+		'title' => _x( 'How It Works', 'Pathway card title', 'ma-toronto' ),
 		'text'  => _x( 'How it works: the 12 Steps of recovery, founded by AA.', 'Pathway card description', 'ma-toronto' ),
 		'cta'   => _x( 'How it works', 'Pathway card link', 'ma-toronto' ),
-		'href'  => home_url( '/the-twelve-steps/' ),
+		'href'  => home_url( '/how-it-works/' ),
 	),
 	array(
 		'title' => _x( 'Our Stories', 'Pathway card title', 'ma-toronto' ),

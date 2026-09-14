@@ -298,6 +298,40 @@ function ma_toronto_hide_decorative_marks( string $block_content, array $block )
 add_filter( 'render_block', 'ma_toronto_hide_decorative_marks', 10, 2 );
 
 /**
+ * Resolves root-relative links in template parts against the site's home URL.
+ *
+ * Template parts are static HTML, so the header's logo (`/`) and "Find a
+ * Meeting" buttons (`/meetings/`) cannot call home_url() themselves. Written
+ * root-relative, they break whenever WordPress is not at the domain root —
+ * locally it lives at /matoronto/, so `/` led to localhost:8888 instead of the
+ * homepage. Rewriting at render keeps the part files portable and also covers
+ * links an editor later types the same way in the Site Editor.
+ *
+ * Protocol-relative URLs (`//example.com`) are left alone.
+ *
+ * @param string $block_content Rendered template part HTML.
+ * @return string HTML with root-relative hrefs made absolute.
+ */
+function ma_toronto_resolve_template_part_links( string $block_content ): string {
+	if ( ! str_contains( $block_content, 'href="/' ) ) {
+		return $block_content;
+	}
+
+	$tags = new WP_HTML_Tag_Processor( $block_content );
+
+	while ( $tags->next_tag( array( 'tag_name' => 'A' ) ) ) {
+		$href = $tags->get_attribute( 'href' );
+
+		if ( is_string( $href ) && str_starts_with( $href, '/' ) && ! str_starts_with( $href, '//' ) ) {
+			$tags->set_attribute( 'href', home_url( $href ) );
+		}
+	}
+
+	return $tags->get_updated_html();
+}
+add_filter( 'render_block_core/template-part', 'ma_toronto_resolve_template_part_links' );
+
+/**
  * Drops the page hero's intro when the page has no manual excerpt.
  *
  * core/post-excerpt falls back to auto-generating from the content, which in a

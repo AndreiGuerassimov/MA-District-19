@@ -45,8 +45,7 @@ Items parked for later, with enough context to pick up cold.
 
 ## Content
 
-- [ ] **Homepage "A Solution" card → "How It Works"**, per the updated
-  `design/Home.dc.html`. Content edit on page 49.
+- [x] ~~Homepage "A Solution" card → "How It Works"~~ — done 13 Sep 2026; links to `/how-it-works/`.
 
 - [x] ~~Create the How It Works page~~ — built 13 Sep 2026 (page 14, "Full-width sections" template).
 
@@ -55,6 +54,18 @@ Items parked for later, with enough context to pick up cold.
   pages are under `/how-it-works/…`. Add 301s in the Redirection plugin so
   links and search results keep working. `/our-stories/` and `/7th-tradition/`
   also exist on the old site with no new equivalent yet.
+
+- [ ] **Add more slogans to the homepage slider.** It currently has three: "One
+  day at a time.", "Keep it simple.", "Progress, not perfection." Add them in the
+  editor on the homepage (page 49), in the quote section — duplicate a slide and
+  retype it. The dots and previous/next buttons adjust automatically.
+
+- [ ] **Upload the literature and connect it to the Literature page cards.** All
+  six cards on `/literature/` (page 63) link to `#`: Life with Hope, A New Leaf,
+  Detoxing from Marijuana, The Twelve Questions, For the Newcomer, Twelve Steps
+  Workbook. Upload the files (or find the official links) and set each card's
+  title link. Check what MA World Services allows to be hosted locally versus
+  linked from marijuana-anonymous.org.
 
 ## Housekeeping
 

@@ -197,6 +197,12 @@ both update. Do not inline `navigation-link` blocks into either part: that was
 the earlier arrangement and it drifted, and root-relative URLs like `/contact/`
 break on a subdirectory install.
 
+**Root-relative links in template parts are rewritten at render.** The header
+logo (`/`) and both "Find a Meeting" buttons (`/meetings/`) are static part
+HTML; `ma_toronto_resolve_template_part_links()` prefixes them with
+`home_url()`, since the local install lives at `/matoronto/`. Keep writing
+part links root-relative — never hard-code `localhost`.
+
 **Core also owns the overlay's behaviour** — focus trap, Escape, `aria-modal`,
 `role="dialog"`, focus restore. Verified by `npm run a11y:nav` (14 checks).
 Never hand-roll any of it.

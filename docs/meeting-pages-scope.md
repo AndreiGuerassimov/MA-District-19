@@ -9,7 +9,7 @@
 - D → "Typical size" dropped; the meeting's **length** fills that tile.
 - E → **reversed**: group phone and email are **public**, as on the old site (`tsml_contact_display = public`). This is a reskin. Shown as a "Contact" row in Meeting information, with the group note (e.g. Never Alone's "Call if there are any issues with access").
 - F → the 7 TEST meetings were deleted.
-- G → homepage "A Solution" → "How It Works" card **not done yet** (homepage content, outside this round).
+- G → homepage "A Solution" → "How It Works" card — done 13 Sep 2026.
 
 Also corrected from the live site during import: Women, Non-Binary, and Beyond notes gained "a closed meeting; speaker meeting on the fourth Thursday".
 **Design:** `design/MeetingDetail.dc.html` (160 lines). Updated `design/Meetings.dc.html` now links each card to it.
